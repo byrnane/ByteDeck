@@ -1,96 +1,110 @@
 # ByteDeck
 
-ByteDeck is a lightweight SDL2-based launcher skeleton for TrimUI Smart Pro S. This repository currently contains the first development increment defined in the project spec:
+ByteDeck is a lightweight SDL2 launcher for TrimUI Smart Pro S. The project now has two working targets:
 
-- repository structure for launcher code, configs, assets, scripts, cache and docs
-- CMake-based build setup for `C++17`
-- desktop simulation entry point with an SDL2 window and main loop
-- screen stack with basic UI navigation
-- normalized data models for games, apps, collections and system entries
-- ROM scanner based on real files in `roms/`
-- `gamelist.xml` parsing with metadata merge and fallback entries
-- unified cache output to `cache/library.json`
-- thumbnail loading and UTF-8 text rendering for desktop simulation
+- desktop build for day-to-day development on Windows
+- device build for stock TrimUI firmware as `Apps/ByteDeck`
 
-The launch adapter integration and full UI browser screens will be expanded in later steps.
+Current baseline is already validated on hardware:
 
-## Current Repository Layout
+- the app appears in the stock `Apps` menu
+- launcher UI starts on device
+- input works through SDL joystick events
+- ROM library scan works
+- stock emulator handoff works
+
+## Current Scope
+
+ByteDeck currently provides:
+
+- SDL2 application shell and screen stack
+- ROM scan from real files
+- `gamelist.xml` parsing and metadata merge
+- normalized library cache in `cache/library.json`
+- systems list and game browser UI
+- app scan from `Apps/*/manifest.json`
+- launch adapter that delegates game startup to stock `Emus/*/launch.sh`
+
+Current gaps:
+
+- settings screen is still a stub
+- localization is only a foundation, not a complete user-facing system
+- launch coverage is currently implemented for `nes`, `snes`, `megadrive`, `psp`
+
+## Repository Layout
 
 ```text
 ByteDeck/
-  assets/
-  cache/
-    logs/
-  collections/
+  cmake/
+    toolchains/
   config/
-    i18n/
+  device/
+    trimui/
   docs/
   scripts/
   src/
     app/
     core/
+    data/
+    launch/
     platform/
     ui/
-  roms/
-  bios/
   Apps/
+  bios/
+  collections/
+  roms/
 ```
 
-## Dependencies
+Local development data:
 
-- SDL2
-- tinyxml2
-- nlohmann/json
-- CMake 3.16+
-- C++17 compiler
+- `roms/`
+- `bios/`
+- `Apps/`
+- `references/`
+- `toolchains/`
 
-`tinyxml2` and `nlohmann/json` are fetched automatically by CMake if package discovery fails. SDL2 is expected to be installed on the host system.
+These paths are intentionally ignored by git.
 
-## Build
+## Architecture
 
-### Linux
+High-level docs:
 
-Install SDL2 development files first. Package names vary by distro, but the common equivalent is:
+- `docs/ARCHITECTURE.md`
+- `docs/PLATFORM_NOTES.md`
+- `device/trimui/README.md`
 
-```bash
-sudo apt install build-essential cmake libsdl2-dev
-```
+Short version:
 
-Then configure and build:
+- `platform/` resolves paths, config and logging
+- `core/` scans ROMs, XML and app manifests
+- `data/` owns normalized library models and cache serialization
+- `ui/` renders screens and maps navigation input
+- `launch/` prepares and executes emulator/app handoff
+- `device/trimui/` contains stock-firmware packaging files
 
-```bash
-cmake -S . -B build
-cmake --build build
-```
-
-Run:
-
-```bash
-./build/bytedeck
-```
+## Desktop Build
 
 ### Windows
 
-Install:
+Requirements:
 
+- Visual Studio 2022 or Build Tools with C++
 - CMake
-- Visual Studio Build Tools or Visual Studio with C++
-- SDL2 development package or SDL2 via vcpkg
+- `vcpkg`
+- SDL2 installed through `vcpkg`
 
-The repository includes PowerShell helper scripts for the common Windows workflow.
+Recommended:
 
-Recommended setup:
+- set `VCPKG_ROOT`
+- use the helper scripts from the repository root
 
-- set `VCPKG_ROOT` to your `vcpkg` directory, or install `vcpkg` into `C:\vcpkg`
-- run the helper scripts from the repository root
-
-One-command dev loop:
+Fast dev loop:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\dev-windows.ps1
 ```
 
-Explorer-friendly wrappers are also included, so you can double-click these files directly:
+Explorer wrappers:
 
 - `scripts/dev-windows.bat`
 - `scripts/dev-windows-clean.bat`
@@ -98,106 +112,117 @@ Explorer-friendly wrappers are also included, so you can double-click these file
 - `scripts/build-windows-clean.bat`
 - `scripts/run-windows.bat`
 
-Recommended usage:
+### Linux
 
-- `dev-windows.bat` for normal fast iteration
-- `dev-windows-clean.bat` after dependency, CMake or toolchain changes
-- `build-windows-clean.bat` when you want a clean rebuild without auto-run
+Install host dependencies first:
 
-Build only:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
+```bash
+sudo apt install build-essential cmake libsdl2-dev
 ```
 
-Run an existing build:
+Then build:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run-windows.ps1
+```bash
+cmake -S . -B build
+cmake --build build
+./build/bytedeck
 ```
 
-Optional parameters:
+## TrimUI Device Build
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1 -Config Debug
-powershell -ExecutionPolicy Bypass -File .\scripts\dev-windows.ps1 -Clean
+The supported device path is stock firmware with ByteDeck installed as:
+
+```text
+Apps/ByteDeck/
 ```
 
-Example with vcpkg:
+### Requirements
 
-```powershell
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build build --config Release
-.\build\Release\bytedeck.exe
+- WSL with Ubuntu on the Windows host
+- official TrimUI Smart Pro S SDK extracted under `toolchains/`
+- `cmake` and `ninja-build` installed inside WSL
+
+Install WSL build tools:
+
+```bash
+sudo apt update
+sudo apt install -y cmake ninja-build
 ```
 
-## Current Controls
+One-command device build and packaging:
 
-- Arrow keys or D-Pad: move selection
-- `Enter` / controller `A`: select
-- `Escape` / controller `B`: back
-- `F11`: toggle fullscreen
-- `Q`: quit desktop simulation
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\dev-trimui.ps1 -Clean
+```
 
-Navigation currently implemented:
+Explorer wrapper:
 
-- Main Menu
-- Games screen with visible systems
-- Game Browser with left list and right preview panel
-- Apps screen with list and preview panel
-- placeholder Settings screen
+```bat
+scripts\dev-trimui.bat --clean
+```
 
-## Current UI State
+Result:
 
-The current build opens a desktop window and renders:
+- ARM binary: `build-trimui/bytedeck`
+- SD overlay: `dist/trimui-sd-overlay/Apps/ByteDeck`
 
-- Games
-- Settings
-- Apps
+### Deploy To SD
 
-The selected item is highlighted visually, and the current selection is reflected in the window title.
+1. Start from an official stock SD base.
+2. Copy `dist/trimui-sd-overlay/Apps/ByteDeck` to `SDCARD/Apps/ByteDeck`.
+3. Insert the card into the console.
+4. Launch `ByteDeck` from the stock `Apps` menu.
 
-The game browser currently shows:
+Important:
 
-- game list on the left
-- metadata and thumbnail panel on the right
+- ByteDeck keeps its own ROM folder scheme inside the SD card ROM root.
+- On device, the wrapper points ByteDeck to `Roms/`, but ByteDeck still expects system folders such as `Roms/nes`, `Roms/megadrive`, `Roms/psp`.
+- Stock TrimUI folder naming is used only for integration with the firmware, not as ByteDeck's internal library model.
 
-## Current Library Scan Behavior
+## Controls
 
-On startup the launcher now:
+- D-Pad or arrow keys: move selection
+- `A` / `Enter`: select
+- `B` / `Escape`: back
+- `Menu` / `Q`: quit
+- hold D-Pad or arrows: auto-repeat scroll
+- `F11`: toggle fullscreen on desktop
 
-- scans supported ROM roots under `roms/`
-- detects valid ROMs by system-specific extension
-- parses `gamelist.xml` when present
-- merges metadata only for ROMs that exist on disk
-- creates fallback entries for ROMs missing from `gamelist.xml`
-- scans `Apps/*/manifest.json` when present
-- scans `collections/*.json` when present
-- writes normalized cache to `cache/library.json`
+## Launch Flow
 
-The scanner is designed to tolerate:
+Desktop:
 
-- missing `gamelist.xml`
-- malformed XML
-- missing thumbnails
-- broken app manifests
-- empty `Apps/` and `collections/`
+- default mode is `mock`
+- real execution can be enabled with `BYTEDECK_LAUNCH_MODE=execute`
 
-## Configuration
+TrimUI:
 
-User settings are stored in `config/user_settings.json`.
+- packaged wrapper enables execution mode automatically
+- ByteDeck shuts down SDL first, then hands off to stock emulator scripts
+- this avoids framebuffer/video conflicts when launching RetroArch-based systems
 
-Translations live in `config/i18n/translations.csv`.
+## Generated Paths
+
+Safe to delete:
+
+- `build/`
+- `build-trimui/`
+- `dist/`
+- `cache/library.json`
+- `cache/logs/*.log`
+
+Convenience cleanup:
+
+- `scripts/clean-generated.bat`
+- `scripts/clean-generated.ps1`
 
 ## Notes
 
-- The sample `roms/` and `bios/` directories in the repository are treated as source test data for later scanner work.
-- Paths are resolved relative to the repository root in desktop simulation.
-- Platform-specific TrimUI discovery notes are tracked in `docs/PLATFORM_NOTES.md`.
-- `roms/` and `bios/` are intentionally ignored by git and stay local to each developer machine.
+- `roms/`, `bios/`, official SDK archives and reference projects stay local and are not committed.
+- The official SDK archive should be extracted in WSL or another Linux environment, not with plain Windows `tar`.
+- GitHub Actions only validates host builds; device packaging is verified locally.
 
 ## Development Hygiene
 
-- See `CONTRIBUTING.md` for local workflow and commit guidance.
-- See `SECURITY.md` for security reporting guidance.
-- CI runs CMake configure and build checks on push and pull request.
+- `CONTRIBUTING.md`
+- `SECURITY.md`

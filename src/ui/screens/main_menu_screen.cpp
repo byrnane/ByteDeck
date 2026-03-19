@@ -1,5 +1,6 @@
 #include "ui/screens/main_menu_screen.hpp"
 
+#include "ui/navigation_input.hpp"
 #include "ui/text_renderer.hpp"
 
 #include <SDL.h>
@@ -28,66 +29,33 @@ MainMenuScreen::MainMenuScreen(const data::LibraryData& library)
 
 ScreenAction MainMenuScreen::handle_event(const SDL_Event& event)
 {
-    if (event.type == SDL_KEYDOWN)
+    switch (navigation_input_from_event(event))
     {
-        switch (event.key.keysym.sym)
+    case NavigationInput::left:
+    case NavigationInput::up:
+        move_selection(-1);
+        return {};
+    case NavigationInput::right:
+    case NavigationInput::down:
+        move_selection(1);
+        return {};
+    case NavigationInput::accept:
+        if (selected_index_ == 0)
         {
-        case SDLK_LEFT:
-        case SDLK_UP:
-            move_selection(-1);
-            return {};
-        case SDLK_RIGHT:
-        case SDLK_DOWN:
-            move_selection(1);
-            return {};
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            if (selected_index_ == 0)
-            {
-                return { ScreenActionType::open_games };
-            }
-            if (selected_index_ == 1)
-            {
-                return { ScreenActionType::open_placeholder, "Settings" };
-            }
-            return { ScreenActionType::open_apps };
-        case SDLK_ESCAPE:
-            return { ScreenActionType::quit };
-        default:
-            return {};
+            return { ScreenActionType::open_games };
         }
-    }
-
-    if (event.type == SDL_CONTROLLERBUTTONDOWN)
-    {
-        switch (event.cbutton.button)
+        if (selected_index_ == 1)
         {
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            move_selection(-1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            move_selection(1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_A:
-            if (selected_index_ == 0)
-            {
-                return { ScreenActionType::open_games };
-            }
-            if (selected_index_ == 1)
-            {
-                return { ScreenActionType::open_placeholder, "Settings" };
-            }
-            return { ScreenActionType::open_apps };
-        case SDL_CONTROLLER_BUTTON_B:
-            return { ScreenActionType::quit };
-        default:
-            return {};
+            return { ScreenActionType::open_placeholder, "Settings" };
         }
+        return { ScreenActionType::open_apps };
+    case NavigationInput::back:
+    case NavigationInput::quit:
+        return { ScreenActionType::quit };
+    case NavigationInput::none:
+    default:
+        return {};
     }
-
-    return {};
 }
 
 

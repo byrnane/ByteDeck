@@ -1,5 +1,6 @@
 #include "platform/paths.hpp"
 
+#include <cstdlib>
 #include <filesystem>
 #include <stdexcept>
 
@@ -7,15 +8,67 @@ namespace bytedeck::platform
 {
 namespace
 {
+std::filesystem::path path_from_env(const char* variable_name)
+{
+    const char* value = std::getenv(variable_name);
+    if (value == nullptr || *value == '\0')
+    {
+        return {};
+    }
+
+    return std::filesystem::path(value);
+}
+
+
+bool directory_exists(const std::filesystem::path& path)
+{
+    return !path.empty() && std::filesystem::exists(path) && std::filesystem::is_directory(path);
+}
+
+
+std::filesystem::path first_existing_child(
+    const std::filesystem::path& root,
+    std::initializer_list<const char*> names)
+{
+    for (const char* name : names)
+    {
+        const auto candidate = root / name;
+        if (directory_exists(candidate))
+        {
+            return candidate;
+        }
+    }
+
+    return {};
+}
+
+
+bool is_root_candidate(const std::filesystem::path& path)
+{
+    const bool has_config = directory_exists(path / "config");
+    const bool has_scripts = directory_exists(path / "scripts");
+    const bool has_cache = directory_exists(path / "cache");
+    return has_config && has_scripts && has_cache;
+}
+
+
 std::filesystem::path find_root_candidate()
 {
+    const auto env_root = path_from_env("BYTEDECK_ROOT");
+    if (!env_root.empty())
+    {
+        if (!directory_exists(env_root))
+        {
+            throw std::runtime_error("BYTEDECK_ROOT does not exist or is not a directory");
+        }
+        return env_root;
+    }
+
     std::filesystem::path current = std::filesystem::current_path();
 
     while (!current.empty())
     {
-        const bool has_config = std::filesystem::exists(current / "config");
-        const bool has_spec = std::filesystem::exists(current / "trimui_launcher_spec.md");
-        if (has_config && has_spec)
+        if (is_root_candidate(current))
         {
             return current;
         }
@@ -30,6 +83,28 @@ std::filesystem::path find_root_candidate()
 
     throw std::runtime_error("Unable to resolve ByteDeck root from current working directory");
 }
+
+
+std::filesystem::path resolve_rooted_path(
+    const std::filesystem::path& root,
+    const char* env_name,
+    std::initializer_list<const char*> preferred_names,
+    const char* default_name)
+{
+    const auto env_path = path_from_env(env_name);
+    if (!env_path.empty())
+    {
+        return env_path;
+    }
+
+    const auto existing_path = first_existing_child(root, preferred_names);
+    if (!existing_path.empty())
+    {
+        return existing_path;
+    }
+
+    return root / default_name;
+}
 }
 
 
@@ -37,13 +112,17 @@ Paths Paths::discover()
 {
     Paths paths;
     paths.root_ = find_root_candidate();
-    paths.roms_root_ = paths.root_ / "roms";
-    paths.bios_root_ = paths.root_ / "bios";
-    paths.apps_root_ = paths.root_ / "Apps";
-    paths.collections_root_ = paths.root_ / "collections";
-    paths.cache_root_ = paths.root_ / "cache";
-    paths.scripts_root_ = paths.root_ / "scripts";
-    paths.config_root_ = paths.root_ / "config";
+    paths.roms_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_ROMS_ROOT", {"ROMS", "roms", "Roms"}, "ROMS");
+    paths.bios_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_BIOS_ROOT", {"BIOS", "bios", "Bios"}, "BIOS");
+    paths.apps_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_APPS_ROOT", {"Apps", "apps", "App"}, "Apps");
+    paths.collections_root_ = resolve_rooted_path(
+        paths.root_,
+        "BYTEDECK_COLLECTIONS_ROOT",
+        {"collections", "Collections"},
+        "collections");
+    paths.cache_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_CACHE_ROOT", {"cache", "Cache"}, "cache");
+    paths.scripts_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_SCRIPTS_ROOT", {"scripts", "Scripts"}, "scripts");
+    paths.config_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_CONFIG_ROOT", {"config", "Config"}, "config");
     return paths;
 }
 

@@ -1,6 +1,7 @@
 #include "ui/screens/apps_screen.hpp"
 
 #include "platform/logger.hpp"
+#include "ui/navigation_input.hpp"
 #include "ui/text_renderer.hpp"
 
 #include <SDL.h>
@@ -17,8 +18,9 @@ SDL_Color kHighlight { 228, 183, 86, 255 };
 }
 
 
-AppsScreen::AppsScreen(const data::LibraryData& library, std::filesystem::path root_path)
+AppsScreen::AppsScreen(const data::LibraryData& library, std::filesystem::path root_path, LaunchAppCallback launch_app)
     : root_path_(std::move(root_path))
+    , launch_app_(std::move(launch_app))
 {
     for (const data::AppItem& app : library.apps)
     {
@@ -29,54 +31,25 @@ AppsScreen::AppsScreen(const data::LibraryData& library, std::filesystem::path r
 
 ScreenAction AppsScreen::handle_event(const SDL_Event& event)
 {
-    if (event.type == SDL_KEYDOWN)
+    switch (navigation_input_from_event(event))
     {
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_UP:
-            move_selection(-1);
-            return {};
-        case SDLK_DOWN:
-            move_selection(1);
-            return {};
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            if (!apps_.empty())
-            {
-                platform::Logger::instance().info("App launch requested for " + apps_[selected_index_]->id);
-            }
-            return {};
-        case SDLK_ESCAPE:
-            return { ScreenActionType::pop };
-        default:
-            return {};
-        }
+    case NavigationInput::up:
+        move_selection(-1);
+        return {};
+    case NavigationInput::down:
+        move_selection(1);
+        return {};
+    case NavigationInput::accept:
+        launch_selected_app();
+        return {};
+    case NavigationInput::back:
+        return { ScreenActionType::pop };
+    case NavigationInput::quit:
+        return { ScreenActionType::quit };
+    case NavigationInput::none:
+    default:
+        return {};
     }
-
-    if (event.type == SDL_CONTROLLERBUTTONDOWN)
-    {
-        switch (event.cbutton.button)
-        {
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            move_selection(-1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            move_selection(1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_A:
-            if (!apps_.empty())
-            {
-                platform::Logger::instance().info("App launch requested for " + apps_[selected_index_]->id);
-            }
-            return {};
-        case SDL_CONTROLLER_BUTTON_B:
-            return { ScreenActionType::pop };
-        default:
-            return {};
-        }
-    }
-
-    return {};
 }
 
 
@@ -163,6 +136,17 @@ void AppsScreen::render(SDL_Renderer& renderer)
         2
     );
     TextRenderer::draw_text(renderer, "TARGET: " + TextRenderer::truncate_to_width(selected_app.launch_target, 28), right_panel.x + 230, right_panel.y + 154, 2, kTextMuted);
+    if (!launch_status_.empty())
+    {
+        TextRenderer::draw_text(
+            renderer,
+            launch_status_,
+            right_panel.x + 230,
+            right_panel.y + 186,
+            2,
+            launch_status_ok_ ? kHighlight : SDL_Color { 220, 116, 116, 255 }
+        );
+    }
 
     TextRenderer::draw_text(renderer, "DESCRIPTION", right_panel.x + 24, right_panel.y + 282, 2, kTextPrimary);
     TextRenderer::draw_text_box(
@@ -225,5 +209,26 @@ void AppsScreen::ensure_preview_texture(SDL_Renderer& renderer)
 
     const std::filesystem::path absolute_path = root_path_ / icon_path;
     preview_texture_.load(renderer, absolute_path);
+}
+
+
+void AppsScreen::launch_selected_app()
+{
+    if (apps_.empty())
+    {
+        return;
+    }
+
+    if (!launch_app_)
+    {
+        launch_status_ = "LAUNCH CALLBACK MISSING";
+        launch_status_ok_ = false;
+        platform::Logger::instance().error("Launch callback missing for apps screen");
+        return;
+    }
+
+    const launch::LaunchResult result = launch_app_(*apps_[selected_index_]);
+    launch_status_ = TextRenderer::truncate_to_width(result.message, 28);
+    launch_status_ok_ = result.success;
 }
 }

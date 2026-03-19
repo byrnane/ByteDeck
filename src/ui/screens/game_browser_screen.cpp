@@ -1,6 +1,7 @@
 #include "ui/screens/game_browser_screen.hpp"
 
 #include "platform/logger.hpp"
+#include "ui/navigation_input.hpp"
 #include "ui/text_renderer.hpp"
 
 #include <SDL.h>
@@ -17,9 +18,15 @@ SDL_Color kHighlight { 228, 183, 86, 255 };
 }
 
 
-GameBrowserScreen::GameBrowserScreen(const data::LibraryData& library, std::filesystem::path root_path, std::string system_id)
+GameBrowserScreen::GameBrowserScreen(
+    const data::LibraryData& library,
+    std::filesystem::path root_path,
+    std::string system_id,
+    LaunchGameCallback launch_game
+)
     : root_path_(std::move(root_path))
     , system_id_(std::move(system_id))
+    , launch_game_(std::move(launch_game))
 {
     for (const data::GameItem& game : library.games)
     {
@@ -33,54 +40,25 @@ GameBrowserScreen::GameBrowserScreen(const data::LibraryData& library, std::file
 
 ScreenAction GameBrowserScreen::handle_event(const SDL_Event& event)
 {
-    if (event.type == SDL_KEYDOWN)
+    switch (navigation_input_from_event(event))
     {
-        switch (event.key.keysym.sym)
-        {
-        case SDLK_UP:
-            move_selection(-1);
-            return {};
-        case SDLK_DOWN:
-            move_selection(1);
-            return {};
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            if (!games_.empty())
-            {
-                platform::Logger::instance().info("Launch requested for " + games_[selected_index_]->id);
-            }
-            return {};
-        case SDLK_ESCAPE:
-            return { ScreenActionType::pop };
-        default:
-            return {};
-        }
+    case NavigationInput::up:
+        move_selection(-1);
+        return {};
+    case NavigationInput::down:
+        move_selection(1);
+        return {};
+    case NavigationInput::accept:
+        launch_selected_game();
+        return {};
+    case NavigationInput::back:
+        return { ScreenActionType::pop };
+    case NavigationInput::quit:
+        return { ScreenActionType::quit };
+    case NavigationInput::none:
+    default:
+        return {};
     }
-
-    if (event.type == SDL_CONTROLLERBUTTONDOWN)
-    {
-        switch (event.cbutton.button)
-        {
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            move_selection(-1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            move_selection(1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_A:
-            if (!games_.empty())
-            {
-                platform::Logger::instance().info("Launch requested for " + games_[selected_index_]->id);
-            }
-            return {};
-        case SDL_CONTROLLER_BUTTON_B:
-            return { ScreenActionType::pop };
-        default:
-            return {};
-        }
-    }
-
-    return {};
 }
 
 
@@ -185,6 +163,18 @@ void GameBrowserScreen::render(SDL_Renderer& renderer)
     text_y += 28;
     TextRenderer::draw_text(renderer, "SOURCE: " + selected_game.metadata_source, right_panel.x + 24, text_y, 2, kTextMuted);
     text_y += 36;
+    if (!launch_status_.empty())
+    {
+        TextRenderer::draw_text(
+            renderer,
+            launch_status_,
+            right_panel.x + 24,
+            text_y,
+            2,
+            launch_status_ok_ ? kHighlight : SDL_Color { 220, 116, 116, 255 }
+        );
+        text_y += 36;
+    }
 
     TextRenderer::draw_text(renderer, "DESCRIPTION", right_panel.x + 24, text_y, 2, kTextPrimary);
     text_y += 28;
@@ -270,5 +260,26 @@ void GameBrowserScreen::ensure_preview_texture(SDL_Renderer& renderer)
 
     const std::filesystem::path absolute_path = root_path_ / thumbnail_path;
     preview_texture_.load(renderer, absolute_path);
+}
+
+
+void GameBrowserScreen::launch_selected_game()
+{
+    if (games_.empty())
+    {
+        return;
+    }
+
+    if (!launch_game_)
+    {
+        launch_status_ = "LAUNCH CALLBACK MISSING";
+        launch_status_ok_ = false;
+        platform::Logger::instance().error("Launch callback missing for game browser");
+        return;
+    }
+
+    const launch::LaunchResult result = launch_game_(*games_[selected_index_]);
+    launch_status_ = TextRenderer::truncate_to_width(result.message, 36);
+    launch_status_ok_ = result.success;
 }
 }

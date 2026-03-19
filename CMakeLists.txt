@@ -7,8 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BYTEDECK_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+set(BYTEDECK_SDL2_ROOT "" CACHE PATH "Optional SDL2 installation root")
 
 include(FetchContent)
+
+if(BYTEDECK_SDL2_ROOT)
+  list(PREPEND CMAKE_PREFIX_PATH "${BYTEDECK_SDL2_ROOT}")
+endif()
 
 find_package(SDL2 QUIET CONFIG)
 if(NOT SDL2_FOUND)
@@ -48,6 +53,7 @@ set(BYTEDECK_SOURCES
   src/core/gamelist_parser.cpp
   src/core/library_scanner.cpp
   src/data/models.cpp
+  src/launch/launch_service.cpp
   src/platform/logger.cpp
   src/platform/paths.cpp
   src/platform/user_settings.cpp
@@ -92,7 +98,11 @@ if(TARGET nlohmann_json::nlohmann_json)
   target_link_libraries(bytedeck PRIVATE nlohmann_json::nlohmann_json)
 endif()
 
-target_compile_definitions(bytedeck PRIVATE SDL_MAIN_HANDLED)
+target_compile_definitions(bytedeck
+  PRIVATE
+    SDL_MAIN_HANDLED
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+)
 
 if(MSVC)
   target_compile_options(bytedeck PRIVATE /W4)

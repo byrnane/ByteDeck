@@ -1,6 +1,8 @@
 # Build directories
 /build/
+/build-trimui/
 /out/
+/dist/
 /cmake-build-*/
 
 # CMake generated files
@@ -31,6 +33,10 @@
 /roms/
 /BIOS/
 /ROMS/
+/references/
+/toolchains/
+/sdk_tg5050_linux_v1.0.0/
+/*.tgz
 
 # Binary outputs
 *.exe

@@ -1,5 +1,6 @@
 #include "ui/screens/games_screen.hpp"
 
+#include "ui/navigation_input.hpp"
 #include "ui/text_renderer.hpp"
 
 #include <SDL.h>
@@ -32,66 +33,34 @@ GamesScreen::GamesScreen(const data::LibraryData& library)
 
 ScreenAction GamesScreen::handle_event(const SDL_Event& event)
 {
-    if (event.type == SDL_KEYDOWN)
+    switch (navigation_input_from_event(event))
     {
-        switch (event.key.keysym.sym)
+    case NavigationInput::left:
+        move_selection(-1);
+        return {};
+    case NavigationInput::right:
+        move_selection(1);
+        return {};
+    case NavigationInput::up:
+        move_selection(-kColumns);
+        return {};
+    case NavigationInput::down:
+        move_selection(kColumns);
+        return {};
+    case NavigationInput::accept:
+        if (!entries_.empty() && entries_[selected_index_].type == "game_system")
         {
-        case SDLK_LEFT:
-            move_selection(-1);
-            return {};
-        case SDLK_RIGHT:
-            move_selection(1);
-            return {};
-        case SDLK_UP:
-            move_selection(-kColumns);
-            return {};
-        case SDLK_DOWN:
-            move_selection(kColumns);
-            return {};
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            if (!entries_.empty() && entries_[selected_index_].type == "game_system")
-            {
-                return { ScreenActionType::open_game_browser, entries_[selected_index_].id };
-            }
-            return { ScreenActionType::open_placeholder, "Collections" };
-        case SDLK_ESCAPE:
-            return { ScreenActionType::pop };
-        default:
-            return {};
+            return { ScreenActionType::open_game_browser, entries_[selected_index_].id };
         }
+        return { ScreenActionType::open_placeholder, "Collections" };
+    case NavigationInput::back:
+        return { ScreenActionType::pop };
+    case NavigationInput::quit:
+        return { ScreenActionType::quit };
+    case NavigationInput::none:
+    default:
+        return {};
     }
-
-    if (event.type == SDL_CONTROLLERBUTTONDOWN)
-    {
-        switch (event.cbutton.button)
-        {
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            move_selection(-1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            move_selection(1);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            move_selection(-kColumns);
-            return {};
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            move_selection(kColumns);
-            return {};
-        case SDL_CONTROLLER_BUTTON_A:
-            if (!entries_.empty() && entries_[selected_index_].type == "game_system")
-            {
-                return { ScreenActionType::open_game_browser, entries_[selected_index_].id };
-            }
-            return { ScreenActionType::open_placeholder, "Collections" };
-        case SDL_CONTROLLER_BUTTON_B:
-            return { ScreenActionType::pop };
-        default:
-            return {};
-        }
-    }
-
-    return {};
 }
 
 

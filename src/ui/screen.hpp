@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include <string>
+#include <utility>
 
 namespace bytedeck::ui
 {
@@ -22,6 +23,19 @@ struct ScreenAction
 {
     ScreenActionType type = ScreenActionType::none;
     std::string value;
+
+    ScreenAction() = default;
+
+    ScreenAction(ScreenActionType action_type)
+        : type(action_type)
+    {
+    }
+
+    ScreenAction(ScreenActionType action_type, std::string action_value)
+        : type(action_type)
+        , value(std::move(action_value))
+    {
+    }
 };
 
 

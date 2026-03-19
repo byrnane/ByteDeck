@@ -26,7 +26,7 @@ void Logger::initialize(const std::filesystem::path& log_file_path)
         std::filesystem::create_directories(parent);
     }
 
-    stream_.open(log_file_path, std::ios::app);
+    stream_.open(log_file_path, std::ios::out | std::ios::trunc);
 }
 
 

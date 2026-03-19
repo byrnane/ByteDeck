@@ -9,6 +9,7 @@
 #include <cctype>
 #include <exception>
 #include <fstream>
+#include <sstream>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -191,6 +192,38 @@ std::string safe_portable_media_path(
 }
 
 
+void log_missing_gamelist_entries(
+    const SupportedSystem& system,
+    const std::vector<std::string>& missing_rom_paths)
+{
+    if (missing_rom_paths.empty())
+    {
+        return;
+    }
+
+    constexpr std::size_t kSampleCount = 3;
+    std::ostringstream message;
+    message << "Ignored " << missing_rom_paths.size()
+            << " gamelist entries pointing to missing ROMs for " << system.id;
+
+    const std::size_t sample_count = std::min(kSampleCount, missing_rom_paths.size());
+    if (sample_count > 0)
+    {
+        message << "; samples: ";
+        for (std::size_t index = 0; index < sample_count; ++index)
+        {
+            if (index > 0)
+            {
+                message << " | ";
+            }
+            message << missing_rom_paths[index];
+        }
+    }
+
+    platform::Logger::instance().warn(message.str());
+}
+
+
 data::GameItem build_game_item(
     const platform::Paths& paths,
     const SupportedSystem& system,
@@ -279,15 +312,16 @@ data::LibraryData LibraryScanner::scan() const
             }
         }
 
+        std::vector<std::string> missing_metadata_paths;
         for (const auto& [metadata_path, metadata] : metadata_by_rom_path)
         {
+            static_cast<void>(metadata);
             if (rom_file_keys.find(metadata_path) == rom_file_keys.end())
             {
-                platform::Logger::instance().warn(
-                    "Ignoring gamelist entry that points to a missing ROM: " + metadata_path
-                );
+                missing_metadata_paths.push_back(metadata_path);
             }
         }
+        log_missing_gamelist_entries(system, missing_metadata_paths);
 
         for (const std::filesystem::path& rom_path : rom_files)
         {

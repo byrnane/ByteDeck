@@ -1,0 +1,8 @@
+{
+  "package": "com.bytedeck.launcher",
+  "label": "ByteDeck",
+  "icontop": "../BootRetroArch/ic-retroarch.png",
+  "icon": "",
+  "launch": "launch.sh",
+  "description": "Experimental ByteDeck launcher"
+}

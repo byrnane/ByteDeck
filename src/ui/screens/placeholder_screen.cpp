@@ -1,5 +1,6 @@
 #include "ui/screens/placeholder_screen.hpp"
 
+#include "ui/navigation_input.hpp"
 #include "ui/text_renderer.hpp"
 
 #include <SDL.h>
@@ -23,14 +24,15 @@ PlaceholderScreen::PlaceholderScreen(std::string title)
 
 ScreenAction PlaceholderScreen::handle_event(const SDL_Event& event)
 {
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+    const NavigationInput input = navigation_input_from_event(event);
+    if (input == NavigationInput::back)
     {
         return { ScreenActionType::pop };
     }
 
-    if (event.type == SDL_CONTROLLERBUTTONDOWN && event.cbutton.button == SDL_CONTROLLER_BUTTON_B)
+    if (input == NavigationInput::quit)
     {
-        return { ScreenActionType::pop };
+        return { ScreenActionType::quit };
     }
 
     return {};
