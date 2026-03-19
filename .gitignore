@@ -1,0 +1,44 @@
+# Build directories
+/build/
+/out/
+/cmake-build-*/
+
+# CMake generated files
+/CMakeCache.txt
+/CMakeFiles/
+/Testing/
+/compile_commands.json
+/cmake_install.cmake
+/install_manifest.txt
+/Makefile
+
+# IDE and editor files
+/.vs/
+/.vscode/
+/.idea/
+*.suo
+*.user
+*.userossc
+*.VC.db
+*.VC.opendb
+
+# Runtime-generated cache and logs
+/cache/library.json
+/cache/logs/*.log
+
+# Local content roots
+/bios/
+/roms/
+/BIOS/
+/ROMS/
+
+# Binary outputs
+*.exe
+*.dll
+*.so
+*.dylib
+*.pdb
+
+# OS noise
+.DS_Store
+Thumbs.db
