@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SDL2
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git $env:USERPROFILE\vcpkg
+          & "$env:USERPROFILE\vcpkg\bootstrap-vcpkg.bat"
+
+      - name: Install SDL2
+        shell: pwsh
+        run: |
+          & "$env:USERPROFILE\vcpkg\vcpkg.exe" install sdl2:x64-windows
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="$env:USERPROFILE\vcpkg\scripts\buildsystems\vcpkg.cmake"
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --parallel
