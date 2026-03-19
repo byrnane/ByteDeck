@@ -3,7 +3,7 @@
 set -euo pipefail
 
 config="Release"
-build_dir="build-trimui"
+build_dir=""
 clean=0
 
 usage() {
@@ -57,9 +57,10 @@ require_command() {
 resolve_official_sdk_root() {
   local repo_root=$1
   local candidates=(
-    "$repo_root/sdk_tg5050_linux_v1.0.0"
+    "$repo_root/local/sdk/trimui"
     "$repo_root/toolchains/sdk_tg5050_linux_v1.0.0"
     "$repo_root/toolchains/sdk_tg5050_linux_v1.0.0/sdk_tg5050_linux_v1.0.0"
+    "$repo_root/sdk_tg5050_linux_v1.0.0"
   )
 
   local candidate
@@ -88,8 +89,13 @@ fi
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
-build_dir_abs="$repo_root/$build_dir"
 toolchain_file="$repo_root/cmake/toolchains/trimui-aarch64-linux-gnu.cmake"
+
+if [[ -z "$build_dir" ]]; then
+  build_dir="out/trimui/$config"
+fi
+
+build_dir_abs="$repo_root/$build_dir"
 
 sdk_root=${BYTEDECK_TRIMUI_SDK_ROOT:-}
 if [[ -z "$sdk_root" ]]; then
@@ -98,6 +104,7 @@ fi
 
 if [[ -z "$sdk_root" ]]; then
   echo "Official TrimUI SDK not found. Expected one of:" >&2
+  echo "  $repo_root/local/sdk/trimui" >&2
   echo "  $repo_root/sdk_tg5050_linux_v1.0.0" >&2
   echo "  $repo_root/toolchains/sdk_tg5050_linux_v1.0.0" >&2
   exit 1

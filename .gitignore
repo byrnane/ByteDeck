@@ -1,8 +1,9 @@
-# Build directories
+# Generated outputs
+/out/
 /build/
 /build-trimui/
-/out/
 /dist/
+/cache/
 /cmake-build-*/
 
 # CMake generated files
@@ -24,19 +25,18 @@
 *.VC.db
 *.VC.opendb
 
-# Runtime-generated cache and logs
-/cache/library.json
-/cache/logs/*.log
+# Local-only assets, SDKs and research material
+/local/
+/references/
+/toolchains/
+/sdk_tg5050_linux_v1.0.0/
+/*.tgz
 
 # Local content roots
 /bios/
 /roms/
 /BIOS/
 /ROMS/
-/references/
-/toolchains/
-/sdk_tg5050_linux_v1.0.0/
-/*.tgz
 
 # Binary outputs
 *.exe

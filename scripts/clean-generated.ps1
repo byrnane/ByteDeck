@@ -1,9 +1,10 @@
 [CmdletBinding()]
 param(
+    [switch]$RemoveOut = $true,
     [switch]$RemoveBuild,
     [switch]$RemoveTrimuiBuild,
-    [switch]$RemoveDist = $true,
-    [switch]$RemoveCache = $true
+    [switch]$RemoveDist,
+    [switch]$RemoveCache
 )
 
 Set-StrictMode -Version Latest
@@ -22,6 +23,10 @@ function Remove-GeneratedPath {
         Remove-Item -Recurse -Force $targetPath
         Write-Host "Removed: $RelativePath"
     }
+}
+
+if ($RemoveOut) {
+    Remove-GeneratedPath -RelativePath "out"
 }
 
 if ($RemoveBuild) {

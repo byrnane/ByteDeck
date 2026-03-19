@@ -3,7 +3,7 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Config = "Release",
 
-    [string]$BuildDir = "build",
+    [string]$BuildDir = "",
 
     [string]$ToolchainFile = "",
 
@@ -15,7 +15,20 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptDir
-$resolvedBuildDir = Join-Path $repoRoot $BuildDir
+
+function Resolve-BuildDir {
+    param(
+        [string]$RepoRoot,
+        [string]$RequestedBuildDir,
+        [string]$SelectedConfig
+    )
+
+    if ($RequestedBuildDir) {
+        return (Join-Path $RepoRoot $RequestedBuildDir)
+    }
+
+    return (Join-Path $RepoRoot (Join-Path "out\host" $SelectedConfig))
+}
 
 function Resolve-ToolchainFile {
     param(
@@ -40,6 +53,7 @@ function Resolve-ToolchainFile {
 
     $commonRoots = @(
         "C:\vcpkg",
+        "D:\vcpkg",
         (Join-Path $env:USERPROFILE "vcpkg"),
         (Join-Path $env:USERPROFILE "source\repos\vcpkg")
     )
@@ -63,7 +77,9 @@ if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
     throw "cmake not found in PATH. Install CMake first."
 }
 
+$resolvedBuildDir = Resolve-BuildDir -RepoRoot $repoRoot -RequestedBuildDir $BuildDir -SelectedConfig $Config
 $resolvedToolchain = Resolve-ToolchainFile -RequestedToolchainFile $ToolchainFile
+$cacheFile = Join-Path $resolvedBuildDir "CMakeCache.txt"
 
 if ($Clean -and (Test-Path $resolvedBuildDir)) {
     Remove-Item -Recurse -Force $resolvedBuildDir
@@ -74,9 +90,11 @@ $configureArgs = @(
     "-B", $resolvedBuildDir
 )
 
-if ($resolvedToolchain) {
+if ($resolvedToolchain -and -not (Test-Path $cacheFile)) {
     $configureArgs += "-DCMAKE_TOOLCHAIN_FILE=$resolvedToolchain"
     Write-Host "Using toolchain: $resolvedToolchain"
+} elseif ($resolvedToolchain) {
+    Write-Host "Using existing CMake cache in: $resolvedBuildDir"
 } else {
     throw @"
 Unable to find the vcpkg toolchain automatically.
@@ -90,6 +108,10 @@ Example:
   powershell -ExecutionPolicy Bypass -File .\scripts\dev-windows.ps1 -ToolchainFile C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 "@
 }
+
+$runtimeOutputConfig = $Config.ToUpperInvariant()
+$configureArgs += "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$resolvedBuildDir"
+$configureArgs += "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_${runtimeOutputConfig}=$resolvedBuildDir"
 
 Write-Host "Configuring ByteDeck ($Config)..."
 & cmake @configureArgs

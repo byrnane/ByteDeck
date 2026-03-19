@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$BuildDir = "build-trimui",
+    [string]$BuildDir = "",
 
-    [string]$StageDir = "dist\trimui-sd-overlay",
+    [string]$StageDir = "",
 
     [string]$BinaryPath = "",
 
@@ -16,10 +16,33 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptDir
-$resolvedBuildDir = Join-Path $repoRoot $BuildDir
-$resolvedStageDir = Join-Path $repoRoot $StageDir
 $packageRoot = Join-Path $repoRoot "device\trimui\package-root"
-$appRoot = Join-Path $resolvedStageDir "Apps\ByteDeck"
+
+function Resolve-BuildDir {
+    param(
+        [string]$RepoRoot,
+        [string]$RequestedBuildDir
+    )
+
+    if ($RequestedBuildDir) {
+        return (Join-Path $RepoRoot $RequestedBuildDir)
+    }
+
+    return (Join-Path $RepoRoot "out\trimui\Release")
+}
+
+function Resolve-StageDir {
+    param(
+        [string]$RepoRoot,
+        [string]$RequestedStageDir
+    )
+
+    if ($RequestedStageDir) {
+        return (Join-Path $RepoRoot $RequestedStageDir)
+    }
+
+    return (Join-Path $RepoRoot "out\package\trimui-sd-overlay")
+}
 
 function Resolve-BinaryPath {
     param(
@@ -50,6 +73,9 @@ if (-not (Test-Path $packageRoot)) {
     throw "TrimUI package template not found: $packageRoot"
 }
 
+$resolvedBuildDir = Resolve-BuildDir -RepoRoot $repoRoot -RequestedBuildDir $BuildDir
+$resolvedStageDir = Resolve-StageDir -RepoRoot $repoRoot -RequestedStageDir $StageDir
+$appRoot = Join-Path $resolvedStageDir "Apps\ByteDeck"
 $resolvedBinaryPath = Resolve-BinaryPath -RequestedPath $BinaryPath -ResolvedBuildDir $resolvedBuildDir
 
 if ($Clean -and (Test-Path $resolvedStageDir)) {

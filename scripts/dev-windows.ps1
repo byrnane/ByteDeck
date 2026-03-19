@@ -3,7 +3,7 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Config = "Release",
 
-    [string]$BuildDir = "build",
+    [string]$BuildDir = "",
 
     [string]$ToolchainFile = "",
 

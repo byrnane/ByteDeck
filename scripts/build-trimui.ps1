@@ -3,7 +3,7 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Config = "Release",
 
-    [string]$BuildDir = "build-trimui",
+    [string]$BuildDir = "",
 
     [string]$ToolchainFile = "",
 
@@ -21,7 +21,20 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptDir
-$resolvedBuildDir = Join-Path $repoRoot $BuildDir
+
+function Resolve-BuildDir {
+    param(
+        [string]$RepoRoot,
+        [string]$RequestedBuildDir,
+        [string]$SelectedConfig
+    )
+
+    if ($RequestedBuildDir) {
+        return (Join-Path $RepoRoot $RequestedBuildDir)
+    }
+
+    return (Join-Path $RepoRoot (Join-Path "out\trimui" $SelectedConfig))
+}
 
 function Get-OfficialTrimuiSdkRoots {
     param(
@@ -29,9 +42,10 @@ function Get-OfficialTrimuiSdkRoots {
     )
 
     return @(
-        (Join-Path $RepoRoot "sdk_tg5050_linux_v1.0.0"),
+        (Join-Path $RepoRoot "local\sdk\trimui"),
         (Join-Path $RepoRoot "toolchains\sdk_tg5050_linux_v1.0.0"),
-        (Join-Path $RepoRoot "toolchains\sdk_tg5050_linux_v1.0.0\sdk_tg5050_linux_v1.0.0")
+        (Join-Path $RepoRoot "toolchains\sdk_tg5050_linux_v1.0.0\sdk_tg5050_linux_v1.0.0"),
+        (Join-Path $RepoRoot "sdk_tg5050_linux_v1.0.0")
     )
 }
 
@@ -87,6 +101,8 @@ function Resolve-OfficialSdl2Root {
 if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
     throw "cmake not found in PATH. Install CMake first."
 }
+
+$resolvedBuildDir = Resolve-BuildDir -RepoRoot $repoRoot -RequestedBuildDir $BuildDir -SelectedConfig $Config
 
 if (-not $ToolchainFile) {
     $ToolchainFile = Join-Path $repoRoot "cmake\toolchains\trimui-aarch64-linux-gnu.cmake"

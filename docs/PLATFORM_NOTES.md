@@ -29,7 +29,7 @@ The official Smart Pro S SDK provides:
 
 Recommended host workflow:
 
-- extract the SDK inside WSL or another Linux environment
+- extract the SDK inside WSL or another Linux environment under `local/sdk/trimui/`
 - build the ARM binary through `scripts/build-trimui-wsl.sh`
 - stage the SD overlay through `scripts/package-trimui.ps1`
 
@@ -102,7 +102,7 @@ ByteDeck does not adopt stock per-system folder names as its internal library mo
 
 1. Start from an official stock SD base.
 2. Build the ARM binary with WSL.
-3. Stage `dist/trimui-sd-overlay/Apps/ByteDeck`.
+3. Stage `out/package/trimui-sd-overlay/Apps/ByteDeck`.
 4. Copy that folder to `SDCARD/Apps/ByteDeck`.
 5. Launch ByteDeck from the stock `Apps` menu.
 

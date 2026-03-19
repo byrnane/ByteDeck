@@ -3,9 +3,9 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Config = "Release",
 
-    [string]$BuildDir = "build-trimui",
+    [string]$BuildDir = "",
 
-    [string]$StageDir = "dist\trimui-sd-overlay",
+    [string]$StageDir = "",
 
     [string]$RuntimeLibDir = "",
 
@@ -18,6 +18,14 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $buildScript = Join-Path $scriptDir "build-trimui-wsl.bat"
 $packageScript = Join-Path $scriptDir "package-trimui.ps1"
+
+if (-not $BuildDir) {
+    $BuildDir = Join-Path "out\trimui" $Config
+}
+
+if (-not $StageDir) {
+    $StageDir = "out\package\trimui-sd-overlay"
+}
 
 $buildArgs = @("--config", $Config, "--build-dir", $BuildDir)
 if ($Clean) {

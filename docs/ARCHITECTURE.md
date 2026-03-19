@@ -128,7 +128,7 @@ Key files:
 1. `main.cpp` creates `Application`.
 2. `Application::initialize()` resolves paths and starts logging.
 3. `LibraryScanner` scans ROMs, apps and collections.
-4. Normalized cache is written to `cache/library.json`.
+4. Normalized cache is written to the resolved cache root.
 5. SDL window, renderer and input devices are initialized.
 6. `MainMenuScreen` is pushed into the screen manager.
 
@@ -173,7 +173,14 @@ ByteDeck supports two distinct path worlds:
 - repository-local development roots such as `roms/` and `bios/`
 - packaged device roots supplied by `BYTEDECK_*` environment variables
 
+Repository layout also distinguishes between:
+
+- `cmake/toolchains/` for tracked CMake toolchain definitions
+- `local/sdk/` for local, ignored vendor SDKs and external binaries
+
 The wrapper script inside `Apps/ByteDeck/launch.sh` sets these variables explicitly on TrimUI, so the C++ code does not need device-specific hardcoded paths.
+
+For desktop development, generated host outputs live under `out/host/` and runtime cache/logs live under `out/runtime/`.
 
 ## Current Technical Constraints
 

@@ -30,7 +30,7 @@ The packaged app entry files are:
 
 Recommended path on Windows:
 
-1. Extract the official SDK in WSL under `toolchains/`.
+1. Extract the official SDK in WSL under `local/sdk/trimui/`.
 2. Build the ARM binary:
 
 ```bash
@@ -60,7 +60,7 @@ scripts\dev-trimui.bat --clean
 Packaging produces:
 
 ```text
-dist/trimui-sd-overlay/
+out/package/trimui-sd-overlay/
   Apps/
     ByteDeck/
       bin/
@@ -73,7 +73,7 @@ dist/trimui-sd-overlay/
       launch.sh
 ```
 
-Copy `dist/trimui-sd-overlay/Apps/ByteDeck` to the SD card under `Apps/ByteDeck`.
+Copy `out/package/trimui-sd-overlay/Apps/ByteDeck` to the SD card under `Apps/ByteDeck`.
 
 ## Runtime Assumptions
 

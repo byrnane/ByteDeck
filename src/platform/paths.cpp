@@ -47,8 +47,13 @@ bool is_root_candidate(const std::filesystem::path& path)
 {
     const bool has_config = directory_exists(path / "config");
     const bool has_scripts = directory_exists(path / "scripts");
-    const bool has_cache = directory_exists(path / "cache");
-    return has_config && has_scripts && has_cache;
+    return has_config && has_scripts;
+}
+
+
+bool is_repository_root(const std::filesystem::path& path)
+{
+    return directory_exists(path / "src") || directory_exists(path / "cmake") || directory_exists(path / ".git");
 }
 
 
@@ -105,6 +110,28 @@ std::filesystem::path resolve_rooted_path(
 
     return root / default_name;
 }
+
+
+std::filesystem::path resolve_cache_root(const std::filesystem::path& root)
+{
+    const auto env_path = path_from_env("BYTEDECK_CACHE_ROOT");
+    if (!env_path.empty())
+    {
+        return env_path;
+    }
+
+    if (is_repository_root(root))
+    {
+        return root / "out" / "runtime";
+    }
+
+    if (directory_exists(root / "cache"))
+    {
+        return root / "cache";
+    }
+
+    return root / "cache";
+}
 }
 
 
@@ -120,7 +147,7 @@ Paths Paths::discover()
         "BYTEDECK_COLLECTIONS_ROOT",
         {"collections", "Collections"},
         "collections");
-    paths.cache_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_CACHE_ROOT", {"cache", "Cache"}, "cache");
+    paths.cache_root_ = resolve_cache_root(paths.root_);
     paths.scripts_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_SCRIPTS_ROOT", {"scripts", "Scripts"}, "scripts");
     paths.config_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_CONFIG_ROOT", {"config", "Config"}, "config");
     return paths;
