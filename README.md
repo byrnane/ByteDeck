@@ -81,6 +81,26 @@ Internal helper:
 
 - `scripts/_build-trimui_sps-wsl.sh`
 
+## Root Launcher
+
+There is also a root-level launcher for everyday use:
+
+- `ByteDeck.bat`
+
+It supports both modes:
+
+- double-click in Explorer for a simple menu
+- direct commands from terminal
+
+Examples:
+
+```bat
+ByteDeck.bat dev-windows
+ByteDeck.bat build-windows -Clean
+ByteDeck.bat build-trimui_sps -Clean
+ByteDeck.bat clean
+```
+
 ## Desktop Workflow
 
 ### Build
