@@ -1,27 +1,24 @@
 # ByteDeck
 
-ByteDeck is a lightweight SDL2 launcher for TrimUI Smart Pro S. The project currently has two working targets:
-
-- desktop build for daily development on Windows
-- device build for stock TrimUI firmware as `Apps/ByteDeck`
+ByteDeck is a lightweight SDL2 launcher for TrimUI Smart Pro S.
 
 Current baseline is already validated on hardware:
 
 - the app appears in the stock `Apps` menu
 - launcher UI starts on device
-- input works through SDL joystick events
+- input works
 - ROM scanning works
 - stock emulator handoff works
 
-## Repository Layout
+## Structure
 
-The repository now follows three zones:
+The repository is split into three clear zones:
 
 - source and tracked config in the repo root
-- local-only heavy assets under `local/`
-- all generated outputs under `out/`
+- local-only heavy data in `local/`
+- generated outputs in `out/`
 
-Tracked project structure:
+Tracked project layout:
 
 ```text
 ByteDeck/
@@ -29,33 +26,32 @@ ByteDeck/
     toolchains/
   config/
   device/
-    trimui/
+    trimui_sps/
   docs/
   scripts/
   src/
 ```
 
-Local-only structure:
+Local-only layout:
 
 ```text
 local/
-  archives/
   references/
   sdk/
-    trimui/
+    trimui_sps/
 ```
 
-Generated structure:
+Generated layout:
 
 ```text
 out/
   host/
-    Release/
-  trimui/
-    Release/
-  package/
-    trimui-sd-overlay/
+  trimui_sps/
   runtime/
+
+dist/
+  windows/
+  trimui_sps/
 ```
 
 Development content roots stay in the repo root:
@@ -65,126 +61,88 @@ Development content roots stay in the repo root:
 - `Apps/`
 - `collections/`
 
-These paths remain local and ignored by git.
+## Main Scripts
 
-## Architecture
+Public scripts are intentionally reduced to four workflows:
 
-High-level docs:
+- `scripts/build-windows.ps1`
+- `scripts/dev-windows.ps1`
+- `scripts/build-trimui_sps.ps1`
+- `scripts/clean.ps1`
 
-- `docs/ARCHITECTURE.md`
-- `docs/PLATFORM_NOTES.md`
-- `device/trimui/README.md`
+Explorer wrappers:
 
-Short version:
+- `scripts/build-windows.bat`
+- `scripts/dev-windows.bat`
+- `scripts/build-trimui_sps.bat`
+- `scripts/clean.bat`
 
-- `platform/` resolves paths, config and logging
-- `core/` scans ROMs, XML and app manifests
-- `data/` owns normalized library models and cache serialization
-- `ui/` renders screens and maps navigation input
-- `launch/` prepares and executes emulator/app handoff
-- `device/trimui/` contains stock-firmware packaging files
+Internal helper:
 
-## Desktop Build
+- `scripts/_build-trimui_sps-wsl.sh`
 
-### Windows
+## Desktop Workflow
 
-Requirements:
+### Build
 
-- Visual Studio 2022 or Build Tools with C++
-- CMake
-- `vcpkg`
-- SDL2 installed through `vcpkg`
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
+```
 
-Recommended:
+Result:
 
-- set `VCPKG_ROOT`
-- or install `vcpkg` in a common path such as `C:\vcpkg` or `D:\vcpkg`
+- intermediate build: `out/host/Release/`
+- ready desktop package: `dist/windows/`
 
-Fast dev loop:
+### Build And Run
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\dev-windows.ps1
 ```
 
-Explorer wrappers:
+What it does:
 
-- `scripts/dev-windows.bat`
-- `scripts/dev-windows-clean.bat`
-- `scripts/build-windows.bat`
-- `scripts/build-windows-clean.bat`
-- `scripts/run-windows.bat`
+- builds the app
+- stages `dist/windows/`
+- runs the staged executable
+- uses repository content roots (`roms`, `bios`, `Apps`, `collections`)
+- writes desktop runtime cache/logs to `out/runtime/`
 
-Default host output:
-
-- binary: `out/host/Release/bytedeck.exe`
-- runtime cache and logs: `out/runtime/`
-
-### Linux
-
-Install host dependencies first:
-
-```bash
-sudo apt install build-essential cmake libsdl2-dev
-```
-
-Then build manually if needed:
-
-```bash
-cmake -S . -B out/host/Release
-cmake --build out/host/Release
-./out/host/Release/bytedeck
-```
-
-## TrimUI Device Build
-
-The supported device path is stock firmware with ByteDeck installed as:
-
-```text
-Apps/ByteDeck/
-```
+## TrimUI Smart Pro S Workflow
 
 ### Requirements
 
-- WSL with Ubuntu on the Windows host
-- official TrimUI Smart Pro S SDK extracted under `local/sdk/trimui/`
+- WSL with Ubuntu
 - `cmake` and `ninja-build` installed inside WSL
+- official SDK extracted to `local/sdk/trimui_sps/`
 
-Install WSL build tools:
+Install WSL tools:
 
 ```bash
 sudo apt update
 sudo apt install -y cmake ninja-build
 ```
 
-One-command device build and packaging:
+### Build
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\dev-trimui.ps1 -Clean
-```
-
-Explorer wrapper:
-
-```bat
-scripts\dev-trimui.bat --clean
+powershell -ExecutionPolicy Bypass -File .\scripts\build-trimui_sps.ps1 -Clean
 ```
 
 Result:
 
-- ARM binary: `out/trimui/Release/bytedeck`
-- SD overlay: `out/package/trimui-sd-overlay/Apps/ByteDeck`
+- intermediate ARM build: `out/trimui_sps/Release/`
+- ready SD overlay: `dist/trimui_sps/`
 
-### Deploy To SD
+Copy to SD:
 
-1. Start from an official stock SD base.
-2. Copy `out/package/trimui-sd-overlay/Apps/ByteDeck` to `SDCARD/Apps/ByteDeck`.
-3. Insert the card into the console.
-4. Launch `ByteDeck` from the stock `Apps` menu.
+- copy `dist/trimui_sps/Apps/ByteDeck` to `SDCARD/Apps/ByteDeck`
 
 Important:
 
-- ByteDeck keeps its own ROM folder scheme inside the SD card ROM root.
-- On device, the wrapper points ByteDeck to `Roms/`, but ByteDeck still expects folders such as `Roms/nes`, `Roms/megadrive`, `Roms/psp`.
-- Stock TrimUI folder naming is used only for firmware integration, not as ByteDeck's internal library model.
+- ByteDeck still uses its own ROM folder naming inside the ROM root
+- on stock SD layout this means folders such as `Roms/nes`, `Roms/megadrive`, `Roms/psp`
+- stock naming is used only for integration with the firmware, not as ByteDeck's internal library model
 
 ## Controls
 
@@ -195,39 +153,27 @@ Important:
 - hold D-Pad or arrows: auto-repeat scroll
 - `F11`: toggle fullscreen on desktop
 
-## Launch Flow
-
-Desktop:
-
-- default mode is `mock`
-- real execution can be enabled with `BYTEDECK_LAUNCH_MODE=execute`
-
-TrimUI:
-
-- packaged wrapper enables execution mode automatically
-- ByteDeck shuts down SDL first, then hands off to stock emulator scripts
-- this avoids framebuffer and video conflicts when launching RetroArch-based systems
-
 ## Cleanup
 
-Safe to delete:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\clean.ps1
+```
+
+This removes generated paths only:
 
 - `out/`
-- legacy generated paths such as `build/`, `build-trimui/`, `dist/`
-
-Convenience cleanup:
-
-- `scripts/clean-generated.bat`
-- `scripts/clean-generated.ps1`
+- `dist/`
+- legacy `build/`, `build-trimui/`, `cache/`
 
 ## Notes
 
-- `local/` holds SDKs, archives and reference material and is never committed.
-- `cmake/toolchains/` stays in git because it contains build-system source files, not external toolchains.
-- The official SDK archive should be extracted in WSL or another Linux environment, not with plain Windows `tar`.
-- GitHub Actions only validates host builds; device packaging is verified locally.
+- `cmake/toolchains/` contains tracked CMake toolchain definitions
+- `local/sdk/trimui_sps/` contains the real external SDK
+- `dist/` is the ready-to-use result
+- `out/` is internal build output
 
-## Development Hygiene
+Additional docs:
 
-- `CONTRIBUTING.md`
-- `SECURITY.md`
+- `docs/ARCHITECTURE.md`
+- `docs/PLATFORM_NOTES.md`
+- `device/trimui_sps/README.md`

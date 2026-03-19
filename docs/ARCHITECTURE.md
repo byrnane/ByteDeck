@@ -1,45 +1,25 @@
 # ByteDeck Architecture
 
-This document describes the current project shape after the first working desktop build and the first successful TrimUI device bring-up.
+This document describes the current structure after the first successful desktop build and the first successful TrimUI Smart Pro S bring-up.
 
-## Design Goals
-
-ByteDeck is intentionally split into small layers:
-
-- library discovery must stay independent from UI
-- UI must not embed emulator-specific logic
-- device integration must stay outside the main application code
-- stock TrimUI behavior should be reused only at the launch boundary
-
-## Module Overview
+## Main Layers
 
 ### `src/platform`
 
 Responsibilities:
 
-- detect working roots for `roms`, `bios`, `Apps`, `collections`, `cache`, `scripts`, `config`
+- resolve working roots for ROMs, BIOS, apps, collections, config, scripts and cache
 - load user settings
 - write runtime logs
 
-Key files:
-
-- `src/platform/paths.cpp`
-- `src/platform/logger.cpp`
-- `src/platform/user_settings.cpp`
-
-The platform layer is the only place that knows how repository layout and packaged device layout are resolved into concrete filesystem paths.
+This layer is the only place that knows how repository paths and packaged runtime paths become concrete filesystem locations.
 
 ### `src/data`
 
 Responsibilities:
 
-- define normalized in-memory models
+- define normalized library models
 - serialize the library cache to JSON
-
-Key files:
-
-- `src/data/models.hpp`
-- `src/data/models.cpp`
 
 Main entities:
 
@@ -49,8 +29,6 @@ Main entities:
 - `SystemEntry`
 - `LibraryData`
 
-These models do not scan the filesystem and do not render UI.
-
 ### `src/core`
 
 Responsibilities:
@@ -58,35 +36,17 @@ Responsibilities:
 - scan ROM roots
 - parse `gamelist.xml`
 - merge metadata with real files
-- create fallback items when metadata is missing
+- create fallback items
 - scan apps and collections
 - save normalized cache
-
-Key files:
-
-- `src/core/library_scanner.cpp`
-- `src/core/gamelist_parser.cpp`
-
-This layer turns real files into `LibraryData`.
 
 ### `src/ui`
 
 Responsibilities:
 
 - render screens with SDL2
-- map keyboard and controller input to navigation actions
-- keep navigation logic local to screens
-
-Key files:
-
-- `src/ui/screen.hpp`
-- `src/ui/screen_manager.cpp`
-- `src/ui/navigation_input.hpp`
-- `src/ui/text_renderer.cpp`
-- `src/ui/image_texture.cpp`
-- `src/ui/screens/*`
-
-The UI works on `LibraryData` and callbacks. It does not scan ROMs and does not know how emulator scripts are resolved.
+- map input to navigation actions
+- keep screen-specific navigation logic local to each screen
 
 ### `src/launch`
 
@@ -94,15 +54,9 @@ Responsibilities:
 
 - provide one launch interface for games and apps
 - map ByteDeck system ids to stock TrimUI emulator scripts
-- defer device launch until the SDL app is fully shut down
+- defer launch until SDL is fully shut down on device
 
-Key files:
-
-- `src/launch/launch_service.hpp`
-- `src/launch/launch_service.cpp`
-- `scripts/launch_item.sh`
-
-This is the boundary between ByteDeck and the stock firmware runtime.
+This is the boundary between ByteDeck and stock firmware runtime.
 
 ### `src/app`
 
@@ -112,14 +66,42 @@ Responsibilities:
 - load library data
 - own SDL window and renderer
 - dispatch events to the current screen
-- coordinate delayed handoff into emulator launch scripts
+- coordinate delayed handoff to emulator launch scripts
 
-Key files:
+## Repository Zones
 
-- `src/app/application.hpp`
-- `src/app/application.cpp`
+### Tracked source
 
-`Application` is the composition root. It wires the layers together but should stay thin.
+- `src/`
+- `scripts/`
+- `config/`
+- `device/trimui_sps/`
+- `docs/`
+- `cmake/`
+
+### Local-only assets
+
+- `local/references/`
+- `local/sdk/trimui_sps/`
+
+### Generated outputs
+
+- `out/` for internal build output and runtime cache
+- `dist/` for ready-to-use results
+
+## Build And Packaging Model
+
+### Windows
+
+- build tree: `out/host/<Config>/`
+- ready package: `dist/windows/`
+- runtime cache/logs for dev runs: `out/runtime/`
+
+### TrimUI Smart Pro S
+
+- build tree: `out/trimui_sps/<Config>/`
+- ready SD overlay: `dist/trimui_sps/`
+- package template: `device/trimui_sps/package-root/`
 
 ## Runtime Flow
 
@@ -127,71 +109,24 @@ Key files:
 
 1. `main.cpp` creates `Application`.
 2. `Application::initialize()` resolves paths and starts logging.
-3. `LibraryScanner` scans ROMs, apps and collections.
-4. Normalized cache is written to the resolved cache root.
+3. `LibraryScanner` builds `LibraryData`.
+4. Cache is written to the resolved cache root.
 5. SDL window, renderer and input devices are initialized.
 6. `MainMenuScreen` is pushed into the screen manager.
 
 ### Navigation
 
-1. SDL events are translated into `NavigationInput`.
+1. SDL events become `NavigationInput`.
 2. The current screen returns a `ScreenAction`.
-3. `Application` applies the action:
-   - push a screen
-   - pop a screen
-   - quit
-   - open a game browser
-   - prepare a launch request
+3. `Application` applies the action and changes screen stack or prepares a launch request.
 
 ### Game Launch
 
-1. `GameBrowserScreen` invokes a callback with the selected `GameItem`.
+1. The selected game is passed into `LaunchService`.
 2. `LaunchService` resolves the stock launch script and target path.
-3. On desktop mock mode, it only logs the command.
-4. On TrimUI execute mode, it returns a deferred `LaunchRequest`.
-5. `Application` exits its main loop and shuts down SDL.
-6. After shutdown, `LaunchService::execute_prepared()` replaces the process with `/bin/sh scripts/launch_item.sh ...`.
-7. `scripts/launch_item.sh` forwards the request to stock `Emus/*/launch.sh`.
+3. On desktop mock mode it only logs.
+4. On device execute mode it returns a deferred launch request.
+5. `Application` exits the main loop and shuts down SDL.
+6. After shutdown, `LaunchService` hands control to the stock launcher script.
 
-The delayed handoff is important. Launching RetroArch while ByteDeck still owns the framebuffer causes video initialization failures on device.
-
-## Packaging Boundary
-
-TrimUI-specific files live outside `src/`:
-
-- `device/trimui/package-root/Apps/ByteDeck/config.json`
-- `device/trimui/package-root/Apps/ByteDeck/launch.sh`
-- `scripts/package-trimui.ps1`
-- `scripts/build-trimui-wsl.sh`
-
-This keeps stock firmware integration and host-side staging logic separate from the main application code.
-
-## Path Model
-
-ByteDeck supports two distinct path worlds:
-
-- repository-local development roots such as `roms/` and `bios/`
-- packaged device roots supplied by `BYTEDECK_*` environment variables
-
-Repository layout also distinguishes between:
-
-- `cmake/toolchains/` for tracked CMake toolchain definitions
-- `local/sdk/` for local, ignored vendor SDKs and external binaries
-
-The wrapper script inside `Apps/ByteDeck/launch.sh` sets these variables explicitly on TrimUI, so the C++ code does not need device-specific hardcoded paths.
-
-For desktop development, generated host outputs live under `out/host/` and runtime cache/logs live under `out/runtime/`.
-
-## Current Technical Constraints
-
-- UI text rendering is custom and intentionally minimal
-- settings and localization are still skeletal
-- supported game-system launch mappings are currently hardcoded in `scripts/launch_item.sh`
-- stock TrimUI emulator scripts remain the execution backend for now
-
-## Near-Term Extension Points
-
-- replace placeholder settings screen with a real settings UI
-- move launch mappings from shell script logic into data-driven configuration
-- expand per-system support beyond the first validated systems
-- add richer presentation metadata and assets without moving scan logic into the UI
+That delayed handoff is required so RetroArch-based launchers do not fail on framebuffer or video initialization.

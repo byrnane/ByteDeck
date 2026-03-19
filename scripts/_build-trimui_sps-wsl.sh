@@ -8,7 +8,7 @@ clean=0
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/build-trimui-wsl.sh [--config Debug|Release] [--build-dir DIR] [--clean]
+Usage: ./scripts/_build-trimui_sps-wsl.sh [--config Debug|Release] [--build-dir DIR] [--clean]
 EOF
 }
 
@@ -57,6 +57,7 @@ require_command() {
 resolve_official_sdk_root() {
   local repo_root=$1
   local candidates=(
+    "$repo_root/local/sdk/trimui_sps"
     "$repo_root/local/sdk/trimui"
     "$repo_root/toolchains/sdk_tg5050_linux_v1.0.0"
     "$repo_root/toolchains/sdk_tg5050_linux_v1.0.0/sdk_tg5050_linux_v1.0.0"
@@ -89,29 +90,28 @@ fi
 
 script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
-toolchain_file="$repo_root/cmake/toolchains/trimui-aarch64-linux-gnu.cmake"
+toolchain_file="$repo_root/cmake/toolchains/trimui_sps-aarch64-linux-gnu.cmake"
 
 if [[ -z "$build_dir" ]]; then
-  build_dir="out/trimui/$config"
+  build_dir="out/trimui_sps/$config"
 fi
 
 build_dir_abs="$repo_root/$build_dir"
 
-sdk_root=${BYTEDECK_TRIMUI_SDK_ROOT:-}
+sdk_root=${BYTEDECK_TRIMUI_SPS_SDK_ROOT:-${BYTEDECK_TRIMUI_SDK_ROOT:-}}
 if [[ -z "$sdk_root" ]]; then
   sdk_root=$(resolve_official_sdk_root "$repo_root" || true)
 fi
 
 if [[ -z "$sdk_root" ]]; then
-  echo "Official TrimUI SDK not found. Expected one of:" >&2
+  echo "Official TrimUI SPS SDK not found. Expected one of:" >&2
+  echo "  $repo_root/local/sdk/trimui_sps" >&2
   echo "  $repo_root/local/sdk/trimui" >&2
-  echo "  $repo_root/sdk_tg5050_linux_v1.0.0" >&2
-  echo "  $repo_root/toolchains/sdk_tg5050_linux_v1.0.0" >&2
   exit 1
 fi
 
-toolchain_prefix=${BYTEDECK_TRIMUI_TOOLCHAIN_PREFIX:-"$sdk_root/host/opt/ext-toolchain/bin/aarch64-none-linux-gnu-"}
-sysroot=${BYTEDECK_TRIMUI_SYSROOT:-"$sdk_root/host/aarch64-buildroot-linux-gnu/sysroot"}
+toolchain_prefix=${BYTEDECK_TRIMUI_SPS_TOOLCHAIN_PREFIX:-${BYTEDECK_TRIMUI_TOOLCHAIN_PREFIX:-"$sdk_root/host/opt/ext-toolchain/bin/aarch64-none-linux-gnu-"}}
+sysroot=${BYTEDECK_TRIMUI_SPS_SYSROOT:-${BYTEDECK_TRIMUI_SYSROOT:-"$sdk_root/host/aarch64-buildroot-linux-gnu/sysroot"}}
 sdl2_root=${BYTEDECK_SDL2_ROOT:-"$sysroot/usr"}
 
 if [[ ! -x "${toolchain_prefix}gcc" ]]; then
@@ -133,7 +133,7 @@ if [[ $clean -eq 1 ]]; then
   rm -rf "$build_dir_abs"
 fi
 
-echo "Configuring ByteDeck for TrimUI tg5050 ($config)..."
+echo "Configuring ByteDeck for trimui_sps ($config)..."
 echo "Generator: $generator"
 echo "Toolchain prefix: $toolchain_prefix"
 echo "Sysroot: $sysroot"
@@ -145,11 +145,11 @@ cmake \
   -B "$build_dir_abs" \
   -DCMAKE_TOOLCHAIN_FILE="$toolchain_file" \
   -DCMAKE_BUILD_TYPE="$config" \
-  -DBYTEDECK_TRIMUI_TOOLCHAIN_PREFIX="$toolchain_prefix" \
-  -DBYTEDECK_TRIMUI_SYSROOT="$sysroot" \
+  -DBYTEDECK_TRIMUI_SPS_TOOLCHAIN_PREFIX="$toolchain_prefix" \
+  -DBYTEDECK_TRIMUI_SPS_SYSROOT="$sysroot" \
   -DBYTEDECK_SDL2_ROOT="$sdl2_root"
 
-echo "Building ByteDeck for TrimUI tg5050 ($config)..."
+echo "Building ByteDeck for trimui_sps ($config)..."
 cmake --build "$build_dir_abs" --parallel
 
-echo "TrimUI WSL build completed."
+echo "TrimUI SPS WSL build completed."

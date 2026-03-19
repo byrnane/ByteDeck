@@ -1,14 +1,14 @@
-# TrimUI Platform Notes
+# TrimUI SPS Platform Notes
 
-These notes capture the runtime facts that are already confirmed for ByteDeck on stock TrimUI Smart Pro S.
+These notes capture the confirmed runtime facts for ByteDeck on stock TrimUI Smart Pro S.
 
 ## Confirmed Runtime Model
 
-- device family: TrimUI Smart Pro S
+- device target name in this repository: `trimui_sps`
 - stock platform id used by TrimUI assets and SDK: `tg5050`
-- device target architecture: `aarch64`
+- target architecture: `aarch64`
 - SD card root on device: `/mnt/SDCARD`
-- supported app entry format on stock firmware:
+- stock app entry format:
   - `Apps/<AppName>/config.json`
   - `Apps/<AppName>/launch.sh`
 
@@ -18,54 +18,39 @@ ByteDeck currently deploys as:
 /mnt/SDCARD/Apps/ByteDeck/
 ```
 
-## Confirmed Build Inputs
+## SDK And Build
 
-The official Smart Pro S SDK provides:
+Canonical SDK location in this repo:
 
-- `aarch64-none-linux-gnu-` cross toolchain
-- target sysroot
-- SDL2 headers and libraries
-- SDL2 CMake package files
+```text
+local/sdk/trimui_sps/
+```
 
-Recommended host workflow:
+Build flow:
 
-- extract the SDK inside WSL or another Linux environment under `local/sdk/trimui/`
-- build the ARM binary through `scripts/build-trimui-wsl.sh`
-- stage the SD overlay through `scripts/package-trimui.ps1`
+- public entrypoint: `scripts/build-trimui_sps.ps1`
+- internal WSL builder: `scripts/_build-trimui_sps-wsl.sh`
+- tracked CMake toolchain file: `cmake/toolchains/trimui_sps-aarch64-linux-gnu.cmake`
 
-## Confirmed App Launch Behavior
+## Input
 
-ByteDeck is launched through the stock `Apps` menu.
-
-The packaged wrapper:
-
-- sets `BYTEDECK_*` path overrides
-- points ByteDeck at the SD card roots
-- enables execute mode for launcher scripts
-- exports `BYTEDECK_INPUT_BACKEND=joystick`
-- extends `LD_LIBRARY_PATH` with `Apps/ByteDeck/lib`
-
-## Confirmed Input Behavior
-
-On hardware, TrimUI buttons are exposed in a way that is more reliable through raw SDL joystick events than through SDL game-controller mapping.
+On hardware, SDL joystick input is more reliable than SDL game-controller mapping.
 
 Current device setting:
 
 - `BYTEDECK_INPUT_BACKEND=joystick`
 
-This avoids duplicate or conflicting input events from the `X360 Controller` SDL mapping seen on the device.
-
-## Confirmed Emulator Handoff Behavior
+## Emulator Handoff
 
 ByteDeck does not launch emulators directly.
 
-Instead it forwards to stock emulator scripts under:
+It forwards to stock emulator scripts under:
 
 ```text
 /mnt/SDCARD/Emus/<System>/launch.sh
 ```
 
-Current validated mappings:
+Validated mappings:
 
 - `nes -> Emus/FC/launch.sh`
 - `snes -> Emus/SFC/launch.sh`
@@ -74,40 +59,22 @@ Current validated mappings:
 
 Important runtime detail:
 
-- ByteDeck must fully shut down SDL before handing off to RetroArch-based stock launchers
-- otherwise RetroArch can fail with framebuffer and video initialization errors such as Vulkan `KHR_display` / pageflip failures
-
-This handoff is now implemented as a deferred launch after application shutdown.
+- ByteDeck must fully shut down SDL before handing off to RetroArch-based launchers
+- otherwise RetroArch can fail on framebuffer and video initialization
 
 ## Path Conventions
 
-Stock firmware uses the official SD layout such as:
+Stock firmware uses roots such as:
 
 - `Apps/`
 - `Emus/`
 - `RetroArch/`
 - `Roms/`
 
-ByteDeck uses that layout only for firmware integration.
+ByteDeck uses stock naming only for firmware integration.
 
-Inside the ROM root, ByteDeck still keeps its own system naming and scanner model. For example:
+Inside the ROM root, ByteDeck still keeps its own system naming, for example:
 
 - `Roms/nes`
 - `Roms/megadrive`
 - `Roms/psp`
-
-ByteDeck does not adopt stock per-system folder names as its internal library model.
-
-## Practical Deployment Summary
-
-1. Start from an official stock SD base.
-2. Build the ARM binary with WSL.
-3. Stage `out/package/trimui-sd-overlay/Apps/ByteDeck`.
-4. Copy that folder to `SDCARD/Apps/ByteDeck`.
-5. Launch ByteDeck from the stock `Apps` menu.
-
-## Still Intentionally Out Of Scope
-
-- replacing the stock system launcher at boot
-- depending on spruceOS, NextUI or CrossMix runtime behavior
-- changing ByteDeck's internal ROM structure to match stock TrimUI system naming
