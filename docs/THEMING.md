@@ -1,7 +1,7 @@
 # ByteDeck Theming Guide
 
 - [Русская версия](./THEMING.ru.md)
-- [Project README](../README.md)
+- [Project README](../README.md#en)
 - [Architecture](./ARCHITECTURE.md)
 
 ## Overview
@@ -313,7 +313,7 @@ If you are creating a new theme, the safest order is:
 
 ## Related Docs
 
-- [Project README](../README.md)
+- [Project README](../README.md#en)
 - [Architecture](./ARCHITECTURE.md)
 - [Platform Notes](./PLATFORM_NOTES.md)
 - [TrimUI SPS Packaging](../device/trimui_sps/README.md)

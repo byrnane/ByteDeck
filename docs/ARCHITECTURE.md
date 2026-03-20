@@ -1,7 +1,7 @@
 # ByteDeck Architecture
 
 - [Русская версия](./ARCHITECTURE.ru.md)
-- [Project README](../README.md)
+- [Project README](../README.md#en)
 - [Theming Guide](./THEMING.md)
 - [Platform Notes](./PLATFORM_NOTES.md)
 

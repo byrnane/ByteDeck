@@ -1,7 +1,7 @@
 # TrimUI SPS Packaging
 
 - [Русская версия](./README.ru.md)
-- [Project README](../../README.md)
+- [Project README](../../README.md#en)
 - [Platform Notes](../../docs/PLATFORM_NOTES.md)
 
 ## Purpose

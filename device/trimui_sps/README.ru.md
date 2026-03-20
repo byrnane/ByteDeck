@@ -1,7 +1,7 @@
 # Упаковка для TrimUI SPS
 
 - [English version](./README.md)
-- [README проекта](../../README.ru.md)
+- [README проекта](../../README.md#ru)
 - [Заметки по платформе](../../docs/PLATFORM_NOTES.ru.md)
 
 ## Назначение

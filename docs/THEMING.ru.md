@@ -1,7 +1,7 @@
 # Гайд по темам ByteDeck
 
 - [English version](./THEMING.md)
-- [README проекта](../README.ru.md)
+- [README проекта](../README.md#ru)
 - [Архитектура](./ARCHITECTURE.ru.md)
 
 ## Общая модель
@@ -313,7 +313,7 @@ config/themes/<theme-id>/images/main-menu.png
 
 ## Связанные документы
 
-- [README проекта](../README.ru.md)
+- [README проекта](../README.md#ru)
 - [Архитектура](./ARCHITECTURE.ru.md)
 - [Заметки по платформе](./PLATFORM_NOTES.ru.md)
 - [Упаковка для TrimUI SPS](../device/trimui_sps/README.ru.md)

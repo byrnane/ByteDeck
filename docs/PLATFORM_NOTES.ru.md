@@ -1,7 +1,7 @@
 # Заметки по платформе TrimUI SPS
 
 - [English version](./PLATFORM_NOTES.md)
-- [README проекта](../README.ru.md)
+- [README проекта](../README.md#ru)
 - [Архитектура](./ARCHITECTURE.ru.md)
 - [Упаковка для TrimUI SPS](../device/trimui_sps/README.ru.md)
 
