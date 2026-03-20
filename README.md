@@ -205,5 +205,7 @@ Additional docs:
 
 - `docs/ARCHITECTURE.md`
 - `docs/PLATFORM_NOTES.md`
+- `docs/THEMING.md`
+- `docs/THEMING.ru.md`
 - `device/trimui_sps/README.md`
 - `TODO.md`
