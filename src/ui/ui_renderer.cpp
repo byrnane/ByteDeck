@@ -837,7 +837,7 @@ SDL_Color UiRenderer::color_from_json(const nlohmann::json& value, SDL_Color def
             Uint8 red = default_value.r;
             Uint8 green = default_value.g;
             Uint8 blue = default_value.b;
-            Uint8 alpha = default_value.a;
+            Uint8 alpha = 255;
             if (parse_hex_byte(string_value, 0, red) &&
                 parse_hex_byte(string_value, 2, green) &&
                 parse_hex_byte(string_value, 4, blue))
@@ -877,7 +877,7 @@ SDL_Color UiRenderer::color_from_json(const nlohmann::json& value, SDL_Color def
             static_cast<Uint8>(value.value("r", default_value.r)),
             static_cast<Uint8>(value.value("g", default_value.g)),
             static_cast<Uint8>(value.value("b", default_value.b)),
-            static_cast<Uint8>(value.value("a", default_value.a))
+            static_cast<Uint8>(value.value("a", value.contains("r") || value.contains("g") || value.contains("b") ? 255 : default_value.a))
         };
     }
 
