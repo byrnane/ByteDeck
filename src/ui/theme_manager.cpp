@@ -2,6 +2,7 @@
 
 #include "platform/logger.hpp"
 
+#include <algorithm>
 #include <fstream>
 
 namespace bytedeck::ui
@@ -48,6 +49,40 @@ const std::string& ThemeManager::active_theme_id() const
 const std::filesystem::path& ThemeManager::active_theme_root() const
 {
     return active_theme_root_;
+}
+
+
+std::vector<std::string> ThemeManager::available_theme_ids() const
+{
+    std::vector<std::string> theme_ids;
+    if (!std::filesystem::exists(themes_root_))
+    {
+        return theme_ids;
+    }
+
+    try
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(themes_root_))
+        {
+            if (!entry.is_directory())
+            {
+                continue;
+            }
+
+            const std::filesystem::path theme_file = entry.path() / "theme.json";
+            if (std::filesystem::exists(theme_file))
+            {
+                theme_ids.push_back(entry.path().filename().string());
+            }
+        }
+    }
+    catch (const std::exception& exception)
+    {
+        platform::Logger::instance().warn(std::string("Failed to enumerate themes: ") + exception.what());
+    }
+
+    std::sort(theme_ids.begin(), theme_ids.end());
+    return theme_ids;
 }
 
 

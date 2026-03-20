@@ -1,0 +1,102 @@
+{
+  "screen_id": "settings",
+  "variants": {
+    "default": {
+      "type": "screen",
+      "children": [
+        {
+          "type": "stack",
+          "direction": "horizontal",
+          "gap": "$spacing.xl",
+          "children": [
+            {
+              "type": "panel",
+              "classes": ["panel-primary"],
+              "width": "44%",
+              "height": "fill",
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "vertical",
+                  "gap": "$spacing.md",
+                  "height": "fill",
+                  "children": [
+                    { "type": "text", "classes": ["screen-title"], "text_bind": "title" },
+                    { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" },
+                    {
+                      "type": "list",
+                      "bind": "items",
+                      "gap": "$spacing.sm",
+                      "item_height": 76,
+                      "height": "fill",
+                      "children": [
+                        {
+                          "type": "panel",
+                          "classes": ["settings-item-frame"],
+                          "conditional_classes": [
+                            { "bind": "selected", "class": "settings-item-frame-selected" }
+                          ],
+                          "children": [
+                            {
+                              "type": "panel",
+                              "classes": ["settings-item-inner"],
+                              "conditional_classes": [
+                                { "bind": "selected", "class": "settings-item-inner-selected" }
+                              ],
+                              "children": [
+                                {
+                                  "type": "stack",
+                                  "direction": "vertical",
+                                  "gap": "$spacing.sm",
+                                  "height": "fill",
+                                  "children": [
+                                    { "type": "text", "classes": ["settings-item-title"], "text_bind": "title" },
+                                    { "type": "text", "classes": ["settings-item-value"], "text_bind": "value" },
+                                    { "type": "spacer", "height": "fill" },
+                                    {
+                                      "type": "text",
+                                      "classes": ["settings-item-hint"],
+                                      "conditional_classes": [
+                                        { "bind": "selected", "class": "settings-item-hint-selected" }
+                                      ],
+                                      "text_bind": "hint"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "classes": ["panel-secondary"],
+              "width": "56%",
+              "height": "fill",
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "vertical",
+                  "gap": "$spacing.lg",
+                  "height": "fill",
+                  "children": [
+                    { "type": "text", "classes": ["section-title"], "text_bind": "detail_title" },
+                    { "type": "text", "classes": ["body-copy"], "text_bind": "detail_body", "max_lines": 8 },
+                    { "type": "text", "classes": ["status-success"], "visible_bind": "status_success_visible", "text_bind": "status_text" },
+                    { "type": "text", "classes": ["status-error"], "visible_bind": "status_error_visible", "text_bind": "status_text" },
+                    { "type": "spacer", "height": "fill" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

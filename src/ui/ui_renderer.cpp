@@ -92,17 +92,23 @@ void UiRenderer::render_screen(SDL_Renderer& renderer, const std::string& screen
     int width = 0;
     int height = 0;
     SDL_GetRendererOutputSize(&renderer, &width, &height);
+    render_screen(renderer, screen_id, bindings, SDL_Rect { 0, 0, width, height });
+}
+
+
+void UiRenderer::render_screen(SDL_Renderer& renderer, const std::string& screen_id, const UiBindings& bindings, const SDL_Rect& bounds)
+{
 
     std::string error_message;
     const std::string variant = theme_manager_.screen_variant(screen_id);
     const LayoutNode* layout = layout_registry_.find_layout(screen_id, variant, &error_message);
     if (layout == nullptr)
     {
-        draw_fallback(renderer, screen_id, error_message);
+        draw_fallback(renderer, screen_id, error_message, bounds);
         return;
     }
 
-    render_node(renderer, *layout, bindings, SDL_Rect { 0, 0, width, height });
+    render_node(renderer, *layout, bindings, bounds);
 }
 
 
@@ -455,18 +461,19 @@ void UiRenderer::render_rect(SDL_Renderer& renderer, const SDL_Rect& bounds, con
 }
 
 
-void UiRenderer::draw_fallback(SDL_Renderer& renderer, const std::string& screen_id, const std::string& message)
+void UiRenderer::draw_fallback(SDL_Renderer& renderer, const std::string& screen_id, const std::string& message, const SDL_Rect& bounds)
 {
     if (logged_fallbacks_.insert(screen_id + "|" + message).second)
     {
         platform::Logger::instance().error("UI fallback for screen '" + screen_id + "': " + message);
     }
 
-    int width = 0;
-    int height = 0;
-    SDL_GetRendererOutputSize(&renderer, &width, &height);
-
-    SDL_Rect panel { width / 2 - 320, height / 2 - 120, 640, 240 };
+    SDL_Rect panel {
+        bounds.x + std::max(0, (bounds.w - 640) / 2),
+        bounds.y + std::max(0, (bounds.h - 240) / 2),
+        std::min(640, bounds.w),
+        std::min(240, bounds.h)
+    };
     SDL_SetRenderDrawColor(&renderer, 26, 31, 42, 255);
     SDL_RenderFillRect(&renderer, &panel);
     SDL_SetRenderDrawColor(&renderer, 74, 86, 114, 255);

@@ -150,6 +150,17 @@ Paths Paths::discover()
     paths.cache_root_ = resolve_cache_root(paths.root_);
     paths.scripts_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_SCRIPTS_ROOT", {"scripts", "Scripts"}, "scripts");
     paths.config_root_ = resolve_rooted_path(paths.root_, "BYTEDECK_CONFIG_ROOT", {"config", "Config"}, "config");
+    const auto explicit_themes = path_from_env("BYTEDECK_THEMES_ROOT");
+    if (!explicit_themes.empty())
+    {
+        paths.themes_root_ = explicit_themes;
+    }
+    else
+    {
+        const auto root_themes = paths.root_ / "themes";
+        const auto legacy_themes = paths.config_root_ / "themes";
+        paths.themes_root_ = directory_exists(root_themes) ? root_themes : legacy_themes;
+    }
     return paths;
 }
 
@@ -222,7 +233,7 @@ std::filesystem::path Paths::ui_screens_root() const
 
 std::filesystem::path Paths::themes_root() const
 {
-    return config_root_ / "themes";
+    return themes_root_;
 }
 
 

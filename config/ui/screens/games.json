@@ -60,20 +60,37 @@
                           "children": [
                             {
                               "type": "stack",
-                              "direction": "vertical",
+                              "direction": "horizontal",
                               "height": "fill",
                               "gap": "$spacing.md",
                               "children": [
-                                { "type": "text", "classes": ["system-tile-title"], "text_bind": "title" },
-                                { "type": "text", "classes": ["system-tile-meta"], "text_bind": "meta" },
-                                { "type": "spacer", "height": "fill" },
                                 {
-                                  "type": "text",
-                                  "classes": ["system-tile-hint"],
-                                  "conditional_classes": [
-                                    { "bind": "selected", "class": "system-tile-hint-selected" }
-                                  ],
-                                  "text_bind": "hint"
+                                  "type": "image",
+                                  "classes": ["system-icon"],
+                                  "system_icon_bind": "system_id",
+                                  "placeholder_text_bind": "title",
+                                  "width": 56,
+                                  "height": 56
+                                },
+                                {
+                                  "type": "stack",
+                                  "direction": "vertical",
+                                  "width": "fill",
+                                  "height": "fill",
+                                  "gap": "$spacing.md",
+                                  "children": [
+                                    { "type": "text", "classes": ["system-tile-title"], "text_bind": "title" },
+                                    { "type": "text", "classes": ["system-tile-meta"], "text_bind": "meta" },
+                                    { "type": "spacer", "height": "fill" },
+                                    {
+                                      "type": "text",
+                                      "classes": ["system-tile-hint"],
+                                      "conditional_classes": [
+                                        { "bind": "selected", "class": "system-tile-hint-selected" }
+                                      ],
+                                      "text_bind": "hint"
+                                    }
+                                  ]
                                 }
                               ]
                             }

@@ -40,30 +40,50 @@
       "xxl": 48
     }
   },
-  "fonts": {},
+  "fonts": {
+    "noto_sans": {
+      "path": "assets/fonts/NotoSans-Regular.ttf"
+    },
+    "superstar": {
+      "path": "assets/fonts/superstar.ttf"
+    }
+  },
   "typography": {
     "tiny": {
+      "family": "noto_sans",
       "size": 12,
+      "line_height": 16,
       "bitmap_scale": 2
     },
     "body": {
+      "family": "noto_sans",
       "size": 14,
+      "line_height": 20,
       "bitmap_scale": 2
     },
     "title": {
+      "family": "superstar",
       "size": 20,
+      "line_height": 24,
       "bitmap_scale": 3
     },
     "hero": {
+      "family": "superstar",
       "size": 28,
+      "line_height": 32,
       "bitmap_scale": 4
     },
     "brand": {
+      "family": "superstar",
       "size": 36,
+      "line_height": 40,
       "bitmap_scale": 5
     }
   },
-  "system_icons": {},
+  "system_icons": {
+    "nes": "assets/icons/systems/fc.png",
+    "megadrive": "assets/icons/systems/md.png"
+  },
   "styles": {
     "types": {
       "screen": {
@@ -116,10 +136,33 @@
         "text_color": "$colors.text.muted"
       },
       "body-copy": {
-        "font_role": "tiny",
+        "font_role": "body",
         "text_color": "$colors.text.muted",
         "wrap": true,
         "max_lines": 10
+      },
+      "status-bar-root": {
+        "background_color": "#161B24",
+        "border_color": "#2D3444",
+        "border_width": 1,
+        "padding": {
+          "left": "$spacing.xl",
+          "right": "$spacing.xl",
+          "top": "$spacing.md",
+          "bottom": "$spacing.md"
+        }
+      },
+      "status-brand": {
+        "font_role": "title",
+        "text_color": "$colors.text.highlight"
+      },
+      "status-context": {
+        "font_role": "tiny",
+        "text_color": "$colors.text.muted"
+      },
+      "status-meta": {
+        "font_role": "body",
+        "text_color": "$colors.text.primary"
       },
       "menu-backdrop": {
         "background_color": "$colors.background.backdrop",
@@ -216,6 +259,12 @@
       "system-tile-hint-selected": {
         "text_color": "$colors.text.highlight"
       },
+      "system-icon": {
+        "background_color": "#11151E",
+        "border_color": "$colors.frame.preview",
+        "border_width": 1,
+        "padding": "$spacing.xs"
+      },
       "browser-list-item-frame": {
         "background_color": "$colors.frame.list",
         "padding": "$spacing.xs"
@@ -243,6 +292,35 @@
         "border_color": "$colors.frame.preview",
         "border_width": 1,
         "padding": "$spacing.sm"
+      },
+      "settings-item-frame": {
+        "background_color": "$colors.frame.list",
+        "padding": "$spacing.xs"
+      },
+      "settings-item-frame-selected": {
+        "background_color": "$colors.frame.list_selected"
+      },
+      "settings-item-inner": {
+        "background_color": "$colors.fill.list_inner",
+        "padding": "$spacing.md"
+      },
+      "settings-item-inner-selected": {
+        "background_color": "$colors.fill.list_inner_selected"
+      },
+      "settings-item-title": {
+        "font_role": "title",
+        "text_color": "$colors.text.primary"
+      },
+      "settings-item-value": {
+        "font_role": "body",
+        "text_color": "$colors.text.muted"
+      },
+      "settings-item-hint": {
+        "font_role": "tiny",
+        "text_color": "$colors.text.muted"
+      },
+      "settings-item-hint-selected": {
+        "text_color": "$colors.text.highlight"
       },
       "status-success": {
         "font_role": "tiny",

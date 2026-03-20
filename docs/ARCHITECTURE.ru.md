@@ -60,6 +60,7 @@
 - `ThemeManager`
 - `ThemeFontRenderer`
 - `UiRenderer`
+- `SettingsScreen`
 
 ### `src/launch`
 
@@ -126,13 +127,13 @@ config/ui/screens/
 Темы лежат здесь:
 
 ```text
-config/themes/<theme-id>/
+themes/<theme-id>/
 ```
 
 Точка входа:
 
 ```text
-config/themes/<theme-id>/theme.json
+themes/<theme-id>/theme.json
 ```
 
 Сейчас тема управляет:
@@ -143,6 +144,7 @@ config/themes/<theme-id>/theme.json
 - реальными файлами шрифтов с bitmap fallback
 - фоновыми изображениями
 - иконками систем
+- оформлением общего status bar
 - style rules по type, class и id
 - заранее подготовленными вариантами экранов
 

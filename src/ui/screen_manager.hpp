@@ -13,6 +13,7 @@ public:
     void push(std::unique_ptr<Screen> screen);
     void pop();
     Screen* current();
+    const Screen* current() const;
     bool empty() const;
 
 private:

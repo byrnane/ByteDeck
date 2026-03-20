@@ -1,0 +1,40 @@
+{
+  "screen_id": "status_bar",
+  "variants": {
+    "default": {
+      "type": "screen",
+      "classes": ["status-bar-root"],
+      "children": [
+        {
+          "type": "stack",
+          "direction": "horizontal",
+          "align": "center",
+          "height": "fill",
+          "children": [
+            {
+              "type": "stack",
+              "direction": "horizontal",
+              "align": "center",
+              "gap": "$spacing.md",
+              "width": "fill",
+              "children": [
+                { "type": "text", "classes": ["status-brand"], "text_bind": "brand" },
+                { "type": "text", "classes": ["status-context"], "text_bind": "context", "truncate": true }
+              ]
+            },
+            {
+              "type": "stack",
+              "direction": "horizontal",
+              "align": "center",
+              "gap": "$spacing.lg",
+              "children": [
+                { "type": "text", "classes": ["status-meta"], "text_bind": "time" },
+                { "type": "text", "classes": ["status-meta"], "text_bind": "battery" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -21,8 +21,32 @@
                   "gap": "$spacing.md",
                   "height": "fill",
                   "children": [
-                    { "type": "text", "classes": ["screen-title"], "text_bind": "title" },
-                    { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" },
+                    {
+                      "type": "stack",
+                      "direction": "horizontal",
+                      "gap": "$spacing.md",
+                      "height": 56,
+                      "children": [
+                        {
+                          "type": "image",
+                          "classes": ["system-icon"],
+                          "system_icon_bind": "system_id",
+                          "placeholder_text_bind": "title",
+                          "width": 56,
+                          "height": 56
+                        },
+                        {
+                          "type": "stack",
+                          "direction": "vertical",
+                          "width": "fill",
+                          "gap": "$spacing.xs",
+                          "children": [
+                            { "type": "text", "classes": ["screen-title"], "text_bind": "title" },
+                            { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" }
+                          ]
+                        }
+                      ]
+                    },
                     {
                       "type": "panel",
                       "classes": ["panel-secondary"],

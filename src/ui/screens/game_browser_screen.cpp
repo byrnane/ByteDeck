@@ -11,12 +11,28 @@ GameBrowserScreen::GameBrowserScreen(
     const data::LibraryData& library,
     std::filesystem::path root_path,
     std::string system_id,
+    const platform::TranslationCatalog& translations,
     LaunchGameCallback launch_game
 )
     : root_path_(std::move(root_path))
     , system_id_(std::move(system_id))
+    , translations_(translations)
     , launch_game_(std::move(launch_game))
 {
+    for (const data::SystemEntry& entry : library.systems)
+    {
+        if (entry.id == system_id_)
+        {
+            system_name_ = entry.name;
+            break;
+        }
+    }
+
+    if (system_name_.empty())
+    {
+        system_name_ = system_id_;
+    }
+
     for (const data::GameItem& game : library.games)
     {
         if (game.system_id == system_id_)
@@ -61,11 +77,11 @@ UiBindings GameBrowserScreen::build_bindings() const
 {
     UiBindings bindings {
         { "title", system_name() },
-        { "subtitle", "GAME BROWSER" },
+        { "subtitle", translations_.translate("games.browser_subtitle") },
         { "empty", games_.empty() },
         { "has_items", !games_.empty() },
-        { "empty_title", "NO GAMES FOUND" },
-        { "empty_body", "CHECK ROMS AND GAMELIST.XML" },
+        { "empty_title", translations_.translate("games.browser_empty_title") },
+        { "empty_body", translations_.translate("games.browser_empty_body") },
         { "items", UiBindings::array() }
     };
 
@@ -84,16 +100,17 @@ UiBindings GameBrowserScreen::build_bindings() const
     }
 
     const data::GameItem& selected_game = *games_[selected_index_];
-    bindings["preview_title"] = "PREVIEW";
+    bindings["preview_title"] = translations_.translate("games.preview_title");
     bindings["preview_path"] = selected_game.thumbnail;
-    bindings["preview_placeholder"] = selected_game.thumbnail.empty() ? "NO THUMBNAIL" : "THUMBNAIL MISSING";
+    bindings["preview_placeholder"] = selected_game.thumbnail.empty() ? translations_.translate("games.no_thumbnail") : translations_.translate("games.thumbnail_missing");
     bindings["game_title"] = selected_game.title;
-    bindings["genre_line"] = "GENRE: " + (selected_game.genre.empty() ? std::string("N/A") : selected_game.genre);
-    bindings["players_line"] = "PLAYERS: " + (selected_game.players.empty() ? std::string("N/A") : selected_game.players);
-    bindings["date_line"] = "DATE: " + (selected_game.release_date.empty() ? std::string("N/A") : selected_game.release_date);
-    bindings["source_line"] = "SOURCE: " + selected_game.metadata_source;
-    bindings["description_title"] = "DESCRIPTION";
-    bindings["description_text"] = selected_game.description.empty() ? "NO DESCRIPTION AVAILABLE" : selected_game.description;
+    bindings["genre_line"] = translations_.translate("games.genre_prefix") + (selected_game.genre.empty() ? translations_.translate("common.na") : selected_game.genre);
+    bindings["players_line"] = translations_.translate("games.players_prefix") + (selected_game.players.empty() ? translations_.translate("common.na") : selected_game.players);
+    bindings["date_line"] = translations_.translate("games.date_prefix") + (selected_game.release_date.empty() ? translations_.translate("common.na") : selected_game.release_date);
+    bindings["source_line"] = translations_.translate("games.source_prefix") + selected_game.metadata_source;
+    bindings["description_title"] = translations_.translate("common.description");
+    bindings["description_text"] = selected_game.description.empty() ? translations_.translate("common.no_description") : selected_game.description;
+    bindings["system_id"] = system_id_;
     bindings["launch_status_success_visible"] = !launch_status_.empty() && launch_status_ok_;
     bindings["launch_status_error_visible"] = !launch_status_.empty() && !launch_status_ok_;
     bindings["launch_status_text"] = launch_status_;
@@ -127,23 +144,7 @@ void GameBrowserScreen::move_selection(int delta)
 
 std::string GameBrowserScreen::system_name() const
 {
-    if (system_id_ == "nes")
-    {
-        return "NES";
-    }
-    if (system_id_ == "snes")
-    {
-        return "SNES";
-    }
-    if (system_id_ == "megadrive")
-    {
-        return "Mega Drive";
-    }
-    if (system_id_ == "psp")
-    {
-        return "PSP";
-    }
-    return system_id_;
+    return system_name_;
 }
 
 
@@ -186,7 +187,7 @@ void GameBrowserScreen::launch_selected_game()
 
     if (!launch_game_)
     {
-        launch_status_ = "LAUNCH CALLBACK MISSING";
+        launch_status_ = translations_.translate("error.launch_callback_missing");
         launch_status_ok_ = false;
         platform::Logger::instance().error("Launch callback missing for game browser");
         return;

@@ -135,6 +135,7 @@ function Stage-WindowsDist {
         ForEach-Object { Copy-Item $_.FullName $ResolvedDistDir -Force }
 
     Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "config") -DestinationPath (Join-Path $ResolvedDistDir "config")
+    Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "themes") -DestinationPath (Join-Path $ResolvedDistDir "themes")
     Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "assets") -DestinationPath (Join-Path $ResolvedDistDir "assets")
     Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "collections") -DestinationPath (Join-Path $ResolvedDistDir "collections")
     Copy-Item (Join-Path $RepoRoot "scripts\launch_item.sh") (Join-Path $ResolvedDistDir "scripts\launch_item.sh") -Force

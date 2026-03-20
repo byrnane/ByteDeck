@@ -121,6 +121,7 @@ function Stage-TrimuiSpsDist {
     $binaryPath = Resolve-BuiltBinaryPath -ResolvedBuildDir $ResolvedBuildDir
     Copy-Item $binaryPath (Join-Path $appRoot "bin\bytedeck") -Force
     Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "config") -DestinationPath (Join-Path $appRoot "config")
+    Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "themes") -DestinationPath (Join-Path $appRoot "themes")
     Copy-TreeIfExists -SourcePath (Join-Path $RepoRoot "assets") -DestinationPath (Join-Path $appRoot "assets")
     Copy-Item (Join-Path $RepoRoot "scripts\launch_item.sh") (Join-Path $appRoot "scripts\launch_item.sh") -Force
 

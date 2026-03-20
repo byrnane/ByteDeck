@@ -9,7 +9,7 @@
 Интерфейс ByteDeck разделён на две части:
 
 - `config/ui/screens/*.json` описывает структуру экрана
-- `config/themes/<theme-id>/theme.json` описывает внешний вид этой структуры
+- `themes/<theme-id>/theme.json` описывает внешний вид этой структуры
 
 Layout отвечает за панели, списки, текст и изображения.
 Theme отвечает за цвета, отступы, типографику, фоны и иконки.
@@ -19,13 +19,13 @@ Theme отвечает за цвета, отступы, типографику, 
 Каждая тема живёт в своей папке:
 
 ```text
-config/themes/<theme-id>/
+themes/<theme-id>/
 ```
 
 Точка входа:
 
 ```text
-config/themes/<theme-id>/theme.json
+themes/<theme-id>/theme.json
 ```
 
 Любой путь к ассету внутри `theme.json` считается относительным к этой папке темы.
@@ -39,7 +39,7 @@ config/themes/<theme-id>/theme.json
 Это значит:
 
 ```text
-config/themes/<theme-id>/images/main-menu.png
+themes/<theme-id>/images/main-menu.png
 ```
 
 Жёсткой внутренней структуры нет. Ты сам решаешь, как разложить `fonts/`, `icons/`, `images/` и `backgrounds/`.
@@ -217,6 +217,7 @@ config/themes/<theme-id>/images/main-menu.png
 - `system_icons`
 - пути к изображениям из style rules
 - файлы шрифтов из `fonts`
+- ассеты для общего chrome интерфейса, например верхнего status bar
 
 ### Фоновые изображения
 

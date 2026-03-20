@@ -9,7 +9,8 @@ constexpr int kColumns = 2;
 }
 
 
-GamesScreen::GamesScreen(const data::LibraryData& library)
+GamesScreen::GamesScreen(const data::LibraryData& library, const platform::TranslationCatalog& translations)
+    : translations_(translations)
 {
     for (const data::SystemEntry& entry : library.systems)
     {
@@ -42,7 +43,7 @@ ScreenAction GamesScreen::handle_event(const SDL_Event& event)
         {
             return { ScreenActionType::open_game_browser, entries_[selected_index_].id };
         }
-        return { ScreenActionType::open_placeholder, "Collections" };
+        return { ScreenActionType::open_placeholder, translations_.translate("screen.collections") };
     case NavigationInput::back:
         return { ScreenActionType::pop };
     case NavigationInput::quit:
@@ -67,19 +68,20 @@ UiBindings GamesScreen::build_bindings() const
     {
         items.push_back({
             { "title", entries_[index].name },
-            { "meta", std::to_string(entries_[index].item_count) + " ITEMS" },
-            { "hint", index == selected_index_ ? "PRESS A TO OPEN" : "READY" },
+            { "meta", std::to_string(entries_[index].item_count) + " " + translations_.translate("common.items_suffix") },
+            { "hint", index == selected_index_ ? translations_.translate("common.press_a_to_open") : translations_.translate("common.ready") },
+            { "system_id", entries_[index].id },
             { "selected", index == selected_index_ }
         });
     }
 
     return UiBindings {
-        { "title", "GAMES" },
-        { "subtitle", "VISIBLE SYSTEMS AND COLLECTIONS" },
+        { "title", translations_.translate("menu.games") },
+        { "subtitle", translations_.translate("games.subtitle") },
         { "empty", entries_.empty() },
         { "has_items", !entries_.empty() },
-        { "empty_title", "NO SYSTEMS FOUND" },
-        { "empty_body", "ADD ROMS TO ROMS/NES OR ROMS/MEGADRIVE" },
+        { "empty_title", translations_.translate("games.empty_title") },
+        { "empty_body", translations_.translate("games.empty_body") },
         { "items", items }
     };
 }
@@ -89,10 +91,10 @@ std::string GamesScreen::window_title() const
 {
     if (entries_.empty())
     {
-        return "Games";
+        return translations_.translate("menu.games");
     }
 
-    return "Games - " + entries_[selected_index_].name;
+    return translations_.translate("menu.games") + " - " + entries_[selected_index_].name;
 }
 
 

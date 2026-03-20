@@ -60,6 +60,7 @@ Important parts:
 - `ThemeManager`
 - `ThemeFontRenderer`
 - `UiRenderer`
+- `SettingsScreen`
 
 ### `src/launch`
 
@@ -126,13 +127,13 @@ The current node set is:
 Themes live under:
 
 ```text
-config/themes/<theme-id>/
+themes/<theme-id>/
 ```
 
 Theme entrypoint:
 
 ```text
-config/themes/<theme-id>/theme.json
+themes/<theme-id>/theme.json
 ```
 
 Themes currently control:
@@ -143,6 +144,7 @@ Themes currently control:
 - real font files with bitmap fallback
 - background images
 - system icons
+- status bar styling
 - style rules by type, class and id
 - predefined screen variants
 

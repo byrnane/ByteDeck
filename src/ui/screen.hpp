@@ -16,9 +16,12 @@ enum class ScreenActionType
     quit,
     open_games,
     open_apps,
-    open_settings_stub,
+    open_settings,
     open_placeholder,
-    open_game_browser
+    open_game_browser,
+    rescan_library,
+    set_language,
+    set_theme
 };
 
 

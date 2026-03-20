@@ -7,8 +7,13 @@
 
 namespace bytedeck::ui
 {
-AppsScreen::AppsScreen(const data::LibraryData& library, std::filesystem::path root_path, LaunchAppCallback launch_app)
+AppsScreen::AppsScreen(
+    const data::LibraryData& library,
+    std::filesystem::path root_path,
+    const platform::TranslationCatalog& translations,
+    LaunchAppCallback launch_app)
     : root_path_(std::move(root_path))
+    , translations_(translations)
     , launch_app_(std::move(launch_app))
 {
     for (const data::AppItem& app : library.apps)
@@ -51,13 +56,13 @@ std::string AppsScreen::screen_id() const
 UiBindings AppsScreen::build_bindings() const
 {
     UiBindings bindings {
-        { "title", "APPS" },
-        { "subtitle", "TOOLS AND UTILITIES" },
+        { "title", translations_.translate("menu.apps") },
+        { "subtitle", translations_.translate("apps.subtitle") },
         { "empty", apps_.empty() },
         { "has_items", !apps_.empty() },
-        { "empty_title", "NO APPS FOUND" },
-        { "empty_body", "ADD APPS/*/MANIFEST.JSON" },
-        { "empty_hint", "APPS SCREEN IS READY FOR REAL DATA" },
+        { "empty_title", translations_.translate("apps.empty_title") },
+        { "empty_body", translations_.translate("apps.empty_body") },
+        { "empty_hint", translations_.translate("apps.empty_hint") },
         { "items", UiBindings::array() }
     };
 
@@ -76,13 +81,13 @@ UiBindings AppsScreen::build_bindings() const
     }
 
     const data::AppItem& selected_app = *apps_[selected_index_];
-    bindings["preview_title"] = "APP PREVIEW";
+    bindings["preview_title"] = translations_.translate("apps.preview_title");
     bindings["preview_path"] = selected_app.icon;
-    bindings["preview_placeholder"] = selected_app.icon.empty() ? "NO ICON" : "ICON MISSING";
+    bindings["preview_placeholder"] = selected_app.icon.empty() ? translations_.translate("apps.no_icon") : translations_.translate("apps.icon_missing");
     bindings["app_title"] = selected_app.title;
-    bindings["target_line"] = "TARGET: " + selected_app.launch_target;
-    bindings["description_title"] = "DESCRIPTION";
-    bindings["description_text"] = selected_app.description.empty() ? "NO DESCRIPTION AVAILABLE" : selected_app.description;
+    bindings["target_line"] = translations_.translate("apps.target_prefix") + selected_app.launch_target;
+    bindings["description_title"] = translations_.translate("common.description");
+    bindings["description_text"] = selected_app.description.empty() ? translations_.translate("common.no_description") : selected_app.description;
     bindings["launch_status_success_visible"] = !launch_status_.empty() && launch_status_ok_;
     bindings["launch_status_error_visible"] = !launch_status_.empty() && !launch_status_ok_;
     bindings["launch_status_text"] = launch_status_;
@@ -94,10 +99,10 @@ std::string AppsScreen::window_title() const
 {
     if (apps_.empty())
     {
-        return "Apps";
+        return translations_.translate("menu.apps");
     }
 
-    return "Apps - " + apps_[selected_index_]->title;
+    return translations_.translate("menu.apps") + " - " + apps_[selected_index_]->title;
 }
 
 
@@ -153,7 +158,7 @@ void AppsScreen::launch_selected_app()
 
     if (!launch_app_)
     {
-        launch_status_ = "LAUNCH CALLBACK MISSING";
+        launch_status_ = translations_.translate("error.launch_callback_missing");
         launch_status_ok_ = false;
         platform::Logger::instance().error("Launch callback missing for apps screen");
         return;

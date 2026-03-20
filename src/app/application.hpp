@@ -3,6 +3,8 @@
 #include "data/models.hpp"
 #include "launch/launch_service.hpp"
 #include "platform/paths.hpp"
+#include "platform/status_service.hpp"
+#include "platform/translation_catalog.hpp"
 #include "platform/user_settings.hpp"
 #include "ui/navigation_input.hpp"
 #include "ui/layout_registry.hpp"
@@ -15,6 +17,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace bytedeck
@@ -40,6 +43,11 @@ private:
     void toggle_fullscreen();
     void open_input_devices();
     void close_input_devices();
+    void reload_theme();
+    bool apply_language(const std::string& language);
+    bool apply_theme(const std::string& theme_id);
+    std::pair<bool, std::string> rescan_library();
+    ui::UiBindings build_status_bar_bindings() const;
 
     bool initialized_ = false;
     bool fullscreen_ = false;
@@ -53,6 +61,8 @@ private:
     std::optional<launch::LaunchRequest> pending_launch_request_;
     platform::Paths paths_;
     platform::UserSettings user_settings_;
+    platform::TranslationCatalog translations_;
+    std::unique_ptr<platform::StatusService> status_service_;
     data::LibraryData library_;
     std::unique_ptr<launch::LaunchService> launch_service_;
     std::unique_ptr<ui::LayoutRegistry> layout_registry_;

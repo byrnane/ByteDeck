@@ -3,4 +3,56 @@ menu.games,Games,Игры
 menu.settings,Settings,Настройки
 menu.apps,Apps,Приложения
 screen.main_menu,Main Menu,Главное меню
-status.stub_select,Stub action,Тестовое действие
+screen.collections,Collections,Коллекции
+placeholder.title,Placeholder,Раздел
+placeholder.subtitle,Not available yet,Пока недоступно
+placeholder.body,This part of the launcher is not implemented yet.,Этот раздел лаунчера пока не реализован.
+common.items_suffix,items,игр
+common.empty,Empty,Пусто
+common.press_a,Press A,Нажмите A
+common.press_a_to_open,Press A to open,Нажмите A для открытия
+common.ready,Ready,Готово
+common.description,Description,Описание
+common.no_description,No description available.,Описание отсутствует.
+common.na,N/A,Н/Д
+games.subtitle,Choose a system to browse.,Выберите систему для просмотра.
+games.empty_title,No systems found,Системы не найдены
+games.empty_body,Add ROMs to your library folders and run a scan again.,Добавьте ROM-файлы в папки библиотеки и запустите сканирование ещё раз.
+games.browser_subtitle,Game Browser,Браузер игр
+games.browser_empty_title,No games found,Игры не найдены
+games.browser_empty_body,This system does not contain visible games yet.,В этой системе пока нет видимых игр.
+games.preview_title,Preview,Превью
+games.no_thumbnail,No thumbnail,Нет миниатюры
+games.thumbnail_missing,Thumbnail missing,Миниатюра не найдена
+games.genre_prefix,Genre: ,Жанр: 
+games.players_prefix,Players: ,Игроки: 
+games.date_prefix,Date: ,Дата: 
+games.source_prefix,Source: ,Источник: 
+apps.subtitle,Applications and tools,Приложения и инструменты
+apps.empty_title,No apps found,Приложения не найдены
+apps.empty_body,Drop manifests into the Apps directory to make them appear here.,Добавьте манифесты в папку Apps, чтобы приложения появились здесь.
+apps.empty_hint,The Apps directory is empty.,Папка Apps пуста.
+apps.preview_title,Selected App,Выбранное приложение
+apps.no_icon,No icon,Нет иконки
+apps.icon_missing,Icon missing,Иконка не найдена
+apps.target_prefix,Target: ,Цель: 
+settings.subtitle,System and library options,Системные параметры и библиотека
+settings.ready_status,Ready,Готово
+settings.item.language,Language,Язык
+settings.item.theme,Theme,Тема
+settings.item.rescan,Rescan Library,Пересканировать библиотеку
+settings.detail.language,"Switch the interface language immediately. The choice is saved to user settings.","Сразу переключает язык интерфейса. Выбор сохраняется в пользовательских настройках."
+settings.detail.theme,"Select the active UI theme. Themes are loaded from the top-level themes directory.","Выбирает активную тему интерфейса. Темы загружаются из корневой папки themes."
+settings.detail.rescan,"Rebuild the library from ROM folders, gamelist.xml files and app manifests. The cache file is updated immediately.","Пересобирает библиотеку по папкам ROM, файлам gamelist.xml и манифестам приложений. Кэш обновляется сразу."
+settings.hint.cycle,Left/Right or A to change,Влево/вправо или A для смены
+settings.hint.run,Press A to run,Нажмите A для запуска
+settings.rescan_value,Run now,Запустить
+settings.status.language_applied,Language updated.,Язык обновлён.
+settings.status.language_failed,Failed to update language.,Не удалось обновить язык.
+settings.status.theme_applied,Theme applied.,Тема применена.
+settings.status.theme_failed,Failed to apply theme.,Не удалось применить тему.
+settings.status.rescan_success,Library scan completed.,Сканирование библиотеки завершено.
+settings.status.rescan_failed,Library scan failed.,Сканирование библиотеки завершилось ошибкой.
+language.name.en,English,English
+language.name.ru,Russian,Русский
+error.launch_callback_missing,Launch callback is not configured.,Не настроен обработчик запуска.

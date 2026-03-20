@@ -28,6 +28,17 @@ Screen* ScreenManager::current()
 }
 
 
+const Screen* ScreenManager::current() const
+{
+    if (screens_.empty())
+    {
+        return nullptr;
+    }
+
+    return screens_.back().get();
+}
+
+
 bool ScreenManager::empty() const
 {
     return screens_.empty();

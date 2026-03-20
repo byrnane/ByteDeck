@@ -2,6 +2,7 @@
 
 #include "data/models.hpp"
 #include "launch/launch_service.hpp"
+#include "platform/translation_catalog.hpp"
 #include "ui/screen.hpp"
 
 #include <filesystem>
@@ -15,7 +16,11 @@ class AppsScreen final : public Screen
 public:
     using LaunchAppCallback = std::function<launch::LaunchResult(const data::AppItem&)>;
 
-    AppsScreen(const data::LibraryData& library, std::filesystem::path root_path, LaunchAppCallback launch_app);
+    AppsScreen(
+        const data::LibraryData& library,
+        std::filesystem::path root_path,
+        const platform::TranslationCatalog& translations,
+        LaunchAppCallback launch_app);
 
     ScreenAction handle_event(const SDL_Event& event) override;
     std::string screen_id() const override;
@@ -28,6 +33,7 @@ private:
     void launch_selected_app();
 
     std::filesystem::path root_path_;
+    const platform::TranslationCatalog& translations_;
     LaunchAppCallback launch_app_;
     std::vector<const data::AppItem*> apps_;
     std::size_t selected_index_ = 0;

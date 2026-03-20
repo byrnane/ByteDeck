@@ -9,7 +9,7 @@
 ByteDeck UI is split into two parts:
 
 - `config/ui/screens/*.json` describes the screen structure
-- `config/themes/<theme-id>/theme.json` describes how that structure looks
+- `themes/<theme-id>/theme.json` describes how that structure looks
 
 Layouts define panels, lists, text and images.
 Themes define colors, spacing, typography, backgrounds and icons.
@@ -19,13 +19,13 @@ Themes define colors, spacing, typography, backgrounds and icons.
 Every theme lives in its own folder:
 
 ```text
-config/themes/<theme-id>/
+themes/<theme-id>/
 ```
 
 The entry file is:
 
 ```text
-config/themes/<theme-id>/theme.json
+themes/<theme-id>/theme.json
 ```
 
 Any asset path inside `theme.json` is resolved relative to that theme folder.
@@ -39,7 +39,7 @@ Example:
 This means:
 
 ```text
-config/themes/<theme-id>/images/main-menu.png
+themes/<theme-id>/images/main-menu.png
 ```
 
 There is no forced internal folder structure. You can organize `fonts/`, `icons/`, `images/` and `backgrounds/` however you want.
@@ -217,6 +217,7 @@ Currently supported asset use cases:
 - `system_icons`
 - image paths referenced by style rules
 - font files from `fonts`
+- global chrome assets such as status bar typography and icons
 
 ### Background images
 

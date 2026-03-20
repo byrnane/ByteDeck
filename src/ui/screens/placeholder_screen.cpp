@@ -6,8 +6,9 @@
 namespace bytedeck::ui
 {
 
-PlaceholderScreen::PlaceholderScreen(std::string title)
-    : title_(std::move(title))
+PlaceholderScreen::PlaceholderScreen(std::string title, const platform::TranslationCatalog& translations)
+    : translations_(translations)
+    , title_(std::move(title))
 {
 }
 
@@ -39,8 +40,8 @@ UiBindings PlaceholderScreen::build_bindings() const
 {
     return UiBindings {
         { "title", title_ },
-        { "subtitle", "SCREEN STUB" },
-        { "body", "PRESS B OR ESC TO GO BACK" }
+        { "subtitle", translations_.translate("placeholder.subtitle") },
+        { "body", translations_.translate("placeholder.body") }
     };
 }
 

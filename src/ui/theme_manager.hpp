@@ -27,6 +27,7 @@ public:
     bool load();
     const std::string& active_theme_id() const;
     const std::filesystem::path& active_theme_root() const;
+    std::vector<std::string> available_theme_ids() const;
     std::string screen_variant(const std::string& screen_id) const;
     nlohmann::json merge_style(const LayoutNode& node, const std::vector<std::string>& runtime_classes) const;
     nlohmann::json resolve_value(const nlohmann::json& value) const;

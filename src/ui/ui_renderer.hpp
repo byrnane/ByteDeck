@@ -23,6 +23,7 @@ public:
     UiRenderer(const platform::Paths& paths, const LayoutRegistry& layout_registry, const ThemeManager& theme_manager);
 
     void render_screen(SDL_Renderer& renderer, const std::string& screen_id, const UiBindings& bindings);
+    void render_screen(SDL_Renderer& renderer, const std::string& screen_id, const UiBindings& bindings, const SDL_Rect& bounds);
 
 private:
     struct Spacing
@@ -40,7 +41,7 @@ private:
     void render_image(SDL_Renderer& renderer, const UiBindings& bindings, const SDL_Rect& bounds, const nlohmann::json& style);
     void render_list(SDL_Renderer& renderer, const LayoutNode& node, const UiBindings& bindings, const SDL_Rect& bounds, const nlohmann::json& style);
     void render_rect(SDL_Renderer& renderer, const SDL_Rect& bounds, const nlohmann::json& style);
-    void draw_fallback(SDL_Renderer& renderer, const std::string& screen_id, const std::string& message);
+    void draw_fallback(SDL_Renderer& renderer, const std::string& screen_id, const std::string& message, const SDL_Rect& bounds);
 
     nlohmann::json resolve_style(const LayoutNode& node, const UiBindings& bindings) const;
     std::vector<std::string> collect_runtime_classes(const LayoutNode& node, const UiBindings& bindings) const;

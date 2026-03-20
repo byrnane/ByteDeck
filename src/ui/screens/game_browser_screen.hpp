@@ -2,6 +2,7 @@
 
 #include "data/models.hpp"
 #include "launch/launch_service.hpp"
+#include "platform/translation_catalog.hpp"
 #include "ui/screen.hpp"
 
 #include <filesystem>
@@ -19,6 +20,7 @@ public:
         const data::LibraryData& library,
         std::filesystem::path root_path,
         std::string system_id,
+        const platform::TranslationCatalog& translations,
         LaunchGameCallback launch_game
     );
 
@@ -35,6 +37,8 @@ private:
 
     std::filesystem::path root_path_;
     std::string system_id_;
+    std::string system_name_;
+    const platform::TranslationCatalog& translations_;
     LaunchGameCallback launch_game_;
     std::vector<const data::GameItem*> games_;
     std::size_t selected_index_ = 0;

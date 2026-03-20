@@ -33,5 +33,6 @@ private:
     std::filesystem::path cache_root_;
     std::filesystem::path scripts_root_;
     std::filesystem::path config_root_;
+    std::filesystem::path themes_root_;
 };
 }

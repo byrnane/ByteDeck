@@ -8,10 +8,11 @@
 #include "ui/screens/games_screen.hpp"
 #include "ui/screens/main_menu_screen.hpp"
 #include "ui/screens/placeholder_screen.hpp"
-#include "ui/screens/settings_stub_screen.hpp"
+#include "ui/screens/settings_screen.hpp"
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -22,6 +23,7 @@ namespace
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
 constexpr const char* kBaseWindowTitle = "ByteDeck";
+constexpr int kStatusBarHeight = 56;
 constexpr Uint32 kRepeatDelayMs = 350;
 constexpr Uint32 kRepeatIntervalMs = 90;
 
@@ -64,7 +66,7 @@ int Application::run(int /*argc*/, char** /*argv*/)
 {
     initialize();
 
-    screen_manager_.push(std::make_unique<ui::MainMenuScreen>(library_));
+    screen_manager_.push(std::make_unique<ui::MainMenuScreen>(library_, translations_));
     refresh_window_title();
 
     bool running = true;
@@ -125,11 +127,12 @@ void Application::initialize()
     platform::Logger::instance().info("Starting ByteDeck");
 
     user_settings_ = platform::UserSettings::load(paths_.user_settings_path());
+    translations_.load(paths_.translations_path());
+    translations_.set_language(user_settings_.language);
     launch_service_ = std::make_unique<launch::LaunchService>(paths_);
     layout_registry_ = std::make_unique<ui::LayoutRegistry>(paths_.ui_screens_root());
     layout_registry_->load();
-    theme_manager_ = std::make_unique<ui::ThemeManager>(paths_.themes_root(), user_settings_.theme);
-    theme_manager_->load();
+    reload_theme();
 
     core::LibraryScanner scanner(paths_);
     library_ = scanner.scan();
@@ -162,7 +165,7 @@ void Application::initialize()
         throw std::runtime_error(std::string("SDL_CreateRenderer failed: ") + SDL_GetError());
     }
 
-    ui_renderer_ = std::make_unique<ui::UiRenderer>(paths_, *layout_registry_, *theme_manager_);
+    status_service_ = std::make_unique<platform::StatusService>(paths_.root());
     open_input_devices();
     initialized_ = true;
 }
@@ -232,10 +235,29 @@ void Application::render()
     SDL_SetRenderDrawColor(renderer_, 15, 18, 24, 255);
     SDL_RenderClear(renderer_);
 
-    auto* current = screen_manager_.current();
-    if (current != nullptr)
+    if (status_service_)
     {
-        ui_renderer_->render_screen(*renderer_, current->screen_id(), current->build_bindings());
+        status_service_->update();
+    }
+
+    auto* current = screen_manager_.current();
+    if (current != nullptr && ui_renderer_ != nullptr)
+    {
+        int width = 0;
+        int height = 0;
+        SDL_GetRendererOutputSize(renderer_, &width, &height);
+
+        ui_renderer_->render_screen(
+            *renderer_,
+            "status_bar",
+            build_status_bar_bindings(),
+            SDL_Rect { 0, 0, width, kStatusBarHeight });
+
+        ui_renderer_->render_screen(
+            *renderer_,
+            current->screen_id(),
+            current->build_bindings(),
+            SDL_Rect { 0, kStatusBarHeight, width, std::max(0, height - kStatusBarHeight) });
     }
 
     SDL_RenderPresent(renderer_);
@@ -314,13 +336,14 @@ void Application::apply_screen_action(const ui::ScreenAction& action, bool& runn
         clear_repeat_state();
         break;
     case ui::ScreenActionType::open_games:
-        screen_manager_.push(std::make_unique<ui::GamesScreen>(library_));
+        screen_manager_.push(std::make_unique<ui::GamesScreen>(library_, translations_));
         clear_repeat_state();
         break;
     case ui::ScreenActionType::open_apps:
         screen_manager_.push(std::make_unique<ui::AppsScreen>(
             library_,
             paths_.root(),
+            translations_,
             [this](const data::AppItem& item)
             {
                 const launch::LaunchResult result = launch_service_->launch_app(item);
@@ -334,12 +357,22 @@ void Application::apply_screen_action(const ui::ScreenAction& action, bool& runn
         ));
         clear_repeat_state();
         break;
-    case ui::ScreenActionType::open_settings_stub:
-        screen_manager_.push(std::make_unique<ui::SettingsStubScreen>());
+    case ui::ScreenActionType::open_settings:
+        screen_manager_.push(std::make_unique<ui::SettingsScreen>(
+            translations_,
+            translations_.language(),
+            theme_manager_ ? theme_manager_->available_theme_ids() : std::vector<std::string> { user_settings_.theme },
+            theme_manager_ ? theme_manager_->active_theme_id() : user_settings_.theme,
+            [this](const std::string& language) { return apply_language(language); },
+            [this](const std::string& theme_id) { return apply_theme(theme_id); },
+            [this]() { return rescan_library(); }
+        ));
         clear_repeat_state();
         break;
     case ui::ScreenActionType::open_placeholder:
-        screen_manager_.push(std::make_unique<ui::PlaceholderScreen>(action.value.empty() ? "Placeholder" : action.value));
+        screen_manager_.push(std::make_unique<ui::PlaceholderScreen>(
+            action.value.empty() ? translations_.translate("placeholder.title") : action.value,
+            translations_));
         clear_repeat_state();
         break;
     case ui::ScreenActionType::open_game_browser:
@@ -347,6 +380,7 @@ void Application::apply_screen_action(const ui::ScreenAction& action, bool& runn
             library_,
             paths_.root(),
             action.value,
+            translations_,
             [this](const data::GameItem& item)
             {
                 const launch::LaunchResult result = launch_service_->launch_game(item);
@@ -359,6 +393,10 @@ void Application::apply_screen_action(const ui::ScreenAction& action, bool& runn
             }
         ));
         clear_repeat_state();
+        break;
+    case ui::ScreenActionType::rescan_library:
+    case ui::ScreenActionType::set_language:
+    case ui::ScreenActionType::set_theme:
         break;
     }
 
@@ -468,5 +506,78 @@ void Application::close_input_devices()
         }
     }
     joysticks_.clear();
+}
+
+
+void Application::reload_theme()
+{
+    theme_manager_ = std::make_unique<ui::ThemeManager>(paths_.themes_root(), user_settings_.theme);
+    theme_manager_->load();
+    user_settings_.theme = theme_manager_->active_theme_id();
+    ui_renderer_ = std::make_unique<ui::UiRenderer>(paths_, *layout_registry_, *theme_manager_);
+}
+
+
+bool Application::apply_language(const std::string& language)
+{
+    translations_.set_language(language);
+    user_settings_.language = language;
+    const bool saved = user_settings_.save(paths_.user_settings_path());
+    refresh_window_title();
+    return saved;
+}
+
+
+bool Application::apply_theme(const std::string& theme_id)
+{
+    user_settings_.theme = theme_id;
+    reload_theme();
+    const bool saved = user_settings_.save(paths_.user_settings_path());
+    refresh_window_title();
+    return saved;
+}
+
+
+std::pair<bool, std::string> Application::rescan_library()
+{
+    try
+    {
+        core::LibraryScanner scanner(paths_);
+        library_ = scanner.scan();
+        scanner.save_cache(library_);
+        return { true, translations_.translate("settings.status.rescan_success") };
+    }
+    catch (const std::exception& exception)
+    {
+        platform::Logger::instance().error(std::string("Library rescan failed: ") + exception.what());
+        return { false, translations_.translate("settings.status.rescan_failed") };
+    }
+}
+
+
+ui::UiBindings Application::build_status_bar_bindings() const
+{
+    ui::UiBindings bindings {
+        { "brand", "BYTEDECK" },
+        { "context", translations_.translate("screen.main_menu") },
+        { "time", "--:--" },
+        { "battery", "--%" }
+    };
+
+    if (auto* current = screen_manager_.current(); current != nullptr)
+    {
+        bindings["context"] = current->window_title();
+    }
+
+    if (status_service_)
+    {
+        const platform::StatusSnapshot& snapshot = status_service_->snapshot();
+        bindings["time"] = snapshot.time_text;
+        bindings["battery"] = snapshot.battery_available
+            ? (snapshot.battery_text + (snapshot.charging ? " +" : ""))
+            : std::string("--%");
+    }
+
+    return bindings;
 }
 }

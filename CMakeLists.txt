@@ -56,6 +56,8 @@ set(BYTEDECK_SOURCES
   src/launch/launch_service.cpp
   src/platform/logger.cpp
   src/platform/paths.cpp
+  src/platform/status_service.cpp
+  src/platform/translation_catalog.cpp
   src/platform/user_settings.cpp
   src/ui/image_texture.cpp
   src/ui/layout_registry.cpp
@@ -69,7 +71,7 @@ set(BYTEDECK_SOURCES
   src/ui/screens/games_screen.cpp
   src/ui/screens/main_menu_screen.cpp
   src/ui/screens/placeholder_screen.cpp
-  src/ui/screens/settings_stub_screen.cpp
+  src/ui/screens/settings_screen.cpp
 )
 
 add_executable(bytedeck ${BYTEDECK_SOURCES})

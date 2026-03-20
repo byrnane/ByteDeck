@@ -5,12 +5,20 @@
 
 namespace bytedeck::ui
 {
-MainMenuScreen::MainMenuScreen(const data::LibraryData& library)
-    : items_ { "Games", "Settings", "Apps" }
+namespace
 {
-    item_counts_.push_back(static_cast<int>(library.games.size()));
-    item_counts_.push_back(0);
-    item_counts_.push_back(static_cast<int>(library.apps.size()));
+std::string item_count_text(const platform::TranslationCatalog& translations, int count)
+{
+    return std::to_string(count) + " " + translations.translate("common.items_suffix");
+}
+}
+
+
+MainMenuScreen::MainMenuScreen(const data::LibraryData& library, const platform::TranslationCatalog& translations)
+    : library_(library)
+    , translations_(translations)
+    , items_ { "games", "settings", "apps" }
+{
 }
 
 
@@ -33,7 +41,7 @@ ScreenAction MainMenuScreen::handle_event(const SDL_Event& event)
         }
         if (selected_index_ == 1)
         {
-            return { ScreenActionType::open_settings_stub };
+            return { ScreenActionType::open_settings };
         }
         return { ScreenActionType::open_apps };
     case NavigationInput::back:
@@ -54,31 +62,36 @@ std::string MainMenuScreen::screen_id() const
 
 UiBindings MainMenuScreen::build_bindings() const
 {
+    const std::vector<int> item_counts = {
+        static_cast<int>(library_.games.size()),
+        1,
+        static_cast<int>(library_.apps.size())
+    };
     UiBindings items = UiBindings::array();
     for (std::size_t index = 0; index < items_.size(); ++index)
     {
         const bool selected = index == selected_index_;
-        std::string status = "EMPTY";
-        if (item_counts_[index] > 0)
+        std::string status = translations_.translate("common.empty");
+        if (index == 1)
         {
-            status = std::to_string(item_counts_[index]) + " ITEMS";
+            status = translations_.translate("settings.ready_status");
         }
-        else if (index == 1)
+        else if (item_counts[index] > 0)
         {
-            status = "STUB";
+            status = item_count_text(translations_, item_counts[index]);
         }
 
         items.push_back({
-            { "title", items_[index] },
+            { "title", translations_.translate("menu." + items_[index]) },
             { "status", status },
-            { "hint", selected ? "PRESS A" : "READY" },
+            { "hint", selected ? translations_.translate("common.press_a") : translations_.translate("common.ready") },
             { "selected", selected }
         });
     }
 
     return UiBindings {
         { "brand", "BYTEDECK" },
-        { "subtitle", "MAIN MENU" },
+        { "subtitle", translations_.translate("screen.main_menu") },
         { "items", items }
     };
 }
@@ -86,7 +99,7 @@ UiBindings MainMenuScreen::build_bindings() const
 
 std::string MainMenuScreen::window_title() const
 {
-    return "Main Menu - " + items_[selected_index_];
+    return translations_.translate("screen.main_menu") + " - " + translations_.translate("menu." + items_[selected_index_]);
 }
 
 

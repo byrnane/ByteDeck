@@ -12,5 +12,6 @@ struct UserSettings
     bool confirm_before_shutdown = false;
 
     static UserSettings load(const std::filesystem::path& path);
+    bool save(const std::filesystem::path& path) const;
 };
 }

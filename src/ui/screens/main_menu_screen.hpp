@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data/models.hpp"
+#include "platform/translation_catalog.hpp"
 #include "ui/screen.hpp"
 
 #include <string>
@@ -11,7 +12,7 @@ namespace bytedeck::ui
 class MainMenuScreen final : public Screen
 {
 public:
-    explicit MainMenuScreen(const data::LibraryData& library);
+    MainMenuScreen(const data::LibraryData& library, const platform::TranslationCatalog& translations);
 
     ScreenAction handle_event(const SDL_Event& event) override;
     std::string screen_id() const override;
@@ -21,8 +22,9 @@ public:
 private:
     void move_selection(int delta);
 
+    const data::LibraryData& library_;
+    const platform::TranslationCatalog& translations_;
     std::vector<std::string> items_;
-    std::vector<int> item_counts_;
     std::size_t selected_index_ = 0;
 };
 }
