@@ -122,9 +122,14 @@ function Read-InteractiveCommand {
 }
 
 try {
-    if ($Arguments.Count -gt 0) {
-        $commandName = $Arguments[0].ToLowerInvariant()
-        $forwardedArgs = if ($Arguments.Count -gt 1) { $Arguments[1..($Arguments.Count - 1)] } else { @() }
+    $normalizedArguments = @()
+    if ($null -ne $Arguments) {
+        $normalizedArguments = @($Arguments | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+
+    if ($normalizedArguments.Count -gt 0) {
+        $commandName = $normalizedArguments[0].ToLowerInvariant()
+        $forwardedArgs = if ($normalizedArguments.Count -gt 1) { $normalizedArguments[1..($normalizedArguments.Count - 1)] } else { @() }
 
         if ($commandName -in @("help", "-h", "--help", "/?")) {
             Write-LauncherHelp
