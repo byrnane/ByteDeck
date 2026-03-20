@@ -25,6 +25,8 @@ ByteDeck/
   cmake/
     toolchains/
   config/
+    themes/
+    ui/
   device/
     trimui_sps/
   docs/
@@ -194,6 +196,10 @@ This removes generated paths only:
 - `local/sdk/trimui_sps/` contains the real external SDK
 - `dist/` is the ready-to-use result
 - `out/` is internal build output
+- UI is now driven by:
+  - `config/ui/screens/*.json` for screen layouts
+  - `config/themes/default/theme.json` for theme tokens, styles and screen variants
+- screen logic stays in C++, but rendering is now `layout + bindings + theme`
 
 Additional docs:
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ui/ui_bindings.hpp"
+
 #include <SDL.h>
 
 #include <string>
@@ -14,6 +16,7 @@ enum class ScreenActionType
     quit,
     open_games,
     open_apps,
+    open_settings_stub,
     open_placeholder,
     open_game_browser
 };
@@ -45,7 +48,8 @@ public:
     virtual ~Screen() = default;
 
     virtual ScreenAction handle_event(const SDL_Event& event) = 0;
-    virtual void render(SDL_Renderer& renderer) = 0;
+    virtual std::string screen_id() const = 0;
+    virtual UiBindings build_bindings() const = 0;
     virtual std::string window_title() const = 0;
 };
 }

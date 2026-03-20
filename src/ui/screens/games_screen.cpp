@@ -1,21 +1,11 @@
 #include "ui/screens/games_screen.hpp"
 
 #include "ui/navigation_input.hpp"
-#include "ui/text_renderer.hpp"
-
-#include <SDL.h>
-
 namespace bytedeck::ui
 {
 namespace
 {
-constexpr int kTileWidth = 260;
-constexpr int kTileHeight = 150;
-constexpr int kTileSpacing = 24;
 constexpr int kColumns = 2;
-
-SDL_Color kTextPrimary { 245, 241, 230, 255 };
-SDL_Color kTextMuted { 147, 157, 176, 255 };
 }
 
 
@@ -64,46 +54,34 @@ ScreenAction GamesScreen::handle_event(const SDL_Event& event)
 }
 
 
-void GamesScreen::render(SDL_Renderer& renderer)
+std::string GamesScreen::screen_id() const
 {
-    int width = 0;
-    int height = 0;
-    SDL_GetRendererOutputSize(&renderer, &width, &height);
+    return "games";
+}
 
-    TextRenderer::draw_text(renderer, "GAMES", 48, 40, 4, kTextPrimary);
-    TextRenderer::draw_text(renderer, "VISIBLE SYSTEMS AND COLLECTIONS", 48, 86, 2, kTextMuted);
 
-    if (entries_.empty())
-    {
-        TextRenderer::draw_text(renderer, "NO SYSTEMS FOUND", 48, 170, 3, kTextPrimary);
-        TextRenderer::draw_text(renderer, "ADD ROMS TO ROMS/NES OR ROMS/MEGADRIVE", 48, 215, 2, kTextMuted);
-        return;
-    }
-
-    const int total_width = kColumns * kTileWidth + (kColumns - 1) * kTileSpacing;
-    const int start_x = (width - total_width) / 2;
-    const int start_y = 150;
-
+UiBindings GamesScreen::build_bindings() const
+{
+    UiBindings items = UiBindings::array();
     for (std::size_t index = 0; index < entries_.size(); ++index)
     {
-        const int row = static_cast<int>(index) / kColumns;
-        const int column = static_cast<int>(index) % kColumns;
-        const int x = start_x + column * (kTileWidth + kTileSpacing);
-        const int y = start_y + row * (kTileHeight + kTileSpacing);
-        const bool selected = index == selected_index_;
-
-        SDL_Rect tile { x, y, kTileWidth, kTileHeight };
-        SDL_SetRenderDrawColor(&renderer, selected ? 228 : 59, selected ? 183 : 70, selected ? 86 : 97, 255);
-        SDL_RenderFillRect(&renderer, &tile);
-
-        SDL_Rect inner { x + 8, y + 8, kTileWidth - 16, kTileHeight - 16 };
-        SDL_SetRenderDrawColor(&renderer, selected ? 31 : 33, selected ? 37 : 40, selected ? 48 : 55, 255);
-        SDL_RenderFillRect(&renderer, &inner);
-
-        TextRenderer::draw_text(renderer, entries_[index].name, x + 24, y + 24, 3, kTextPrimary);
-        TextRenderer::draw_text(renderer, std::to_string(entries_[index].item_count) + " ITEMS", x + 24, y + 76, 2, kTextMuted);
-        TextRenderer::draw_text(renderer, selected ? "PRESS A TO OPEN" : "READY", x + 24, y + 108, 2, selected ? SDL_Color { 228, 183, 86, 255 } : kTextMuted);
+        items.push_back({
+            { "title", entries_[index].name },
+            { "meta", std::to_string(entries_[index].item_count) + " ITEMS" },
+            { "hint", index == selected_index_ ? "PRESS A TO OPEN" : "READY" },
+            { "selected", index == selected_index_ }
+        });
     }
+
+    return UiBindings {
+        { "title", "GAMES" },
+        { "subtitle", "VISIBLE SYSTEMS AND COLLECTIONS" },
+        { "empty", entries_.empty() },
+        { "has_items", !entries_.empty() },
+        { "empty_title", "NO SYSTEMS FOUND" },
+        { "empty_body", "ADD ROMS TO ROMS/NES OR ROMS/MEGADRIVE" },
+        { "items", items }
+    };
 }
 
 

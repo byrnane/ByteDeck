@@ -1,0 +1,93 @@
+{
+  "screen_id": "games",
+  "variants": {
+    "default": {
+      "type": "screen",
+      "children": [
+        {
+          "type": "stack",
+          "direction": "vertical",
+          "align": "center",
+          "gap": "$spacing.lg",
+          "children": [
+            { "type": "text", "classes": ["screen-title"], "text_bind": "title", "width": "100%" },
+            { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle", "width": "100%" },
+            {
+              "type": "panel",
+              "classes": ["panel-primary"],
+              "visible_bind": "empty",
+              "width": "100%",
+              "height": 160,
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "vertical",
+                  "gap": "$spacing.sm",
+                  "children": [
+                    { "type": "text", "classes": ["empty-title"], "text_bind": "empty_title" },
+                    { "type": "text", "classes": ["empty-body"], "text_bind": "empty_body" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "visible_bind": "has_items",
+              "width": 544,
+              "height": "fill",
+              "children": [
+                {
+                  "type": "list",
+                  "bind": "items",
+                  "columns": 2,
+                  "gap": "$spacing.lg",
+                  "item_width": 260,
+                  "item_height": 150,
+                  "children": [
+                    {
+                      "type": "panel",
+                      "classes": ["system-tile-frame"],
+                      "conditional_classes": [
+                        { "bind": "selected", "class": "system-tile-frame-selected" }
+                      ],
+                      "children": [
+                        {
+                          "type": "panel",
+                          "classes": ["system-tile-inner"],
+                          "conditional_classes": [
+                            { "bind": "selected", "class": "system-tile-inner-selected" }
+                          ],
+                          "children": [
+                            {
+                              "type": "stack",
+                              "direction": "vertical",
+                              "height": "fill",
+                              "gap": "$spacing.md",
+                              "children": [
+                                { "type": "text", "classes": ["system-tile-title"], "text_bind": "title" },
+                                { "type": "text", "classes": ["system-tile-meta"], "text_bind": "meta" },
+                                { "type": "spacer", "height": "fill" },
+                                {
+                                  "type": "text",
+                                  "classes": ["system-tile-hint"],
+                                  "conditional_classes": [
+                                    { "bind": "selected", "class": "system-tile-hint-selected" }
+                                  ],
+                                  "text_bind": "hint"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -44,9 +44,11 @@ Responsibilities:
 
 Responsibilities:
 
-- render screens with SDL2
 - map input to navigation actions
 - keep screen-specific navigation logic local to each screen
+- load declarative screen layouts from JSON
+- load theme tokens and style rules from JSON
+- render `layout + bindings + theme` through SDL2
 
 ### `src/launch`
 
@@ -66,6 +68,7 @@ Responsibilities:
 - load library data
 - own SDL window and renderer
 - dispatch events to the current screen
+- own the active UI runtime (`LayoutRegistry`, `ThemeManager`, `UiRenderer`)
 - coordinate delayed handoff to emulator launch scripts
 
 ## Repository Zones
@@ -109,16 +112,22 @@ Responsibilities:
 
 1. `main.cpp` creates `Application`.
 2. `Application::initialize()` resolves paths and starts logging.
-3. `LibraryScanner` builds `LibraryData`.
-4. Cache is written to the resolved cache root.
-5. SDL window, renderer and input devices are initialized.
-6. `MainMenuScreen` is pushed into the screen manager.
+3. `UserSettings` selects the active theme id.
+4. `LayoutRegistry` loads `config/ui/screens/*.json`.
+5. `ThemeManager` loads the active theme from `config/themes/<theme-id>/theme.json`.
+6. `LibraryScanner` builds `LibraryData`.
+7. Cache is written to the resolved cache root.
+8. SDL window, renderer and input devices are initialized.
+9. `UiRenderer` is created.
+10. `MainMenuScreen` is pushed into the screen manager.
 
 ### Navigation
 
 1. SDL events become `NavigationInput`.
 2. The current screen returns a `ScreenAction`.
-3. `Application` applies the action and changes screen stack or prepares a launch request.
+3. The current screen also exposes `screen_id()` and `build_bindings()`.
+4. `Application` applies the action and changes screen stack or prepares a launch request.
+5. `UiRenderer` resolves the active screen variant and renders the screen from JSON.
 
 ### Game Launch
 
@@ -130,3 +139,30 @@ Responsibilities:
 6. After shutdown, `LaunchService` hands control to the stock launcher script.
 
 That delayed handoff is required so RetroArch-based launchers do not fail on framebuffer or video initialization.
+
+## Declarative UI Model
+
+Current model is intentionally HTML/CSS-like in spirit, but not in syntax:
+
+- `config/ui/screens/*.json` defines the node tree for each screen
+- `config/themes/default/theme.json` defines tokens, styles and screen variants
+- `Screen` implementations stay code-first for navigation and data preparation
+- `Screen::build_bindings()` returns ready-to-render values; there is no expression language in layouts
+
+The first supported node types are:
+
+- `screen`
+- `panel`
+- `stack`
+- `text`
+- `image`
+- `list`
+- `rect`
+- `spacer`
+
+Theme scope in the current iteration:
+
+- one shipped theme: `default`
+- active theme is read from `user_settings.theme`
+- theme may change style tokens and select a predefined screen variant
+- theme may not replace the whole screen tree from scratch

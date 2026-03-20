@@ -14,7 +14,8 @@ public:
     explicit MainMenuScreen(const data::LibraryData& library);
 
     ScreenAction handle_event(const SDL_Event& event) override;
-    void render(SDL_Renderer& renderer) override;
+    std::string screen_id() const override;
+    UiBindings build_bindings() const override;
     std::string window_title() const override;
 
 private:

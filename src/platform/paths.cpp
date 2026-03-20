@@ -214,6 +214,18 @@ std::filesystem::path Paths::translations_path() const
 }
 
 
+std::filesystem::path Paths::ui_screens_root() const
+{
+    return config_root_ / "ui" / "screens";
+}
+
+
+std::filesystem::path Paths::themes_root() const
+{
+    return config_root_ / "themes";
+}
+
+
 std::filesystem::path Paths::log_file_path() const
 {
     return cache_root_ / "logs" / "bytedeck.log";

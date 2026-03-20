@@ -1,4 +1,5 @@
 {
   "language": "en",
+  "theme": "default",
   "confirm_before_shutdown": false
 }

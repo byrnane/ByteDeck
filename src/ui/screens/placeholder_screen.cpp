@@ -1,20 +1,10 @@
 #include "ui/screens/placeholder_screen.hpp"
 
 #include "ui/navigation_input.hpp"
-#include "ui/text_renderer.hpp"
-
-#include <SDL.h>
-
 #include <utility>
 
 namespace bytedeck::ui
 {
-namespace
-{
-SDL_Color kTextPrimary { 245, 241, 230, 255 };
-SDL_Color kTextMuted { 147, 157, 176, 255 };
-}
-
 
 PlaceholderScreen::PlaceholderScreen(std::string title)
     : title_(std::move(title))
@@ -39,19 +29,19 @@ ScreenAction PlaceholderScreen::handle_event(const SDL_Event& event)
 }
 
 
-void PlaceholderScreen::render(SDL_Renderer& renderer)
+std::string PlaceholderScreen::screen_id() const
 {
-    int width = 0;
-    int height = 0;
-    SDL_GetRendererOutputSize(&renderer, &width, &height);
+    return "placeholder";
+}
 
-    SDL_Rect panel { width / 2 - 280, height / 2 - 120, 560, 240 };
-    SDL_SetRenderDrawColor(&renderer, 26, 31, 42, 255);
-    SDL_RenderFillRect(&renderer, &panel);
 
-    TextRenderer::draw_text(renderer, title_, panel.x + 40, panel.y + 44, 4, kTextPrimary);
-    TextRenderer::draw_text(renderer, "SCREEN STUB", panel.x + 40, panel.y + 96, 2, kTextMuted);
-    TextRenderer::draw_text(renderer, "PRESS B OR ESC TO GO BACK", panel.x + 40, panel.y + 146, 2, kTextMuted);
+UiBindings PlaceholderScreen::build_bindings() const
+{
+    return UiBindings {
+        { "title", title_ },
+        { "subtitle", "SCREEN STUB" },
+        { "body", "PRESS B OR ESC TO GO BACK" }
+    };
 }
 
 

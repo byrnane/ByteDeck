@@ -26,6 +26,7 @@ UserSettings UserSettings::load(const std::filesystem::path& path)
         input >> json;
 
         settings.language = json.value("language", settings.language);
+        settings.theme = json.value("theme", settings.theme);
         settings.confirm_before_shutdown = json.value("confirm_before_shutdown", settings.confirm_before_shutdown);
     }
     catch (const std::exception& exception)

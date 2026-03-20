@@ -20,6 +20,8 @@ public:
 
     std::filesystem::path user_settings_path() const;
     std::filesystem::path translations_path() const;
+    std::filesystem::path ui_screens_root() const;
+    std::filesystem::path themes_root() const;
     std::filesystem::path log_file_path() const;
 
 private:

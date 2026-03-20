@@ -1,0 +1,139 @@
+{
+  "screen_id": "apps",
+  "variants": {
+    "default": {
+      "type": "screen",
+      "children": [
+        {
+          "type": "stack",
+          "direction": "horizontal",
+          "gap": "$spacing.xl",
+          "children": [
+            {
+              "type": "panel",
+              "classes": ["panel-primary"],
+              "width": "50%",
+              "height": "fill",
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "vertical",
+                  "gap": "$spacing.md",
+                  "height": "fill",
+                  "children": [
+                    { "type": "text", "classes": ["screen-title"], "text_bind": "title" },
+                    { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" },
+                    {
+                      "type": "panel",
+                      "classes": ["panel-secondary"],
+                      "visible_bind": "empty",
+                      "height": 180,
+                      "children": [
+                        {
+                          "type": "stack",
+                          "direction": "vertical",
+                          "gap": "$spacing.sm",
+                          "children": [
+                            { "type": "text", "classes": ["empty-title"], "text_bind": "empty_title" },
+                            { "type": "text", "classes": ["empty-body"], "text_bind": "empty_body" }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list",
+                      "visible_bind": "has_items",
+                      "bind": "items",
+                      "gap": "$spacing.sm",
+                      "item_height": 30,
+                      "height": "fill",
+                      "children": [
+                        {
+                          "type": "panel",
+                          "classes": ["browser-list-item-frame"],
+                          "conditional_classes": [
+                            { "bind": "selected", "class": "browser-list-item-frame-selected" }
+                          ],
+                          "children": [
+                            {
+                              "type": "panel",
+                              "classes": ["browser-list-item-inner"],
+                              "conditional_classes": [
+                                { "bind": "selected", "class": "browser-list-item-inner-selected" }
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "classes": ["browser-list-item-title"],
+                                  "conditional_classes": [
+                                    { "bind": "selected", "class": "browser-list-item-title-selected" }
+                                  ],
+                                  "text_bind": "title",
+                                  "truncate": true
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "classes": ["panel-secondary"],
+              "width": "50%",
+              "height": "fill",
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "vertical",
+                  "gap": "$spacing.md",
+                  "height": "fill",
+                  "children": [
+                    { "type": "text", "classes": ["section-title"], "text_bind": "preview_title", "visible_bind": "has_items" },
+                    { "type": "text", "classes": ["empty-body"], "text_bind": "empty_hint", "visible_bind": "empty" },
+                    {
+                      "type": "stack",
+                      "visible_bind": "has_items",
+                      "direction": "horizontal",
+                      "gap": "$spacing.lg",
+                      "height": 180,
+                      "children": [
+                        {
+                          "type": "image",
+                          "classes": ["preview-frame"],
+                          "width": 180,
+                          "height": 180,
+                          "path_bind": "preview_path",
+                          "placeholder_text_bind": "preview_placeholder"
+                        },
+                        {
+                          "type": "stack",
+                          "direction": "vertical",
+                          "gap": "$spacing.md",
+                          "width": "fill",
+                          "children": [
+                            { "type": "text", "classes": ["detail-title"], "text_bind": "app_title" },
+                            { "type": "text", "classes": ["metadata-line"], "text_bind": "target_line" },
+                            { "type": "text", "classes": ["status-success"], "visible_bind": "launch_status_success_visible", "text_bind": "launch_status_text" },
+                            { "type": "text", "classes": ["status-error"], "visible_bind": "launch_status_error_visible", "text_bind": "launch_status_text" },
+                            { "type": "spacer", "height": "fill" }
+                          ]
+                        }
+                      ]
+                    },
+                    { "type": "text", "classes": ["section-title"], "text_bind": "description_title", "visible_bind": "has_items" },
+                    { "type": "text", "classes": ["body-copy"], "text_bind": "description_text", "visible_bind": "has_items", "height": "fill", "max_lines": 10 }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

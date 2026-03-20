@@ -5,7 +5,10 @@
 #include "platform/paths.hpp"
 #include "platform/user_settings.hpp"
 #include "ui/navigation_input.hpp"
+#include "ui/layout_registry.hpp"
 #include "ui/screen_manager.hpp"
+#include "ui/theme_manager.hpp"
+#include "ui/ui_renderer.hpp"
 
 #include <SDL.h>
 
@@ -52,6 +55,9 @@ private:
     platform::UserSettings user_settings_;
     data::LibraryData library_;
     std::unique_ptr<launch::LaunchService> launch_service_;
+    std::unique_ptr<ui::LayoutRegistry> layout_registry_;
+    std::unique_ptr<ui::ThemeManager> theme_manager_;
+    std::unique_ptr<ui::UiRenderer> ui_renderer_;
     ui::ScreenManager screen_manager_;
     std::string window_title_;
 };

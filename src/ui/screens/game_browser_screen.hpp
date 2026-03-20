@@ -3,7 +3,6 @@
 #include "data/models.hpp"
 #include "launch/launch_service.hpp"
 #include "ui/screen.hpp"
-#include "ui/image_texture.hpp"
 
 #include <filesystem>
 #include <functional>
@@ -24,13 +23,14 @@ public:
     );
 
     ScreenAction handle_event(const SDL_Event& event) override;
-    void render(SDL_Renderer& renderer) override;
+    std::string screen_id() const override;
+    UiBindings build_bindings() const override;
     std::string window_title() const override;
 
 private:
     void move_selection(int delta);
     std::string system_name() const;
-    void ensure_preview_texture(SDL_Renderer& renderer);
+    std::vector<const data::GameItem*> visible_games() const;
     void launch_selected_game();
 
     std::filesystem::path root_path_;
@@ -38,8 +38,6 @@ private:
     LaunchGameCallback launch_game_;
     std::vector<const data::GameItem*> games_;
     std::size_t selected_index_ = 0;
-    ImageTexture preview_texture_;
-    std::string loaded_thumbnail_path_;
     std::string launch_status_;
     bool launch_status_ok_ = false;
 };

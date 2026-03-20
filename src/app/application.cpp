@@ -8,6 +8,7 @@
 #include "ui/screens/games_screen.hpp"
 #include "ui/screens/main_menu_screen.hpp"
 #include "ui/screens/placeholder_screen.hpp"
+#include "ui/screens/settings_stub_screen.hpp"
 
 #include <SDL.h>
 
@@ -125,6 +126,10 @@ void Application::initialize()
 
     user_settings_ = platform::UserSettings::load(paths_.user_settings_path());
     launch_service_ = std::make_unique<launch::LaunchService>(paths_);
+    layout_registry_ = std::make_unique<ui::LayoutRegistry>(paths_.ui_screens_root());
+    layout_registry_->load();
+    theme_manager_ = std::make_unique<ui::ThemeManager>(paths_.themes_root(), user_settings_.theme);
+    theme_manager_->load();
 
     core::LibraryScanner scanner(paths_);
     library_ = scanner.scan();
@@ -157,6 +162,7 @@ void Application::initialize()
         throw std::runtime_error(std::string("SDL_CreateRenderer failed: ") + SDL_GetError());
     }
 
+    ui_renderer_ = std::make_unique<ui::UiRenderer>(paths_, *layout_registry_, *theme_manager_);
     open_input_devices();
     initialized_ = true;
 }
@@ -229,7 +235,7 @@ void Application::render()
     auto* current = screen_manager_.current();
     if (current != nullptr)
     {
-        current->render(*renderer_);
+        ui_renderer_->render_screen(*renderer_, current->screen_id(), current->build_bindings());
     }
 
     SDL_RenderPresent(renderer_);
@@ -326,6 +332,10 @@ void Application::apply_screen_action(const ui::ScreenAction& action, bool& runn
                 return result;
             }
         ));
+        clear_repeat_state();
+        break;
+    case ui::ScreenActionType::open_settings_stub:
+        screen_manager_.push(std::make_unique<ui::SettingsStubScreen>());
         clear_repeat_state();
         break;
     case ui::ScreenActionType::open_placeholder:
