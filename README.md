@@ -86,6 +86,7 @@ Internal helper:
 There is also a root-level launcher for everyday use:
 
 - `ByteDeck.bat`
+- `ByteDeck.ps1`
 
 It supports both modes:
 
@@ -100,6 +101,8 @@ ByteDeck.bat build-windows -Clean
 ByteDeck.bat build-trimui_sps -Clean
 ByteDeck.bat clean
 ```
+
+Without arguments it opens a small interactive menu with the main workflows.
 
 ## Desktop Workflow
 
@@ -197,3 +200,4 @@ Additional docs:
 - `docs/ARCHITECTURE.md`
 - `docs/PLATFORM_NOTES.md`
 - `device/trimui_sps/README.md`
+- `TODO.md`
