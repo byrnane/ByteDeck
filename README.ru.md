@@ -78,6 +78,12 @@ dist/windows
 ByteDeck.bat dev-windows
 ```
 
+### Запуск Windows-сборки без пересборки
+
+```bat
+ByteDeck.bat run-windows
+```
+
 ### Сборка под TrimUI Smart Pro S
 
 Что нужно:

@@ -78,6 +78,12 @@ dist/windows
 ByteDeck.bat dev-windows
 ```
 
+### Windows Run Without Rebuild
+
+```bat
+ByteDeck.bat run-windows
+```
+
 ### TrimUI Smart Pro S Build
 
 Requirements:

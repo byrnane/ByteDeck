@@ -16,6 +16,11 @@ $commands = [ordered]@{
         Description = "Build and run the desktop launcher from dist/windows."
         Script = "dev-windows.ps1"
     }
+    "run-windows" = @{
+        Label = "Run Windows"
+        Description = "Run the existing desktop package from dist/windows."
+        Script = "run-windows.ps1"
+    }
     "build-windows" = @{
         Label = "Build Windows"
         Description = "Build the desktop package into dist/windows."
@@ -49,6 +54,7 @@ function Write-LauncherHelp {
     Write-LauncherHeader
     Write-Host "Usage:" -ForegroundColor Yellow
     Write-Host "  .\ByteDeck.bat dev-windows" -ForegroundColor White
+    Write-Host "  .\ByteDeck.bat run-windows" -ForegroundColor White
     Write-Host "  .\ByteDeck.bat build-windows -Clean" -ForegroundColor White
     Write-Host "  .\ByteDeck.bat build-trimui_sps -Clean" -ForegroundColor White
     Write-Host "  .\ByteDeck.bat clean" -ForegroundColor White
@@ -93,9 +99,10 @@ function Read-InteractiveCommand {
         Write-Host "Choose an action:" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  1. Dev Windows        Build and run the desktop app" -ForegroundColor White
-        Write-Host "  2. Build Windows      Build dist/windows" -ForegroundColor White
-        Write-Host "  3. Build TrimUI SPS   Build dist/trimui_sps" -ForegroundColor White
-        Write-Host "  4. Clean              Remove out/, dist/ and runtime cache" -ForegroundColor White
+        Write-Host "  2. Run Windows        Run existing dist/windows build" -ForegroundColor White
+        Write-Host "  3. Build Windows      Build dist/windows" -ForegroundColor White
+        Write-Host "  4. Build TrimUI SPS   Build dist/trimui_sps" -ForegroundColor White
+        Write-Host "  5. Clean              Remove out/, dist/ and runtime cache" -ForegroundColor White
         Write-Host "  H. Help               Show command examples" -ForegroundColor White
         Write-Host "  Q. Exit" -ForegroundColor White
         Write-Host ""
@@ -104,9 +111,10 @@ function Read-InteractiveCommand {
 
         switch ($choice) {
             "1" { return @{ Name = "dev-windows"; Args = @() } }
-            "2" { return @{ Name = "build-windows"; Args = @() } }
-            "3" { return @{ Name = "build-trimui_sps"; Args = @() } }
-            "4" { return @{ Name = "clean"; Args = @() } }
+            "2" { return @{ Name = "run-windows"; Args = @() } }
+            "3" { return @{ Name = "build-windows"; Args = @() } }
+            "4" { return @{ Name = "build-trimui_sps"; Args = @() } }
+            "5" { return @{ Name = "clean"; Args = @() } }
             "h" {
                 Write-LauncherHelp
                 Read-Host "Press Enter to return to the menu" | Out-Null
