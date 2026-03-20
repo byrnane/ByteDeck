@@ -12,7 +12,7 @@
             {
               "type": "panel",
               "classes": ["panel-primary"],
-              "width": "50%",
+              "width": "48%",
               "height": "fill",
               "children": [
                 {
@@ -24,16 +24,16 @@
                     {
                       "type": "stack",
                       "direction": "horizontal",
-                      "gap": "$spacing.md",
-                      "height": 56,
+                      "gap": "$spacing.lg",
+                      "height": 86,
                       "children": [
                         {
                           "type": "image",
                           "classes": ["system-icon"],
                           "system_icon_bind": "system_id",
                           "placeholder_text_bind": "title",
-                          "width": 56,
-                          "height": 56
+                          "width": 72,
+                          "height": 72
                         },
                         {
                           "type": "stack",
@@ -51,12 +51,12 @@
                       "type": "panel",
                       "classes": ["panel-secondary"],
                       "visible_bind": "empty",
-                      "height": 140,
+                      "height": 180,
                       "children": [
                         {
                           "type": "stack",
                           "direction": "vertical",
-                          "gap": "$spacing.sm",
+                          "gap": "$spacing.md",
                           "children": [
                             { "type": "text", "classes": ["empty-title"], "text_bind": "empty_title" },
                             { "type": "text", "classes": ["empty-body"], "text_bind": "empty_body" }
@@ -69,7 +69,7 @@
                       "visible_bind": "has_items",
                       "bind": "items",
                       "gap": "$spacing.sm",
-                      "item_height": 30,
+                      "item_height": 50,
                       "height": "fill",
                       "children": [
                         {
@@ -109,28 +109,35 @@
               "type": "panel",
               "classes": ["panel-secondary"],
               "visible_bind": "has_items",
-              "width": "50%",
+              "width": "52%",
               "height": "fill",
               "children": [
                 {
                   "type": "stack",
                   "direction": "vertical",
-                  "gap": "$spacing.md",
+                  "gap": "$spacing.lg",
                   "height": "fill",
                   "children": [
                     { "type": "text", "classes": ["section-title"], "text_bind": "preview_title" },
                     {
                       "type": "image",
                       "classes": ["preview-frame"],
-                      "height": 180,
+                      "height": 240,
                       "path_bind": "preview_path",
                       "placeholder_text_bind": "preview_placeholder"
                     },
                     { "type": "text", "classes": ["detail-title"], "text_bind": "game_title" },
-                    { "type": "text", "classes": ["metadata-line"], "text_bind": "genre_line" },
-                    { "type": "text", "classes": ["metadata-line"], "text_bind": "players_line" },
-                    { "type": "text", "classes": ["metadata-line"], "text_bind": "date_line" },
-                    { "type": "text", "classes": ["metadata-line"], "text_bind": "source_line" },
+                    {
+                      "type": "stack",
+                      "direction": "vertical",
+                      "gap": "$spacing.sm",
+                      "children": [
+                        { "type": "text", "classes": ["metadata-line"], "text_bind": "genre_line" },
+                        { "type": "text", "classes": ["metadata-line"], "text_bind": "players_line" },
+                        { "type": "text", "classes": ["metadata-line"], "text_bind": "date_line" },
+                        { "type": "text", "classes": ["metadata-line"], "text_bind": "source_line" }
+                      ]
+                    },
                     { "type": "text", "classes": ["status-success"], "visible_bind": "launch_status_success_visible", "text_bind": "launch_status_text" },
                     { "type": "text", "classes": ["status-error"], "visible_bind": "launch_status_error_visible", "text_bind": "launch_status_text" },
                     { "type": "text", "classes": ["section-title"], "text_bind": "description_title" },

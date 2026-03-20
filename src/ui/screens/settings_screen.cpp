@@ -41,6 +41,8 @@ SettingsScreen::SettingsScreen(
     {
         current_theme_ = available_themes_.front();
     }
+
+    sync_editor_selection_to_current_value();
 }
 
 
@@ -49,46 +51,53 @@ ScreenAction SettingsScreen::handle_event(const SDL_Event& event)
     switch (navigation_input_from_event(event))
     {
     case NavigationInput::up:
-        move_selection(-1);
-        return {};
-    case NavigationInput::down:
-        move_selection(1);
-        return {};
-    case NavigationInput::left:
-        if (items_[selected_index_] == SettingItem::language)
+        if (focus_area_ == FocusArea::left)
         {
-            cycle_language(-1);
-        }
-        else if (items_[selected_index_] == SettingItem::theme)
-        {
-            cycle_theme(-1);
-        }
-        return {};
-    case NavigationInput::right:
-        if (items_[selected_index_] == SettingItem::language)
-        {
-            cycle_language(1);
-        }
-        else if (items_[selected_index_] == SettingItem::theme)
-        {
-            cycle_theme(1);
-        }
-        return {};
-    case NavigationInput::accept:
-        if (items_[selected_index_] == SettingItem::language)
-        {
-            cycle_language(1);
-        }
-        else if (items_[selected_index_] == SettingItem::theme)
-        {
-            cycle_theme(1);
+            move_selection(-1);
         }
         else
         {
-            run_rescan();
+            move_editor_selection(-1);
+        }
+        return {};
+    case NavigationInput::down:
+        if (focus_area_ == FocusArea::left)
+        {
+            move_selection(1);
+        }
+        else
+        {
+            move_editor_selection(1);
+        }
+        return {};
+    case NavigationInput::left:
+        if (focus_area_ == FocusArea::right)
+        {
+            leave_editor();
+        }
+        return {};
+    case NavigationInput::right:
+        if (focus_area_ == FocusArea::left)
+        {
+            enter_editor();
+        }
+        return {};
+    case NavigationInput::accept:
+        if (focus_area_ == FocusArea::left)
+        {
+            enter_editor();
+        }
+        else
+        {
+            apply_editor_selection();
         }
         return {};
     case NavigationInput::back:
+        if (focus_area_ == FocusArea::right)
+        {
+            leave_editor();
+            return {};
+        }
         return { ScreenActionType::pop };
     case NavigationInput::quit:
         return { ScreenActionType::quit };
@@ -110,27 +119,43 @@ UiBindings SettingsScreen::build_bindings() const
     UiBindings items = UiBindings::array();
     for (std::size_t index = 0; index < items_.size(); ++index)
     {
-        const SettingItem item = items_[index];
         items.push_back({
-            { "title", translations_.translate("settings.item." + std::string(
-                item == SettingItem::language ? "language" :
-                item == SettingItem::theme ? "theme" :
-                "rescan")) },
-            { "value", setting_value_text(item) },
-            { "hint", setting_hint_text(item, index == selected_index_) },
-            { "selected", index == selected_index_ }
+            { "title", translations_.translate("settings.item." + setting_key(items_[index])) },
+            { "value", setting_value_text(items_[index]) },
+            { "hint", setting_hint_text(index) },
+            { "selected", index == selected_index_ },
+            { "active", index == selected_index_ && focus_area_ == FocusArea::left }
+        });
+    }
+
+    UiBindings editor_items = UiBindings::array();
+    const std::vector<EditorOption> options = editor_options();
+    for (std::size_t index = 0; index < options.size(); ++index)
+    {
+        editor_items.push_back({
+            { "title", options[index].title },
+            { "description", options[index].description },
+            { "selected", index == editor_selection_index_ },
+            { "active", options[index].current }
         });
     }
 
     return UiBindings {
         { "title", translations_.translate("menu.settings") },
         { "subtitle", translations_.translate("settings.subtitle") },
+        { "focus_left", focus_area_ == FocusArea::left },
+        { "focus_right", focus_area_ == FocusArea::right },
         { "items", items },
-        { "detail_title", detail_title() },
-        { "detail_body", detail_body() },
-        { "status_success_visible", !status_message_.empty() && status_success_ },
-        { "status_error_visible", !status_message_.empty() && !status_success_ },
-        { "status_text", status_message_ }
+        { "editor_title", editor_title() },
+        { "editor_description", editor_description() },
+        { "editor_hint", editor_hint() },
+        { "editor_items", editor_items },
+        { "editor_has_items", !options.empty() },
+        { "editor_empty", options.empty() },
+        { "editor_status_text", status_message_ },
+        { "editor_status_success", !status_message_.empty() && status_success_ },
+        { "editor_status_error", !status_message_.empty() && !status_success_ },
+        { "editor_mode_action_result", editor_mode_ == EditorMode::action_result }
     };
 }
 
@@ -146,67 +171,93 @@ void SettingsScreen::move_selection(int delta)
     const int item_count = static_cast<int>(items_.size());
     const int current = static_cast<int>(selected_index_);
     selected_index_ = static_cast<std::size_t>((current + delta + item_count) % item_count);
+    status_message_.clear();
+    editor_mode_ = EditorMode::list;
+    sync_editor_selection_to_current_value();
 }
 
 
-void SettingsScreen::cycle_language(int delta)
+void SettingsScreen::move_editor_selection(int delta)
 {
-    const std::vector<std::string> languages = { "en", "ru" };
-    auto current = std::find(languages.begin(), languages.end(), current_language_);
-    std::size_t index = current != languages.end() ? static_cast<std::size_t>(current - languages.begin()) : 0;
-    index = (index + languages.size() + static_cast<std::size_t>(delta < 0 ? languages.size() - 1 : 1)) % languages.size();
-    const std::string next_language = languages[index];
-
-    if (next_language == current_language_)
+    const std::vector<EditorOption> options = editor_options();
+    if (options.empty())
     {
         return;
     }
 
-    if (apply_language_ && apply_language_(next_language))
-    {
-        current_language_ = next_language;
-        set_status(translations_.translate("settings.status.language_applied"), true);
-        return;
-    }
-
-    set_status(translations_.translate("settings.status.language_failed"), false);
+    const int item_count = static_cast<int>(options.size());
+    const int current = static_cast<int>(editor_selection_index_);
+    editor_selection_index_ = static_cast<std::size_t>((current + delta + item_count) % item_count);
+    editor_mode_ = EditorMode::list;
 }
 
 
-void SettingsScreen::cycle_theme(int delta)
+void SettingsScreen::enter_editor()
 {
-    if (available_themes_.empty())
+    focus_area_ = FocusArea::right;
+    editor_mode_ = EditorMode::list;
+    sync_editor_selection_to_current_value();
+}
+
+
+void SettingsScreen::leave_editor()
+{
+    focus_area_ = FocusArea::left;
+    editor_mode_ = EditorMode::list;
+}
+
+
+void SettingsScreen::apply_editor_selection()
+{
+    const SettingItem current_item = items_[selected_index_];
+    const std::vector<EditorOption> options = editor_options();
+    if (options.empty() || editor_selection_index_ >= options.size())
     {
-        set_status(translations_.translate("settings.status.theme_failed"), false);
         return;
     }
 
-    auto current = std::find(available_themes_.begin(), available_themes_.end(), current_theme_);
-    std::size_t index = current != available_themes_.end() ? static_cast<std::size_t>(current - available_themes_.begin()) : 0;
-    if (delta < 0)
+    const EditorOption& option = options[editor_selection_index_];
+    if (current_item == SettingItem::language)
     {
-        index = (index + available_themes_.size() - 1) % available_themes_.size();
-    }
-    else
-    {
-        index = (index + 1) % available_themes_.size();
-    }
+        if (option.value == current_language_)
+        {
+            set_status(translations_.translate("settings.status.language_applied"), true);
+            return;
+        }
 
-    const std::string next_theme = available_themes_[index];
-    if (next_theme == current_theme_)
-    {
-        set_status(translations_.translate("settings.status.theme_applied"), true);
+        if (apply_language_ && apply_language_(option.value))
+        {
+            current_language_ = option.value;
+            set_status(translations_.translate("settings.status.language_applied"), true);
+        }
+        else
+        {
+            set_status(translations_.translate("settings.status.language_failed"), false);
+        }
         return;
     }
 
-    if (apply_theme_ && apply_theme_(next_theme))
+    if (current_item == SettingItem::theme)
     {
-        current_theme_ = next_theme;
-        set_status(translations_.translate("settings.status.theme_applied"), true);
+        if (option.value == current_theme_)
+        {
+            set_status(translations_.translate("settings.status.theme_applied"), true);
+            return;
+        }
+
+        if (apply_theme_ && apply_theme_(option.value))
+        {
+            current_theme_ = option.value;
+            set_status(translations_.translate("settings.status.theme_applied"), true);
+        }
+        else
+        {
+            set_status(translations_.translate("settings.status.theme_failed"), false);
+        }
         return;
     }
 
-    set_status(translations_.translate("settings.status.theme_failed"), false);
+    run_rescan();
 }
 
 
@@ -214,28 +265,116 @@ void SettingsScreen::run_rescan()
 {
     if (!rescan_library_)
     {
-        set_status(translations_.translate("settings.status.rescan_failed"), false);
+        set_status(translations_.translate("settings.status.rescan_failed"), false, EditorMode::action_result);
         return;
     }
 
     const auto [success, message] = rescan_library_();
     if (!message.empty())
     {
-        set_status(message, success);
+        set_status(message, success, EditorMode::action_result);
         return;
     }
 
     set_status(
         success ? translations_.translate("settings.status.rescan_success")
                 : translations_.translate("settings.status.rescan_failed"),
-        success);
+        success,
+        EditorMode::action_result);
 }
 
 
-void SettingsScreen::set_status(std::string message, bool success)
+void SettingsScreen::set_status(std::string message, bool success, EditorMode mode)
 {
     status_message_ = std::move(message);
     status_success_ = success;
+    editor_mode_ = mode;
+}
+
+
+void SettingsScreen::sync_editor_selection_to_current_value()
+{
+    editor_selection_index_ = 0;
+    const std::vector<EditorOption> options = editor_options();
+    if (options.empty())
+    {
+        return;
+    }
+
+    for (std::size_t index = 0; index < options.size(); ++index)
+    {
+        if (options[index].current)
+        {
+            editor_selection_index_ = index;
+            return;
+        }
+    }
+}
+
+
+std::vector<SettingsScreen::EditorOption> SettingsScreen::editor_options() const
+{
+    const SettingItem current_item = items_[selected_index_];
+    if (current_item == SettingItem::language)
+    {
+        return {
+            { "en", language_display_name(translations_, "en"), translations_.translate("settings.option.language.en"), current_language_ == "en" },
+            { "ru", language_display_name(translations_, "ru"), translations_.translate("settings.option.language.ru"), current_language_ == "ru" }
+        };
+    }
+
+    if (current_item == SettingItem::theme)
+    {
+        std::vector<EditorOption> options;
+        for (const std::string& theme_id : available_themes_)
+        {
+            options.push_back({
+                theme_id,
+                display_theme_name(theme_id),
+                translated_or_fallback("settings.option.theme." + theme_id, theme_id),
+                current_theme_ == theme_id
+            });
+        }
+        return options;
+    }
+
+    return {
+        {
+            "run",
+            translations_.translate("settings.option.rescan.title"),
+            translations_.translate("settings.option.rescan.description"),
+            false
+        }
+    };
+}
+
+
+std::string SettingsScreen::setting_key(SettingItem item) const
+{
+    switch (item)
+    {
+    case SettingItem::language:
+        return "language";
+    case SettingItem::theme:
+        return "theme";
+    case SettingItem::rescan:
+        return "rescan";
+    }
+
+    return {};
+}
+
+
+std::string SettingsScreen::display_theme_name(const std::string& theme_id) const
+{
+    return translated_or_fallback("theme." + theme_id, theme_id);
+}
+
+
+std::string SettingsScreen::translated_or_fallback(const std::string& key, const std::string& fallback) const
+{
+    const std::string translated = translations_.translate(key);
+    return translated == key ? fallback : translated;
 }
 
 
@@ -246,7 +385,7 @@ std::string SettingsScreen::setting_value_text(SettingItem item) const
     case SettingItem::language:
         return language_display_name(translations_, current_language_);
     case SettingItem::theme:
-        return current_theme_;
+        return display_theme_name(current_theme_);
     case SettingItem::rescan:
         return translations_.translate("settings.rescan_value");
     }
@@ -255,54 +394,41 @@ std::string SettingsScreen::setting_value_text(SettingItem item) const
 }
 
 
-std::string SettingsScreen::setting_hint_text(SettingItem item, bool selected) const
+std::string SettingsScreen::setting_hint_text(std::size_t index) const
 {
-    if (!selected)
+    if (index != selected_index_)
     {
         return translations_.translate("common.ready");
     }
 
-    switch (item)
+    if (focus_area_ == FocusArea::left)
     {
-    case SettingItem::language:
-    case SettingItem::theme:
-        return translations_.translate("settings.hint.cycle");
-    case SettingItem::rescan:
-        return translations_.translate("settings.hint.run");
+        return translations_.translate("settings.hint.enter_editor");
     }
 
-    return translations_.translate("common.ready");
+    return translations_.translate("settings.hint.editing");
 }
 
 
-std::string SettingsScreen::detail_title() const
+std::string SettingsScreen::editor_title() const
 {
-    switch (items_[selected_index_])
-    {
-    case SettingItem::language:
-        return translations_.translate("settings.item.language");
-    case SettingItem::theme:
-        return translations_.translate("settings.item.theme");
-    case SettingItem::rescan:
-        return translations_.translate("settings.item.rescan");
-    }
-
-    return translations_.translate("menu.settings");
+    return translations_.translate("settings.editor." + setting_key(items_[selected_index_]) + ".title");
 }
 
 
-std::string SettingsScreen::detail_body() const
+std::string SettingsScreen::editor_description() const
 {
-    switch (items_[selected_index_])
+    return translations_.translate("settings.editor." + setting_key(items_[selected_index_]) + ".description");
+}
+
+
+std::string SettingsScreen::editor_hint() const
+{
+    if (focus_area_ == FocusArea::left)
     {
-    case SettingItem::language:
-        return translations_.translate("settings.detail.language");
-    case SettingItem::theme:
-        return translations_.translate("settings.detail.theme");
-    case SettingItem::rescan:
-        return translations_.translate("settings.detail.rescan");
+        return translations_.translate("settings.hint.enter_editor");
     }
 
-    return {};
+    return translations_.translate("settings.hint.apply_choice");
 }
 }

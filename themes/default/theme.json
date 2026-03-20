@@ -32,12 +32,12 @@
       }
     },
     "spacing": {
-      "xs": 4,
-      "sm": 8,
-      "md": 16,
-      "lg": 24,
-      "xl": 36,
-      "xxl": 48
+      "xs": 6,
+      "sm": 10,
+      "md": 20,
+      "lg": 30,
+      "xl": 44,
+      "xxl": 60
     }
   },
   "fonts": {
@@ -49,35 +49,47 @@
     }
   },
   "typography": {
-    "tiny": {
+    "chrome": {
       "family": "noto_sans",
-      "size": 12,
-      "line_height": 16,
+      "size": 16,
+      "line_height": 20,
+      "bitmap_scale": 2
+    },
+    "caption": {
+      "family": "noto_sans",
+      "size": 16,
+      "line_height": 20,
       "bitmap_scale": 2
     },
     "body": {
       "family": "noto_sans",
-      "size": 14,
-      "line_height": 20,
-      "bitmap_scale": 2
+      "size": 20,
+      "line_height": 26,
+      "bitmap_scale": 3
+    },
+    "section": {
+      "family": "superstar",
+      "size": 24,
+      "line_height": 30,
+      "bitmap_scale": 3
     },
     "title": {
       "family": "superstar",
-      "size": 20,
-      "line_height": 24,
-      "bitmap_scale": 3
+      "size": 30,
+      "line_height": 36,
+      "bitmap_scale": 4
     },
     "hero": {
       "family": "superstar",
-      "size": 28,
-      "line_height": 32,
-      "bitmap_scale": 4
+      "size": 42,
+      "line_height": 48,
+      "bitmap_scale": 5
     },
     "brand": {
       "family": "superstar",
-      "size": 36,
-      "line_height": 40,
-      "bitmap_scale": 5
+      "size": 50,
+      "line_height": 56,
+      "bitmap_scale": 6
     }
   },
   "system_icons": {
@@ -105,7 +117,8 @@
         "gap": "$spacing.md"
       },
       "image": {
-        "padding": "$spacing.sm"
+        "padding": 0,
+        "border_width": 0
       }
     },
     "classes": {
@@ -118,11 +131,11 @@
         "text_color": "$colors.text.primary"
       },
       "screen-subtitle": {
-        "font_role": "tiny",
+        "font_role": "caption",
         "text_color": "$colors.text.muted"
       },
       "section-title": {
-        "font_role": "title",
+        "font_role": "section",
         "text_color": "$colors.text.primary"
       },
       "detail-title": {
@@ -132,7 +145,7 @@
         "max_lines": 2
       },
       "metadata-line": {
-        "font_role": "tiny",
+        "font_role": "chrome",
         "text_color": "$colors.text.muted"
       },
       "body-copy": {
@@ -146,35 +159,45 @@
         "border_color": "#2D3444",
         "border_width": 1,
         "padding": {
-          "left": "$spacing.xl",
-          "right": "$spacing.xl",
+          "left": "$spacing.lg",
+          "right": "$spacing.lg",
           "top": "$spacing.md",
           "bottom": "$spacing.md"
         }
       },
       "status-brand": {
-        "font_role": "title",
+        "font_role": "section",
         "text_color": "$colors.text.highlight"
       },
       "status-context": {
-        "font_role": "tiny",
+        "font_role": "chrome",
         "text_color": "$colors.text.muted"
       },
       "status-meta": {
-        "font_role": "body",
+        "font_role": "chrome",
         "text_color": "$colors.text.primary"
       },
       "menu-backdrop": {
         "background_color": "$colors.background.backdrop",
+        "border_color": "$colors.frame.preview",
+        "border_width": 1,
         "padding": "$spacing.xxl"
       },
       "panel-primary": {
         "background_color": "$colors.background.panel_primary",
         "padding": "$spacing.lg"
       },
+      "panel-primary-active": {
+        "border_color": "$colors.frame.card_selected",
+        "border_width": 2
+      },
       "panel-secondary": {
         "background_color": "$colors.background.panel_secondary",
         "padding": "$spacing.lg"
+      },
+      "panel-secondary-active": {
+        "border_color": "$colors.frame.card_selected",
+        "border_width": 2
       },
       "modal-panel": {
         "background_color": "$colors.background.modal",
@@ -183,14 +206,14 @@
         "padding": "$spacing.xl"
       },
       "empty-title": {
-        "font_role": "title",
+        "font_role": "section",
         "text_color": "$colors.text.primary"
       },
       "empty-body": {
-        "font_role": "tiny",
+        "font_role": "body",
         "text_color": "$colors.text.muted",
         "wrap": true,
-        "max_lines": 3
+        "max_lines": 4
       },
       "menu-card-frame": {
         "background_color": "$colors.frame.card",
@@ -212,11 +235,11 @@
         "truncate": true
       },
       "menu-card-status": {
-        "font_role": "tiny",
+        "font_role": "caption",
         "text_color": "$colors.text.muted"
       },
       "menu-card-hint": {
-        "font_role": "tiny",
+        "font_role": "caption",
         "text_color": "$colors.text.muted"
       },
       "menu-card-hint-selected": {
@@ -224,7 +247,7 @@
       },
       "menu-card-accent": {
         "background_color": "$colors.fill.accent",
-        "height": 18
+        "height": 22
       },
       "menu-card-accent-selected": {
         "background_color": "$colors.fill.accent_selected"
@@ -244,16 +267,16 @@
         "background_color": "$colors.fill.card_inner_selected"
       },
       "system-tile-title": {
-        "font_role": "title",
+        "font_role": "section",
         "text_color": "$colors.text.primary",
         "truncate": true
       },
       "system-tile-meta": {
-        "font_role": "tiny",
+        "font_role": "caption",
         "text_color": "$colors.text.muted"
       },
       "system-tile-hint": {
-        "font_role": "tiny",
+        "font_role": "caption",
         "text_color": "$colors.text.muted"
       },
       "system-tile-hint-selected": {
@@ -291,7 +314,7 @@
         "background_color": "$colors.fill.preview",
         "border_color": "$colors.frame.preview",
         "border_width": 1,
-        "padding": "$spacing.sm"
+        "padding": "$spacing.md"
       },
       "settings-item-frame": {
         "background_color": "$colors.frame.list",
@@ -300,6 +323,9 @@
       "settings-item-frame-selected": {
         "background_color": "$colors.frame.list_selected"
       },
+      "settings-item-frame-active": {
+        "background_color": "$colors.frame.card_selected"
+      },
       "settings-item-inner": {
         "background_color": "$colors.fill.list_inner",
         "padding": "$spacing.md"
@@ -307,8 +333,11 @@
       "settings-item-inner-selected": {
         "background_color": "$colors.fill.list_inner_selected"
       },
+      "settings-item-inner-active": {
+        "background_color": "$colors.fill.card_inner_selected"
+      },
       "settings-item-title": {
-        "font_role": "title",
+        "font_role": "section",
         "text_color": "$colors.text.primary"
       },
       "settings-item-value": {
@@ -316,18 +345,65 @@
         "text_color": "$colors.text.muted"
       },
       "settings-item-hint": {
-        "font_role": "tiny",
+        "font_role": "chrome",
         "text_color": "$colors.text.muted"
       },
       "settings-item-hint-selected": {
         "text_color": "$colors.text.highlight"
       },
+      "editor-pane-title": {
+        "font_role": "title",
+        "text_color": "$colors.text.primary"
+      },
+      "editor-pane-body": {
+        "font_role": "body",
+        "text_color": "$colors.text.muted",
+        "wrap": true,
+        "max_lines": 6
+      },
+      "editor-pane-hint": {
+        "font_role": "chrome",
+        "text_color": "$colors.text.highlight"
+      },
+      "editor-list-item-frame": {
+        "background_color": "$colors.frame.list",
+        "padding": "$spacing.xs"
+      },
+      "editor-list-item-frame-selected": {
+        "background_color": "$colors.frame.list_selected"
+      },
+      "editor-list-item-frame-active": {
+        "background_color": "$colors.frame.card_selected"
+      },
+      "editor-list-item-inner": {
+        "background_color": "$colors.fill.list_inner",
+        "padding": "$spacing.md"
+      },
+      "editor-list-item-inner-selected": {
+        "background_color": "$colors.fill.list_inner_selected"
+      },
+      "editor-list-item-inner-active": {
+        "background_color": "$colors.fill.card_inner_selected"
+      },
+      "editor-list-item-title": {
+        "font_role": "body",
+        "text_color": "$colors.text.primary"
+      },
+      "editor-list-item-title-selected": {
+        "text_color": "$colors.text.highlight"
+      },
+      "editor-list-item-description": {
+        "font_role": "chrome",
+        "text_color": "$colors.text.muted",
+        "wrap": true,
+        "max_lines": 2
+      },
       "status-success": {
-        "font_role": "tiny",
+        "font_role": "chrome",
         "text_color": "$colors.text.highlight"
       },
       "status-error": {
-        "font_role": "tiny",
+        "font_role": "chrome",
         "text_color": "$colors.text.error"
       }
     },

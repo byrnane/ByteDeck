@@ -156,7 +156,7 @@ std::vector<const data::GameItem*> GameBrowserScreen::visible_games() const
         return visible;
     }
 
-    constexpr int kVisibleRows = 14;
+    constexpr int kVisibleRows = 9;
     int start_index = 0;
     if (selected_index_ >= static_cast<std::size_t>(kVisibleRows))
     {

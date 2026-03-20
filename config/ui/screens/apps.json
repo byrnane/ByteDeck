@@ -12,7 +12,7 @@
             {
               "type": "panel",
               "classes": ["panel-primary"],
-              "width": "50%",
+              "width": "48%",
               "height": "fill",
               "children": [
                 {
@@ -27,12 +27,12 @@
                       "type": "panel",
                       "classes": ["panel-secondary"],
                       "visible_bind": "empty",
-                      "height": 180,
+                      "height": 220,
                       "children": [
                         {
                           "type": "stack",
                           "direction": "vertical",
-                          "gap": "$spacing.sm",
+                          "gap": "$spacing.md",
                           "children": [
                             { "type": "text", "classes": ["empty-title"], "text_bind": "empty_title" },
                             { "type": "text", "classes": ["empty-body"], "text_bind": "empty_body" }
@@ -45,7 +45,7 @@
                       "visible_bind": "has_items",
                       "bind": "items",
                       "gap": "$spacing.sm",
-                      "item_height": 30,
+                      "item_height": 50,
                       "height": "fill",
                       "children": [
                         {
@@ -84,13 +84,13 @@
             {
               "type": "panel",
               "classes": ["panel-secondary"],
-              "width": "50%",
+              "width": "52%",
               "height": "fill",
               "children": [
                 {
                   "type": "stack",
                   "direction": "vertical",
-                  "gap": "$spacing.md",
+                  "gap": "$spacing.lg",
                   "height": "fill",
                   "children": [
                     { "type": "text", "classes": ["section-title"], "text_bind": "preview_title", "visible_bind": "has_items" },
@@ -100,13 +100,13 @@
                       "visible_bind": "has_items",
                       "direction": "horizontal",
                       "gap": "$spacing.lg",
-                      "height": 180,
+                      "height": 240,
                       "children": [
                         {
                           "type": "image",
                           "classes": ["preview-frame"],
-                          "width": 180,
-                          "height": 180,
+                          "width": 220,
+                          "height": 220,
                           "path_bind": "preview_path",
                           "placeholder_text_bind": "preview_placeholder"
                         },
@@ -126,7 +126,7 @@
                       ]
                     },
                     { "type": "text", "classes": ["section-title"], "text_bind": "description_title", "visible_bind": "has_items" },
-                    { "type": "text", "classes": ["body-copy"], "text_bind": "description_text", "visible_bind": "has_items", "height": "fill", "max_lines": 10 }
+                    { "type": "text", "classes": ["body-copy"], "text_bind": "description_text", "visible_bind": "has_items", "height": "fill", "max_lines": 9 }
                   ]
                 }
               ]

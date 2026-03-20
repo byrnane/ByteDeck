@@ -12,13 +12,16 @@
             {
               "type": "panel",
               "classes": ["panel-primary"],
-              "width": "44%",
+              "conditional_classes": [
+                { "bind": "focus_left", "class": "panel-primary-active" }
+              ],
+              "width": "42%",
               "height": "fill",
               "children": [
                 {
                   "type": "stack",
                   "direction": "vertical",
-                  "gap": "$spacing.md",
+                  "gap": "$spacing.lg",
                   "height": "fill",
                   "children": [
                     { "type": "text", "classes": ["screen-title"], "text_bind": "title" },
@@ -27,21 +30,23 @@
                       "type": "list",
                       "bind": "items",
                       "gap": "$spacing.sm",
-                      "item_height": 76,
+                      "item_height": 116,
                       "height": "fill",
                       "children": [
                         {
                           "type": "panel",
                           "classes": ["settings-item-frame"],
                           "conditional_classes": [
-                            { "bind": "selected", "class": "settings-item-frame-selected" }
+                            { "bind": "selected", "class": "settings-item-frame-selected" },
+                            { "bind": "active", "class": "settings-item-frame-active" }
                           ],
                           "children": [
                             {
                               "type": "panel",
                               "classes": ["settings-item-inner"],
                               "conditional_classes": [
-                                { "bind": "selected", "class": "settings-item-inner-selected" }
+                                { "bind": "selected", "class": "settings-item-inner-selected" },
+                                { "bind": "active", "class": "settings-item-inner-active" }
                               ],
                               "children": [
                                 {
@@ -76,7 +81,10 @@
             {
               "type": "panel",
               "classes": ["panel-secondary"],
-              "width": "56%",
+              "conditional_classes": [
+                { "bind": "focus_right", "class": "panel-secondary-active" }
+              ],
+              "width": "58%",
               "height": "fill",
               "children": [
                 {
@@ -85,10 +93,58 @@
                   "gap": "$spacing.lg",
                   "height": "fill",
                   "children": [
-                    { "type": "text", "classes": ["section-title"], "text_bind": "detail_title" },
-                    { "type": "text", "classes": ["body-copy"], "text_bind": "detail_body", "max_lines": 8 },
-                    { "type": "text", "classes": ["status-success"], "visible_bind": "status_success_visible", "text_bind": "status_text" },
-                    { "type": "text", "classes": ["status-error"], "visible_bind": "status_error_visible", "text_bind": "status_text" },
+                    { "type": "text", "classes": ["editor-pane-title"], "text_bind": "editor_title" },
+                    { "type": "text", "classes": ["editor-pane-body"], "text_bind": "editor_description" },
+                    { "type": "text", "classes": ["editor-pane-hint"], "text_bind": "editor_hint" },
+                    {
+                      "type": "list",
+                      "visible_bind": "editor_has_items",
+                      "bind": "editor_items",
+                      "gap": "$spacing.sm",
+                      "item_height": 94,
+                      "height": "fill",
+                      "children": [
+                        {
+                          "type": "panel",
+                          "classes": ["editor-list-item-frame"],
+                          "conditional_classes": [
+                            { "bind": "selected", "class": "editor-list-item-frame-selected" },
+                            { "bind": "active", "class": "editor-list-item-frame-active" }
+                          ],
+                          "children": [
+                            {
+                              "type": "panel",
+                              "classes": ["editor-list-item-inner"],
+                              "conditional_classes": [
+                                { "bind": "selected", "class": "editor-list-item-inner-selected" },
+                                { "bind": "active", "class": "editor-list-item-inner-active" }
+                              ],
+                              "children": [
+                                {
+                                  "type": "stack",
+                                  "direction": "vertical",
+                                  "gap": "$spacing.xs",
+                                  "height": "fill",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "classes": ["editor-list-item-title"],
+                                      "conditional_classes": [
+                                        { "bind": "selected", "class": "editor-list-item-title-selected" }
+                                      ],
+                                      "text_bind": "title"
+                                    },
+                                    { "type": "text", "classes": ["editor-list-item-description"], "text_bind": "description" }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    { "type": "text", "classes": ["status-success"], "visible_bind": "editor_status_success", "text_bind": "editor_status_text" },
+                    { "type": "text", "classes": ["status-error"], "visible_bind": "editor_status_error", "text_bind": "editor_status_text" },
                     { "type": "spacer", "height": "fill" }
                   ]
                 }

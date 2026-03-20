@@ -7,8 +7,8 @@
         {
           "type": "stack",
           "direction": "vertical",
-          "align": "center",
           "gap": "$spacing.lg",
+          "width": "100%",
           "children": [
             { "type": "text", "classes": ["screen-title"], "text_bind": "title", "width": "100%" },
             { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle", "width": "100%" },
@@ -17,12 +17,12 @@
               "classes": ["panel-primary"],
               "visible_bind": "empty",
               "width": "100%",
-              "height": 160,
+              "height": 220,
               "children": [
                 {
                   "type": "stack",
                   "direction": "vertical",
-                  "gap": "$spacing.sm",
+                  "gap": "$spacing.md",
                   "children": [
                     { "type": "text", "classes": ["empty-title"], "text_bind": "empty_title" },
                     { "type": "text", "classes": ["empty-body"], "text_bind": "empty_body" }
@@ -31,18 +31,20 @@
               ]
             },
             {
-              "type": "panel",
+              "type": "stack",
               "visible_bind": "has_items",
-              "width": 544,
-              "height": "fill",
+              "direction": "horizontal",
+              "width": "100%",
+              "height": 240,
               "children": [
+                { "type": "spacer", "width": "fill" },
                 {
                   "type": "list",
                   "bind": "items",
                   "columns": 2,
-                  "gap": "$spacing.lg",
-                  "item_width": 260,
-                  "item_height": 150,
+                  "gap": "$spacing.xl",
+                  "item_width": 380,
+                  "item_height": 200,
                   "children": [
                     {
                       "type": "panel",
@@ -62,15 +64,15 @@
                               "type": "stack",
                               "direction": "horizontal",
                               "height": "fill",
-                              "gap": "$spacing.md",
+                              "gap": "$spacing.lg",
                               "children": [
                                 {
                                   "type": "image",
                                   "classes": ["system-icon"],
                                   "system_icon_bind": "system_id",
                                   "placeholder_text_bind": "title",
-                                  "width": 56,
-                                  "height": 56
+                                  "width": 88,
+                                  "height": 88
                                 },
                                 {
                                   "type": "stack",
@@ -99,9 +101,11 @@
                       ]
                     }
                   ]
-                }
+                },
+                { "type": "spacer", "width": "fill" }
               ]
-            }
+            },
+            { "type": "spacer", "height": "fill" }
           ]
         }
       ]

@@ -7,13 +7,13 @@
         {
           "type": "stack",
           "direction": "vertical",
-          "align": "center",
-          "gap": "$spacing.xl",
+          "width": "100%",
+          "gap": "$spacing.lg",
           "children": [
             {
               "type": "stack",
               "direction": "vertical",
-              "height": 72,
+              "height": 112,
               "gap": "$spacing.sm",
               "width": "100%",
               "children": [
@@ -22,90 +22,20 @@
               ]
             },
             {
-              "type": "list",
-              "bind": "items",
-              "direction": "vertical",
-              "gap": "$spacing.lg",
-              "item_height": 140,
-              "width": 420,
-              "children": [
-                {
-                  "type": "panel",
-                  "classes": ["menu-card-frame"],
-                  "conditional_classes": [
-                    { "bind": "selected", "class": "menu-card-frame-selected" }
-                  ],
-                  "children": [
-                    {
-                      "type": "panel",
-                      "classes": ["menu-card-inner"],
-                      "conditional_classes": [
-                        { "bind": "selected", "class": "menu-card-inner-selected" }
-                      ],
-                      "children": [
-                        {
-                          "type": "stack",
-                          "direction": "vertical",
-                          "height": "fill",
-                          "gap": "$spacing.sm",
-                          "children": [
-                            { "type": "text", "classes": ["menu-card-title"], "text_bind": "title" },
-                            { "type": "text", "classes": ["menu-card-status"], "text_bind": "status" },
-                            { "type": "spacer", "height": "fill" },
-                            {
-                              "type": "text",
-                              "classes": ["menu-card-hint"],
-                              "conditional_classes": [
-                                { "bind": "selected", "class": "menu-card-hint-selected" }
-                              ],
-                              "text_bind": "hint"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "hero": {
-      "type": "screen",
-      "children": [
-        {
-          "type": "stack",
-          "direction": "vertical",
-          "align": "center",
-          "gap": "$spacing.xl",
-          "children": [
-            {
               "type": "stack",
-              "direction": "vertical",
-              "height": 72,
-              "gap": "$spacing.sm",
+              "direction": "horizontal",
               "width": "100%",
+              "height": 440,
               "children": [
-                { "type": "text", "classes": ["screen-brand"], "text_bind": "brand" },
-                { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" }
-              ]
-            },
-            {
-              "type": "panel",
-              "classes": ["menu-backdrop"],
-              "width": 864,
-              "height": 376,
-              "children": [
+                { "type": "spacer", "width": "fill" },
                 {
                   "type": "list",
                   "bind": "items",
                   "direction": "horizontal",
                   "columns": 3,
                   "gap": "$spacing.xl",
-                  "item_width": 240,
-                  "item_height": 280,
+                  "item_width": 270,
+                  "item_height": 360,
                   "children": [
                     {
                       "type": "panel",
@@ -152,9 +82,109 @@
                       ]
                     }
                   ]
-                }
+                },
+                { "type": "spacer", "width": "fill" }
               ]
-            }
+            },
+            { "type": "spacer", "height": "fill" }
+          ]
+        }
+      ]
+    },
+    "hero": {
+      "type": "screen",
+      "children": [
+        {
+          "type": "stack",
+          "direction": "vertical",
+          "width": "100%",
+          "gap": "$spacing.lg",
+          "children": [
+            {
+              "type": "stack",
+              "direction": "vertical",
+              "height": 112,
+              "gap": "$spacing.sm",
+              "width": "100%",
+              "children": [
+                { "type": "text", "classes": ["screen-brand"], "text_bind": "brand" },
+                { "type": "text", "classes": ["screen-subtitle"], "text_bind": "subtitle" }
+              ]
+            },
+            {
+              "type": "stack",
+              "direction": "horizontal",
+              "width": "100%",
+              "height": 460,
+              "children": [
+                { "type": "spacer", "width": "fill" },
+                {
+                  "type": "panel",
+                  "classes": ["menu-backdrop"],
+                  "width": 980,
+                  "height": 460,
+                  "children": [
+                    {
+                      "type": "list",
+                      "bind": "items",
+                      "direction": "horizontal",
+                      "columns": 3,
+                      "gap": "$spacing.xl",
+                      "item_width": 260,
+                      "item_height": 340,
+                      "children": [
+                        {
+                          "type": "panel",
+                          "classes": ["menu-card-frame"],
+                          "conditional_classes": [
+                            { "bind": "selected", "class": "menu-card-frame-selected" }
+                          ],
+                          "children": [
+                            {
+                              "type": "panel",
+                              "classes": ["menu-card-inner"],
+                              "conditional_classes": [
+                                { "bind": "selected", "class": "menu-card-inner-selected" }
+                              ],
+                              "children": [
+                                {
+                                  "type": "stack",
+                                  "direction": "vertical",
+                                  "height": "fill",
+                                  "gap": "$spacing.md",
+                                  "children": [
+                                    { "type": "text", "classes": ["menu-card-title"], "text_bind": "title" },
+                                    { "type": "text", "classes": ["menu-card-status"], "text_bind": "status" },
+                                    { "type": "spacer", "height": "fill" },
+                                    {
+                                      "type": "text",
+                                      "classes": ["menu-card-hint"],
+                                      "conditional_classes": [
+                                        { "bind": "selected", "class": "menu-card-hint-selected" }
+                                      ],
+                                      "text_bind": "hint"
+                                    },
+                                    {
+                                      "type": "rect",
+                                      "classes": ["menu-card-accent"],
+                                      "conditional_classes": [
+                                        { "bind": "selected", "class": "menu-card-accent-selected" }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                { "type": "spacer", "width": "fill" }
+              ]
+            },
+            { "type": "spacer", "height": "fill" }
           ]
         }
       ]

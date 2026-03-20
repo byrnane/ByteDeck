@@ -46,6 +46,9 @@ settings.detail.theme,"Select the active UI theme. Themes are loaded from the to
 settings.detail.rescan,"Rebuild the library from ROM folders, gamelist.xml files and app manifests. The cache file is updated immediately.","Пересобирает библиотеку по папкам ROM, файлам gamelist.xml и манифестам приложений. Кэш обновляется сразу."
 settings.hint.cycle,Left/Right or A to change,Влево/вправо или A для смены
 settings.hint.run,Press A to run,Нажмите A для запуска
+settings.hint.enter_editor,Press A or Right to edit,Нажмите A или вправо для редактирования
+settings.hint.editing,Editing in right panel,Редактирование в правой панели
+settings.hint.apply_choice,Press A to apply, B to go back,Нажмите A для применения, B для возврата
 settings.rescan_value,Run now,Запустить
 settings.status.language_applied,Language updated.,Язык обновлён.
 settings.status.language_failed,Failed to update language.,Не удалось обновить язык.
@@ -53,6 +56,18 @@ settings.status.theme_applied,Theme applied.,Тема применена.
 settings.status.theme_failed,Failed to apply theme.,Не удалось применить тему.
 settings.status.rescan_success,Library scan completed.,Сканирование библиотеки завершено.
 settings.status.rescan_failed,Library scan failed.,Сканирование библиотеки завершилось ошибкой.
+settings.editor.language.title,Language,Язык
+settings.editor.language.description,Choose the interface language. The change is applied immediately and saved to user settings.,Выберите язык интерфейса. Изменение применяется сразу и сохраняется в пользовательских настройках.
+settings.editor.theme.title,Theme,Тема
+settings.editor.theme.description,Choose the active UI theme. Themes are loaded from the top-level themes directory and applied immediately.,Выберите активную тему интерфейса. Темы загружаются из корневой папки themes и применяются сразу.
+settings.editor.rescan.title,Rescan Library,Пересканировать библиотеку
+settings.editor.rescan.description,Run a fresh scan of ROM folders, gamelist.xml files and app manifests. The library cache will be rebuilt immediately.,Запустите новое сканирование папок ROM, файлов gamelist.xml и манифестов приложений. Кэш библиотеки будет пересобран сразу.
+settings.option.language.en,Use English for all interface labels and hints.,Использовать английский язык для всех подписей и подсказок интерфейса.
+settings.option.language.ru,Use Russian for all interface labels and hints.,Использовать русский язык для всех подписей и подсказок интерфейса.
+settings.option.theme.default,Built-in handheld-first theme.,Встроенная handheld-first тема.
+settings.option.rescan.title,Start full library rescan,Запустить полное пересканирование библиотеки
+settings.option.rescan.description,Read ROM folders and rebuild library.json with current metadata.,Прочитать папки ROM и пересобрать library.json с актуальными метаданными.
+theme.default,Default,Default
 language.name.en,English,English
 language.name.ru,Russian,Русский
 error.launch_callback_missing,Launch callback is not configured.,Не настроен обработчик запуска.

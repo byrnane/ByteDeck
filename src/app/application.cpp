@@ -23,7 +23,7 @@ namespace
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
 constexpr const char* kBaseWindowTitle = "ByteDeck";
-constexpr int kStatusBarHeight = 56;
+constexpr int kStatusBarHeight = 64;
 constexpr Uint32 kRepeatDelayMs = 350;
 constexpr Uint32 kRepeatIntervalMs = 90;
 
