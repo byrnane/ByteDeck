@@ -45,6 +45,12 @@ const std::string& ThemeManager::active_theme_id() const
 }
 
 
+const std::filesystem::path& ThemeManager::active_theme_root() const
+{
+    return active_theme_root_;
+}
+
+
 std::string ThemeManager::screen_variant(const std::string& screen_id) const
 {
     if (theme_json_.contains("screen_variants") && theme_json_["screen_variants"].contains(screen_id) && theme_json_["screen_variants"][screen_id].is_string())
@@ -135,6 +141,91 @@ nlohmann::json ThemeManager::resolve_value(const nlohmann::json& value) const
 }
 
 
+std::filesystem::path ThemeManager::resolve_asset_path(const std::string& path_value) const
+{
+    if (path_value.empty())
+    {
+        return {};
+    }
+
+    const std::filesystem::path path(path_value);
+    if (path.is_absolute())
+    {
+        return path;
+    }
+
+    return active_theme_root_ / path;
+}
+
+
+std::filesystem::path ThemeManager::system_icon_path(const std::string& system_id) const
+{
+    if (system_id.empty() || !theme_json_.contains("system_icons"))
+    {
+        return {};
+    }
+
+    const nlohmann::json& system_icons = theme_json_["system_icons"];
+    if (!system_icons.is_object() || !system_icons.contains(system_id) || !system_icons[system_id].is_string())
+    {
+        return {};
+    }
+
+    return resolve_asset_path(system_icons[system_id].get<std::string>());
+}
+
+
+std::filesystem::path ThemeManager::font_path_for_family(const std::string& family) const
+{
+    if (family.empty() || !theme_json_.contains("fonts"))
+    {
+        return {};
+    }
+
+    const nlohmann::json& fonts = theme_json_["fonts"];
+    if (!fonts.is_object() || !fonts.contains(family))
+    {
+        return {};
+    }
+
+    const nlohmann::json& definition = fonts[family];
+    if (definition.is_string())
+    {
+        return resolve_asset_path(definition.get<std::string>());
+    }
+
+    if (!definition.is_object() || !definition.contains("path") || !definition["path"].is_string())
+    {
+        return {};
+    }
+
+    return resolve_asset_path(definition["path"].get<std::string>());
+}
+
+
+ThemeTypographyRole ThemeManager::typography_role(const std::string& role) const
+{
+    ThemeTypographyRole result;
+    if (role.empty() || !theme_json_.contains("typography"))
+    {
+        return result;
+    }
+
+    const nlohmann::json& typography = theme_json_["typography"];
+    if (!typography.is_object() || !typography.contains(role) || !typography[role].is_object())
+    {
+        return result;
+    }
+
+    const nlohmann::json& definition = typography[role];
+    result.family = definition.value("family", result.family);
+    result.size = definition.value("size", result.size);
+    result.line_height = definition.value("line_height", result.line_height);
+    result.bitmap_scale = definition.value("bitmap_scale", result.bitmap_scale);
+    return result;
+}
+
+
 void ThemeManager::merge_object(nlohmann::json& target, const nlohmann::json& source)
 {
     if (!source.is_object())
@@ -209,6 +300,7 @@ bool ThemeManager::load_theme_file(const std::string& theme_id)
     {
         std::ifstream input(path);
         input >> theme_json_;
+        active_theme_root_ = path.parent_path();
         return true;
     }
     catch (const std::exception& exception)

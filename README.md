@@ -1,211 +1,117 @@
 # ByteDeck
 
-ByteDeck is a lightweight SDL2 launcher for TrimUI Smart Pro S.
+ByteDeck is a lightweight custom launcher for **TrimUI Smart Pro S**.
 
-Current baseline is already validated on hardware:
+It runs on top of the stock firmware, scans ROM folders, reads `gamelist.xml`, builds its own library cache and launches games through the stock emulator scripts.
 
-- the app appears in the stock `Apps` menu
-- launcher UI starts on device
-- input works
-- ROM scanning works
-- stock emulator handoff works
+- [Русская версия](./README.ru.md)
+- [Theming Guide](./docs/THEMING.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Platform Notes](./docs/PLATFORM_NOTES.md)
+- [TrimUI SPS Packaging](./device/trimui_sps/README.md)
 
-## Structure
+## What ByteDeck Does
 
-The repository is split into three clear zones:
+- scans ROM folders from the SD card
+- merges ROM files with `gamelist.xml`
+- shows systems, games and apps in its own UI
+- launches games through the stock TrimUI emulator wrappers
+- supports JSON-defined layouts and themes
 
-- source and tracked config in the repo root
-- local-only heavy data in `local/`
-- generated outputs in `out/`
+## For Users
 
-Tracked project layout:
+### Install On TrimUI Smart Pro S
 
-```text
-ByteDeck/
-  cmake/
-    toolchains/
-  config/
-    themes/
-    ui/
-  device/
-    trimui_sps/
-  docs/
-  scripts/
-  src/
-```
-
-Local-only layout:
-
-```text
-local/
-  references/
-  sdk/
-    trimui_sps/
-```
-
-Generated layout:
-
-```text
-out/
-  host/
-  trimui_sps/
-  runtime/
-
-dist/
-  windows/
-  trimui_sps/
-```
-
-Development content roots stay in the repo root:
-
-- `roms/`
-- `bios/`
-- `Apps/`
-- `collections/`
-
-## Main Scripts
-
-Public scripts are intentionally reduced to four workflows:
-
-- `scripts/build-windows.ps1`
-- `scripts/dev-windows.ps1`
-- `scripts/build-trimui_sps.ps1`
-- `scripts/clean.ps1`
-
-Explorer wrappers:
-
-- `scripts/build-windows.bat`
-- `scripts/dev-windows.bat`
-- `scripts/build-trimui_sps.bat`
-- `scripts/clean.bat`
-
-Internal helper:
-
-- `scripts/_build-trimui_sps-wsl.sh`
-
-## Root Launcher
-
-There is also a root-level launcher for everyday use:
-
-- `ByteDeck.bat`
-- `ByteDeck.ps1`
-
-It supports both modes:
-
-- double-click in Explorer for a simple menu
-- direct commands from terminal
-
-Examples:
+1. Prepare a stock SD card layout.
+2. Build the TrimUI package:
 
 ```bat
-ByteDeck.bat dev-windows
-ByteDeck.bat build-windows -Clean
-ByteDeck.bat build-trimui_sps -Clean
-ByteDeck.bat clean
+ByteDeck.bat build-trimui_sps
 ```
 
-Without arguments it opens a small interactive menu with the main workflows.
+3. Copy the generated app folder:
 
-## Desktop Workflow
-
-### Build
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
+```text
+dist/trimui_sps/Apps/ByteDeck -> SDCARD/Apps/ByteDeck
 ```
 
-Result:
+4. Insert the SD card into the console.
+5. Open `Apps` in the stock launcher and start `ByteDeck`.
 
-- intermediate build: `out/host/Release/`
-- ready desktop package: `dist/windows/`
+### ROM Folder Layout
 
-### Build And Run
+ByteDeck keeps its own system naming inside the ROM root. Typical folders look like this:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\dev-windows.ps1
+```text
+SDCARD/Roms/nes
+SDCARD/Roms/snes
+SDCARD/Roms/megadrive
+SDCARD/Roms/psp
 ```
 
-What it does:
+If a system uses `gamelist.xml`, place it next to the ROM files inside that system folder.
 
-- builds the app
-- stages `dist/windows/`
-- runs the staged executable
-- uses repository content roots (`roms`, `bios`, `Apps`, `collections`)
-- writes desktop runtime cache/logs to `out/runtime/`
-
-## TrimUI Smart Pro S Workflow
-
-### Requirements
-
-- WSL with Ubuntu
-- `cmake` and `ninja-build` installed inside WSL
-- official SDK extracted to `local/sdk/trimui_sps/`
-
-Install WSL tools:
-
-```bash
-sudo apt update
-sudo apt install -y cmake ninja-build
-```
-
-### Build
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\build-trimui_sps.ps1 -Clean
-```
-
-Result:
-
-- intermediate ARM build: `out/trimui_sps/Release/`
-- ready SD overlay: `dist/trimui_sps/`
-
-Copy to SD:
-
-- copy `dist/trimui_sps/Apps/ByteDeck` to `SDCARD/Apps/ByteDeck`
-
-Important:
-
-- ByteDeck still uses its own ROM folder naming inside the ROM root
-- on stock SD layout this means folders such as `Roms/nes`, `Roms/megadrive`, `Roms/psp`
-- stock naming is used only for integration with the firmware, not as ByteDeck's internal library model
-
-## Controls
+### Controls
 
 - D-Pad or arrow keys: move selection
 - `A` / `Enter`: select
 - `B` / `Escape`: back
 - `Menu` / `Q`: quit
-- hold D-Pad or arrows: auto-repeat scroll
-- `F11`: toggle fullscreen on desktop
 
-## Cleanup
+## For Developers
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\clean.ps1
+### Windows Build
+
+```bat
+ByteDeck.bat build-windows
 ```
 
-This removes generated paths only:
+Ready package:
 
-- `out/`
-- `dist/`
-- legacy `build/`, `build-trimui/`, `cache/`
+```text
+dist/windows
+```
 
-## Notes
+### Windows Build And Run
 
-- `cmake/toolchains/` contains tracked CMake toolchain definitions
-- `local/sdk/trimui_sps/` contains the real external SDK
-- `dist/` is the ready-to-use result
-- `out/` is internal build output
-- UI is now driven by:
-  - `config/ui/screens/*.json` for screen layouts
-  - `config/themes/default/theme.json` for theme tokens, styles and screen variants
-- screen logic stays in C++, but rendering is now `layout + bindings + theme`
+```bat
+ByteDeck.bat dev-windows
+```
 
-Additional docs:
+### TrimUI Smart Pro S Build
 
-- `docs/ARCHITECTURE.md`
-- `docs/PLATFORM_NOTES.md`
-- `docs/THEMING.md`
-- `docs/THEMING.ru.md`
-- `device/trimui_sps/README.md`
-- `TODO.md`
+Requirements:
+
+- WSL with Ubuntu
+- `cmake` and `ninja-build` installed inside WSL
+- official SDK extracted to `local/sdk/trimui_sps`
+
+Build:
+
+```bat
+ByteDeck.bat build-trimui_sps
+```
+
+Ready package:
+
+```text
+dist/trimui_sps
+```
+
+### Cleanup
+
+```bat
+ByteDeck.bat clean
+```
+
+## Project Docs
+
+- [Theming Guide](./docs/THEMING.md)
+- [Theming Guide (Russian)](./docs/THEMING.ru.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Architecture (Russian)](./docs/ARCHITECTURE.ru.md)
+- [Platform Notes](./docs/PLATFORM_NOTES.md)
+- [Platform Notes (Russian)](./docs/PLATFORM_NOTES.ru.md)
+- [TrimUI SPS Packaging](./device/trimui_sps/README.md)
+- [TrimUI SPS Packaging (Russian)](./device/trimui_sps/README.ru.md)
+- [Roadmap](./TODO.md)

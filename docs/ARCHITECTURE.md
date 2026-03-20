@@ -1,6 +1,9 @@
 # ByteDeck Architecture
 
-This document describes the current structure after the first successful desktop build and the first successful TrimUI Smart Pro S bring-up.
+- [Русская версия](./ARCHITECTURE.ru.md)
+- [Project README](../README.md)
+- [Theming Guide](./THEMING.md)
+- [Platform Notes](./PLATFORM_NOTES.md)
 
 ## Main Layers
 
@@ -8,18 +11,18 @@ This document describes the current structure after the first successful desktop
 
 Responsibilities:
 
-- resolve working roots for ROMs, BIOS, apps, collections, config, scripts and cache
+- resolve concrete working paths
 - load user settings
 - write runtime logs
 
-This layer is the only place that knows how repository paths and packaged runtime paths become concrete filesystem locations.
+This layer knows where config, ROMs, apps, scripts and cache live in desktop and device modes.
 
 ### `src/data`
 
 Responsibilities:
 
 - define normalized library models
-- serialize the library cache to JSON
+- serialize the library cache
 
 Main entities:
 
@@ -44,21 +47,27 @@ Responsibilities:
 
 Responsibilities:
 
-- map input to navigation actions
-- keep screen-specific navigation logic local to each screen
-- load declarative screen layouts from JSON
-- load theme tokens and style rules from JSON
-- render `layout + bindings + theme` through SDL2
+- map SDL input to navigation actions
+- keep screen-specific logic inside screen classes
+- load declarative layouts from JSON
+- load themes from JSON
+- resolve bindings, assets and styles
+- render the final UI through SDL
+
+Important parts:
+
+- `LayoutRegistry`
+- `ThemeManager`
+- `ThemeFontRenderer`
+- `UiRenderer`
 
 ### `src/launch`
 
 Responsibilities:
 
-- provide one launch interface for games and apps
-- map ByteDeck system ids to stock TrimUI emulator scripts
-- defer launch until SDL is fully shut down on device
-
-This is the boundary between ByteDeck and stock firmware runtime.
+- expose one launch interface for games and apps
+- map ByteDeck system ids to stock TrimUI launch scripts
+- defer handoff until SDL is fully shut down on device
 
 ### `src/app`
 
@@ -66,90 +75,42 @@ Responsibilities:
 
 - initialize subsystems
 - load library data
-- own SDL window and renderer
-- dispatch events to the current screen
-- own the active UI runtime (`LayoutRegistry`, `ThemeManager`, `UiRenderer`)
-- coordinate delayed handoff to emulator launch scripts
-
-## Repository Zones
-
-### Tracked source
-
-- `src/`
-- `scripts/`
-- `config/`
-- `device/trimui_sps/`
-- `docs/`
-- `cmake/`
-
-### Local-only assets
-
-- `local/references/`
-- `local/sdk/trimui_sps/`
-
-### Generated outputs
-
-- `out/` for internal build output and runtime cache
-- `dist/` for ready-to-use results
-
-## Build And Packaging Model
-
-### Windows
-
-- build tree: `out/host/<Config>/`
-- ready package: `dist/windows/`
-- runtime cache/logs for dev runs: `out/runtime/`
-
-### TrimUI Smart Pro S
-
-- build tree: `out/trimui_sps/<Config>/`
-- ready SD overlay: `dist/trimui_sps/`
-- package template: `device/trimui_sps/package-root/`
-
-## Runtime Flow
-
-### Startup
-
-1. `main.cpp` creates `Application`.
-2. `Application::initialize()` resolves paths and starts logging.
-3. `UserSettings` selects the active theme id.
-4. `LayoutRegistry` loads `config/ui/screens/*.json`.
-5. `ThemeManager` loads the active theme from `config/themes/<theme-id>/theme.json`.
-6. `LibraryScanner` builds `LibraryData`.
-7. Cache is written to the resolved cache root.
-8. SDL window, renderer and input devices are initialized.
-9. `UiRenderer` is created.
-10. `MainMenuScreen` is pushed into the screen manager.
-
-### Navigation
-
-1. SDL events become `NavigationInput`.
-2. The current screen returns a `ScreenAction`.
-3. The current screen also exposes `screen_id()` and `build_bindings()`.
-4. `Application` applies the action and changes screen stack or prepares a launch request.
-5. `UiRenderer` resolves the active screen variant and renders the screen from JSON.
-
-### Game Launch
-
-1. The selected game is passed into `LaunchService`.
-2. `LaunchService` resolves the stock launch script and target path.
-3. On desktop mock mode it only logs.
-4. On device execute mode it returns a deferred launch request.
-5. `Application` exits the main loop and shuts down SDL.
-6. After shutdown, `LaunchService` hands control to the stock launcher script.
-
-That delayed handoff is required so RetroArch-based launchers do not fail on framebuffer or video initialization.
+- create the SDL window and renderer
+- own screen stack and UI runtime
+- coordinate delayed emulator handoff
 
 ## Declarative UI Model
 
-Current model is intentionally HTML/CSS-like in spirit, but not in syntax:
+ByteDeck uses a code-first screen logic layer with a declarative render layer.
 
-- `config/ui/screens/*.json` defines the node tree for each screen
-- `config/themes/default/theme.json` defines tokens, styles and screen variants
-- `Screen` implementations stay code-first for navigation and data preparation
-- `Screen::build_bindings()` returns ready-to-render values; there is no expression language in layouts
+Screen classes still handle:
 
-The first supported node types are:
+- navigation
+- selection state
+- launch callbacks
+- bindings preparation
+
+Screen classes no longer draw UI directly. Instead they provide:
+
+- `screen_id()`
+- `build_bindings()`
+- `window_title()`
+
+The render pipeline is:
+
+```text
+layout + bindings + theme -> SDL draw calls
+```
+
+## Layouts
+
+Layouts live under:
+
+```text
+config/ui/screens/
+```
+
+The current node set is:
 
 - `screen`
 - `panel`
@@ -160,9 +121,109 @@ The first supported node types are:
 - `rect`
 - `spacer`
 
-Theme scope in the current iteration:
+## Themes
 
-- one shipped theme: `default`
-- active theme is read from `user_settings.theme`
-- theme may change style tokens and select a predefined screen variant
-- theme may not replace the whole screen tree from scratch
+Themes live under:
+
+```text
+config/themes/<theme-id>/
+```
+
+Theme entrypoint:
+
+```text
+config/themes/<theme-id>/theme.json
+```
+
+Themes currently control:
+
+- colors
+- spacing
+- typography roles
+- real font files with bitmap fallback
+- background images
+- system icons
+- style rules by type, class and id
+- predefined screen variants
+
+Theme assets are resolved relative to the theme folder.
+
+## Text Rendering
+
+ByteDeck currently supports two text paths:
+
+1. theme fonts loaded from TTF or OTF files
+2. built-in bitmap font fallback
+
+This keeps the UI editable through themes without making custom fonts a hard runtime requirement.
+
+## Repository Zones
+
+Tracked project files:
+
+- `src/`
+- `scripts/`
+- `config/`
+- `device/trimui_sps/`
+- `docs/`
+- `cmake/`
+
+Local-only data:
+
+- `local/sdk/trimui_sps/`
+- `local/references/`
+
+Generated output:
+
+- `out/` for internal build output and runtime cache
+- `dist/` for ready-to-use packages
+
+## Why `cmake/toolchains` And `local/sdk` Are Separate
+
+`cmake/toolchains/` contains tracked build definitions used by CMake.
+
+`local/sdk/trimui_sps/` contains the real external SDK and sysroot downloaded from TrimUI.
+
+They are related, but they are not the same kind of data:
+
+- `cmake/toolchains` is source code for the build system
+- `local/sdk` is an external dependency
+
+## Build Outputs
+
+Windows:
+
+- build tree: `out/host/<Config>/`
+- ready package: `dist/windows/`
+
+TrimUI Smart Pro S:
+
+- build tree: `out/trimui_sps/<Config>/`
+- ready SD overlay: `dist/trimui_sps/`
+
+Desktop runtime cache and logs:
+
+- `out/runtime/`
+
+## Runtime Flow
+
+Startup:
+
+1. `main.cpp` creates `Application`.
+2. `Application::initialize()` resolves paths and starts logging.
+3. user settings select the active theme
+4. `LayoutRegistry` loads screen JSON files
+5. `ThemeManager` loads the active theme
+6. `LibraryScanner` builds `LibraryData`
+7. cache is written to the cache root
+8. SDL window, renderer and input are initialized
+9. `UiRenderer` renders the active screen
+
+Game launch:
+
+1. a screen requests a launch
+2. `LaunchService` resolves the stock launcher script
+3. on device, `Application` exits the SDL loop first
+4. after SDL shutdown, ByteDeck hands off to the stock script
+
+That delayed handoff is required so RetroArch-based launchers can initialize video correctly on the device.

@@ -1,59 +1,59 @@
 # ByteDeck Theming Guide
 
-This guide explains how ByteDeck themes work in plain language.
+- [Русская версия](./THEMING.ru.md)
+- [Project README](../README.md)
+- [Architecture](./ARCHITECTURE.md)
 
-If you open `config/themes/default/theme.json` and see "a pile of magic numbers", this is the document that turns it back into something understandable.
-
-## Mental Model
+## Overview
 
 ByteDeck UI is split into two parts:
 
-- `config/ui/screens/*.json` describes **what is on the screen**
-- `config/themes/<theme-id>/theme.json` describes **how it should look**
+- `config/ui/screens/*.json` describes the screen structure
+- `config/themes/<theme-id>/theme.json` describes how that structure looks
 
-In other words:
+Layouts define panels, lists, text and images.
+Themes define colors, spacing, typography, backgrounds and icons.
 
-- screen layouts are the structure
-- themes are the paint, spacing and typography
+## Theme Root
 
-Themes do **not** contain gameplay logic, navigation logic or launch behavior.
+Every theme lives in its own folder:
 
-## What A Theme Can Change
+```text
+config/themes/<theme-id>/
+```
 
-A theme can currently change:
-
-- colors
-- spacing
-- text scale
-- panel fills and borders
-- style presets attached to layout classes
-- screen variant choice for a given screen
-
-A theme cannot currently:
-
-- invent new screen behavior
-- replace the whole app logic
-- run expressions or code
-
-## Theme File Structure
-
-Each theme lives here:
+The entry file is:
 
 ```text
 config/themes/<theme-id>/theme.json
 ```
 
-Current shipped theme:
+Any asset path inside `theme.json` is resolved relative to that theme folder.
 
-```text
-config/themes/default/theme.json
+Example:
+
+```json
+"background_image": "images/main-menu.png"
 ```
 
-The top-level structure is:
+This means:
+
+```text
+config/themes/<theme-id>/images/main-menu.png
+```
+
+There is no forced internal folder structure. You can organize `fonts/`, `icons/`, `images/` and `backgrounds/` however you want.
+
+## Theme File Structure
+
+The main sections are:
 
 ```json
 {
   "tokens": {},
+  "fonts": {},
+  "typography": {},
+  "system_icons": {},
   "styles": {
     "types": {},
     "classes": {},
@@ -63,86 +63,228 @@ The top-level structure is:
 }
 ```
 
-## 1. Tokens
+## Colors
 
-`tokens` are reusable named values.
+### Recommended formats
 
-Think of them as variables.
+Preferred color formats are:
+
+- `#RRGGBB`
+- `#RRGGBBAA`
+
+Examples:
+
+```json
+"primary": "#F5F1E6"
+"accent_overlay": "#E4B756CC"
+```
+
+### Separate alpha
+
+If you want to keep alpha separate, use:
+
+```json
+{
+  "color": "#F5F1E6",
+  "alpha": 75
+}
+```
+
+Rules:
+
+- `alpha` is in percent from `0` to `100`
+- `#RRGGBBAA` has priority over `alpha`
+- legacy arrays like `[245, 241, 230, 255]` still work for compatibility, but they are no longer the main format
+
+## Tokens
+
+`tokens` are reusable values.
+
+Typical token groups:
+
+- `colors`
+- `spacing`
 
 Example:
 
 ```json
-"spacing": {
-  "xs": 4,
-  "sm": 8,
-  "md": 16,
-  "lg": 24
+"tokens": {
+  "colors": {
+    "background": {
+      "app": "#0F1218",
+      "panel_primary": "#1A1F2A"
+    },
+    "text": {
+      "primary": "#F5F1E6",
+      "muted": "#939DB0"
+    }
+  },
+  "spacing": {
+    "sm": 8,
+    "md": 16,
+    "lg": 24
+  }
 }
 ```
 
-That means:
-
-- `4`, `8`, `16`, `24` are not random numbers
-- they are the standard spacing steps used by the theme
-
-Another example:
+Use a token from styles with `$`:
 
 ```json
-"text": {
-  "primary": [245, 241, 230, 255],
-  "muted": [147, 157, 176, 255]
+"background_color": "$colors.background.panel_primary"
+```
+
+## Typography And Fonts
+
+### Current text backend
+
+ByteDeck currently supports two text paths:
+
+1. Theme fonts loaded from TTF or OTF files
+2. Built-in bitmap font fallback
+
+If a theme font cannot be loaded, ByteDeck falls back to the built-in bitmap font and keeps the UI usable.
+
+### `fonts`
+
+The `fonts` section declares font families.
+
+Example:
+
+```json
+"fonts": {
+  "ui": {
+    "path": "fonts/Inter-Medium.ttf"
+  },
+  "brand": "fonts/Display.otf"
 }
 ```
 
-These are colors in:
+Both object and string forms are accepted.
 
-```text
-[R, G, B, A]
-```
+### `typography`
 
-Where:
+The `typography` section defines named text roles.
 
-- `R` = red
-- `G` = green
-- `B` = blue
-- `A` = alpha / opacity
-
-So:
+Example:
 
 ```json
-[245, 241, 230, 255]
+"typography": {
+  "body": {
+    "family": "ui",
+    "size": 16,
+    "line_height": 20,
+    "bitmap_scale": 2
+  },
+  "title": {
+    "family": "brand",
+    "size": 28,
+    "bitmap_scale": 4
+  }
+}
 ```
 
-means:
+Fields:
 
-- very light warm text
-- fully opaque because alpha is `255`
+- `family`: font family from `fonts`
+- `size`: font size for TTF/OTF rendering
+- `line_height`: optional fixed line height
+- `bitmap_scale`: fallback size for the built-in bitmap font
 
-## 2. Styles
+### How text size is chosen
 
-`styles` are reusable style rules.
+In the current UI runtime:
 
-They are split into three buckets:
+- `font_role` is the main text style control
+- `font_size` can override the size from the role
+- `scale` still works as a bitmap-font fallback
 
-- `types`: default style for a node type like `screen`, `text`, `panel`
-- `classes`: reusable named style presets
-- `ids`: one-off overrides for a specific layout node id
+Example style:
 
-Priority is:
+```json
+"menu-card-title": {
+  "font_role": "title",
+  "text_color": "$colors.text.primary"
+}
+```
+
+## Theme Assets
+
+Theme assets are regular files inside the theme folder.
+
+Currently supported asset use cases:
+
+- `background_image`
+- `system_icons`
+- image paths referenced by style rules
+- font files from `fonts`
+
+### Background images
+
+Example:
+
+```json
+"panel-primary": {
+  "background_color": "#1A1F2A",
+  "background_image": "images/panel-noise.png"
+}
+```
+
+### System icons
+
+Example:
+
+```json
+"system_icons": {
+  "nes": "icons/nes.png",
+  "megadrive": "icons/megadrive.png"
+}
+```
+
+An image node can request an icon by system id through bindings.
+
+## Styles
+
+The `styles` section is split into:
+
+- `types`: defaults by node type
+- `classes`: reusable named styles
+- `ids`: one-off overrides for a specific layout node
+
+Style priority is:
 
 1. runtime defaults
-2. style by node type
-3. styles by class
-4. style by id
-5. inline values in the layout JSON
+2. `styles.types`
+3. `styles.classes`
+4. `styles.ids`
+5. inline values from the layout file
 
-So if something looks "wrong", check in that order.
+### Common style properties
 
-## 3. Screen Variants
+Text:
 
-`screen_variants` tells the renderer which layout variant to use for a given screen.
+- `text_color`
+- `font_role`
+- `font_size`
+- `wrap`
+- `truncate`
 
-Example:
+Containers:
+
+- `background_color`
+- `background_image`
+- `border_color`
+- `border_width`
+- `padding`
+
+Images:
+
+- `path`
+- `placeholder_text`
+- `system_icon_bind`
+
+## Screen Variants
+
+Themes can choose a predefined layout variant for a screen:
 
 ```json
 "screen_variants": {
@@ -150,225 +292,28 @@ Example:
 }
 ```
 
-This means:
+This changes the selected layout variant. It does not change screen logic.
 
-- the `main_menu` screen exists in `config/ui/screens/main_menu.json`
-- that file contains multiple layout variants
-- the active theme chooses `hero`
+## Safe Editing Order
 
-If no variant is specified, ByteDeck falls back to `default`.
+If you are creating a new theme, the safest order is:
 
-## Token References
+1. edit `tokens.colors`
+2. edit `tokens.spacing`
+3. edit `typography`
+4. edit `styles.classes`
+5. add images, icons and fonts
 
-Inside styles, values can reference tokens with `$`.
+## Practical Notes
 
-Example:
+- Use relative asset paths inside the theme folder
+- Prefer `#RRGGBB` and `#RRGGBBAA`
+- Keep `bitmap_scale` set even if you use real fonts, so the fallback stays readable
+- Test the theme on desktop first, then on device
 
-```json
-"fill_color": "$colors.background.panel_primary"
-```
+## Related Docs
 
-This means:
-
-- go to `tokens.colors.background.panel_primary`
-- use that value here
-
-It is similar to CSS variables, but simpler.
-
-## Common Value Types
-
-### Colors
-
-Usually written as:
-
-```json
-[r, g, b, a]
-```
-
-Example:
-
-```json
-[26, 31, 42, 255]
-```
-
-### Numbers
-
-Used for spacing, padding, border width, height, width, etc.
-
-Example:
-
-```json
-"padding": 24
-```
-
-### Percentages
-
-Some sizes can be strings like:
-
-```json
-"width": "50%"
-```
-
-That means 50% of the parent area.
-
-### Fill
-
-Some dimensions can use:
-
-```json
-"height": "fill"
-```
-
-That means "take the remaining available space".
-
-## The Most Important Classes In The Default Theme
-
-These are the main building blocks:
-
-- `screen-brand`: big top logo text
-- `screen-title`: main page title
-- `screen-subtitle`: secondary heading text
-- `panel-primary`: left/main panel background
-- `panel-secondary`: right/details panel background
-- `menu-card-*`: main menu cards
-- `system-tile-*`: system grid cards
-- `browser-list-item-*`: rows in game/app lists
-- `preview-frame`: image preview container
-- `status-success`: positive launch status text
-- `status-error`: error launch status text
-
-## Why There Are So Many Similar Colors
-
-This is intentional. The theme separates:
-
-- outer frame color
-- inner fill color
-- selected frame color
-- selected inner fill color
-- muted text color
-- highlighted text color
-
-Without that separation, the whole UI quickly turns flat and hard to tune.
-
-## Quick Start: Change The Theme Safely
-
-Start with these edits first:
-
-1. Change background colors in `tokens.colors.background`
-2. Change main text colors in `tokens.colors.text`
-3. Change spacing scale in `tokens.spacing`
-4. Change title sizes in `tokens.typography`
-
-That gives visible changes without risking layout breakage.
-
-## Example: Make The Theme More Contrasty
-
-```json
-"text": {
-  "primary": [255, 255, 255, 255],
-  "muted": [180, 190, 205, 255],
-  "highlight": [255, 196, 92, 255],
-  "error": [235, 120, 120, 255]
-}
-```
-
-## Example: Make Spacing Tighter
-
-```json
-"spacing": {
-  "xs": 2,
-  "sm": 6,
-  "md": 12,
-  "lg": 18,
-  "xl": 28,
-  "xxl": 40
-}
-```
-
-## Example: Switch Main Menu Layout Variant
-
-```json
-"screen_variants": {
-  "main_menu": "default"
-}
-```
-
-That changes only the layout variant used by the theme.
-
-It does **not** affect navigation logic.
-
-## Relationship Between Layouts And Themes
-
-The layout file says things like:
-
-- there is a `panel`
-- inside it there is a `list`
-- each item has text and a frame
-
-The theme says things like:
-
-- panels use this fill color
-- selected list items use this highlight color
-- title text uses this scale
-
-So:
-
-- layout = structure
-- theme = presentation
-
-## Troubleshooting
-
-### "I changed a token but nothing happened"
-
-Possible reasons:
-
-- the token is not referenced anywhere
-- the value is overridden by a class
-- the value is overridden inline in the screen layout
-
-### "I changed a class but only one widget changed"
-
-That usually means:
-
-- only that layout node uses the class
-- or a more specific `id` / inline override wins
-
-### "The screen looks broken"
-
-Most likely causes:
-
-- too small spacing values
-- invalid width/height combination
-- color alpha accidentally set to `0`
-- bad JSON syntax
-
-When a layout file fails, ByteDeck should fall back to an error screen instead of crashing.
-
-## Recommended Workflow
-
-For theme development:
-
-1. Start from `config/themes/default/theme.json`
-2. Change one small group at a time
-3. Rebuild and run desktop first
-4. Only then test on device
-
-Start with:
-
-- `tokens.colors`
-- `tokens.spacing`
-- `tokens.typography`
-
-Touch `styles.classes` only after the basics make sense.
-
-## Current Limitations
-
-Right now the theming system is intentionally simple:
-
-- one shipped theme
-- no live reload
-- no visual theme editor
-- no CSS selector engine
-- no code inside theme files
-
-That is deliberate. The goal is to keep the system editable and understandable on a handheld project, not to build a browser.
+- [Project README](../README.md)
+- [Architecture](./ARCHITECTURE.md)
+- [Platform Notes](./PLATFORM_NOTES.md)
+- [TrimUI SPS Packaging](../device/trimui_sps/README.md)

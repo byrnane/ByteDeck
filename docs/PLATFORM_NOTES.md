@@ -1,50 +1,82 @@
 # TrimUI SPS Platform Notes
 
-These notes capture the confirmed runtime facts for ByteDeck on stock TrimUI Smart Pro S.
+- [Русская версия](./PLATFORM_NOTES.ru.md)
+- [Project README](../README.md)
+- [Architecture](./ARCHITECTURE.md)
+- [TrimUI SPS Packaging](../device/trimui_sps/README.md)
 
-## Confirmed Runtime Model
+## Target
 
-- device target name in this repository: `trimui_sps`
-- stock platform id used by TrimUI assets and SDK: `tg5050`
-- target architecture: `aarch64`
-- SD card root on device: `/mnt/SDCARD`
-- stock app entry format:
-  - `Apps/<AppName>/config.json`
-  - `Apps/<AppName>/launch.sh`
+ByteDeck currently targets **TrimUI Smart Pro S** on stock firmware.
 
-ByteDeck currently deploys as:
+Repository device id:
 
 ```text
-/mnt/SDCARD/Apps/ByteDeck/
+trimui_sps
+```
+
+Stock platform id used by TrimUI assets and SDK:
+
+```text
+tg5050
+```
+
+Architecture:
+
+```text
+aarch64
+```
+
+## SD Card Runtime Model
+
+Confirmed SD card root on device:
+
+```text
+/mnt/SDCARD
+```
+
+Stock app entry format:
+
+```text
+Apps/<AppName>/config.json
+Apps/<AppName>/launch.sh
+```
+
+ByteDeck deploys as:
+
+```text
+/mnt/SDCARD/Apps/ByteDeck
 ```
 
 ## SDK And Build
 
-Canonical SDK location in this repo:
+Canonical SDK location in this repository:
 
 ```text
-local/sdk/trimui_sps/
+local/sdk/trimui_sps
 ```
 
-Build flow:
+Build entrypoints:
 
-- public entrypoint: `scripts/build-trimui_sps.ps1`
-- internal WSL builder: `scripts/_build-trimui_sps-wsl.sh`
-- tracked CMake toolchain file: `cmake/toolchains/trimui_sps-aarch64-linux-gnu.cmake`
+- `scripts/build-trimui_sps.ps1`
+- `scripts/_build-trimui_sps-wsl.sh`
+- `cmake/toolchains/trimui_sps-aarch64-linux-gnu.cmake`
 
 ## Input
 
-On hardware, SDL joystick input is more reliable than SDL game-controller mapping.
+On hardware, SDL joystick input is the most reliable backend for ByteDeck.
 
-Current device setting:
+Current device wrapper sets:
 
-- `BYTEDECK_INPUT_BACKEND=joystick`
+```text
+BYTEDECK_INPUT_BACKEND=joystick
+```
 
 ## Emulator Handoff
 
 ByteDeck does not launch emulators directly.
 
-It forwards to stock emulator scripts under:
+It forwards to stock launcher scripts under:
 
 ```text
 /mnt/SDCARD/Emus/<System>/launch.sh
@@ -57,24 +89,25 @@ Validated mappings:
 - `megadrive -> Emus/MD/launch.sh`
 - `psp -> Emus/PPSSPP/launch.sh`
 
-Important runtime detail:
+Important detail:
 
 - ByteDeck must fully shut down SDL before handing off to RetroArch-based launchers
-- otherwise RetroArch can fail on framebuffer and video initialization
+- otherwise video initialization can fail on the device
 
-## Path Conventions
+## ROM Root Conventions
 
-Stock firmware uses roots such as:
+Stock firmware exposes roots such as:
 
 - `Apps/`
 - `Emus/`
 - `RetroArch/`
 - `Roms/`
 
-ByteDeck uses stock naming only for firmware integration.
+ByteDeck only uses stock naming for firmware integration.
 
-Inside the ROM root, ByteDeck still keeps its own system naming, for example:
+Inside the ROM root, ByteDeck keeps its own system naming:
 
 - `Roms/nes`
+- `Roms/snes`
 - `Roms/megadrive`
 - `Roms/psp`

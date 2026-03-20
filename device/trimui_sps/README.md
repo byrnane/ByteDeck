@@ -1,16 +1,20 @@
 # TrimUI SPS Packaging
 
-This directory contains the stock-firmware packaging files for ByteDeck on TrimUI Smart Pro S.
+- [Русская версия](./README.ru.md)
+- [Project README](../../README.md)
+- [Platform Notes](../../docs/PLATFORM_NOTES.md)
 
-## Deployment Model
+## Purpose
 
-ByteDeck is packaged as a normal stock app:
+This directory contains the tracked packaging template for **TrimUI Smart Pro S** on stock firmware.
+
+ByteDeck is packaged as a normal stock application:
 
 ```text
 Apps/ByteDeck/
 ```
 
-Tracked package template files:
+## Tracked Package Files
 
 - `device/trimui_sps/package-root/Apps/ByteDeck/config.json`
 - `device/trimui_sps/package-root/Apps/ByteDeck/launch.sh`
@@ -23,23 +27,25 @@ Public build entrypoint:
 powershell -ExecutionPolicy Bypass -File .\scripts\build-trimui_sps.ps1 -Clean
 ```
 
-This produces:
+Build outputs:
 
-- intermediate ARM build in `out/trimui_sps/Release/`
-- ready SD overlay in `dist/trimui_sps/`
+- intermediate ARM build: `out/trimui_sps/Release/`
+- ready SD overlay: `dist/trimui_sps/`
 
-Copy to SD:
+Copy to SD card:
 
-- `dist/trimui_sps/Apps/ByteDeck -> SDCARD/Apps/ByteDeck`
+```text
+dist/trimui_sps/Apps/ByteDeck -> SDCARD/Apps/ByteDeck
+```
 
 ## Wrapper Responsibilities
 
-`launch.sh` inside the package:
+The packaged `launch.sh`:
 
-- resolves SD card roots
+- resolves the SD card roots
 - exports `BYTEDECK_*` path overrides
-- enables execute mode
-- forces joystick backend on device
+- enables device execute mode
+- forces joystick backend
 - sets `LD_LIBRARY_PATH`
 - starts `bin/bytedeck`
 
@@ -47,5 +53,5 @@ Copy to SD:
 
 - stock firmware
 - SD root mounted as `/mnt/SDCARD`
-- stock emulator launch scripts available under `Emus/`
-- ROM root exposed to ByteDeck through `BYTEDECK_ROMS_ROOT`
+- stock emulator scripts available under `Emus/`
+- ROM root exposed through `BYTEDECK_ROMS_ROOT`

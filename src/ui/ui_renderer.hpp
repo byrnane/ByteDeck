@@ -3,6 +3,7 @@
 #include "platform/paths.hpp"
 #include "ui/image_texture.hpp"
 #include "ui/layout_registry.hpp"
+#include "ui/theme_font_renderer.hpp"
 #include "ui/theme_manager.hpp"
 #include "ui/ui_bindings.hpp"
 
@@ -61,6 +62,7 @@ private:
     const platform::Paths& paths_;
     const LayoutRegistry& layout_registry_;
     const ThemeManager& theme_manager_;
+    mutable ThemeFontRenderer font_renderer_;
     std::unordered_map<std::string, std::unique_ptr<ImageTexture>> image_cache_;
     std::unordered_set<std::string> failed_images_;
     std::unordered_set<std::string> logged_fallbacks_;

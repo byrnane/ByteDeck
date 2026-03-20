@@ -59,6 +59,7 @@ set(BYTEDECK_SOURCES
   src/platform/user_settings.cpp
   src/ui/image_texture.cpp
   src/ui/layout_registry.cpp
+  src/ui/theme_font_renderer.cpp
   src/ui/theme_manager.cpp
   src/ui/text_renderer.cpp
   src/ui/ui_renderer.cpp

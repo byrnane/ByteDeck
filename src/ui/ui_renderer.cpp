@@ -4,6 +4,7 @@
 #include "ui/text_renderer.hpp"
 
 #include <algorithm>
+#include <cctype>
 
 namespace bytedeck::ui
 {
@@ -14,7 +15,7 @@ SDL_Color kDefaultMutedColor { 147, 157, 176, 255 };
 SDL_Color kDefaultErrorColor { 220, 116, 116, 255 };
 nlohmann::json kRuntimeDefaults = {
     { "screen", {
-        { "fill_color", nlohmann::json::array({15, 18, 24, 255}) },
+        { "background_color", "#0F1218" },
         { "padding", 0 }
     } },
     { "panel", {
@@ -29,7 +30,8 @@ nlohmann::json kRuntimeDefaults = {
     } },
     { "text", {
         { "scale", 2 },
-        { "text_color", nlohmann::json::array({245, 241, 230, 255}) },
+        { "font_role", "body" },
+        { "text_color", "#F5F1E6" },
         { "wrap", false },
         { "truncate", false },
         { "max_lines", 1 }
@@ -52,6 +54,27 @@ int text_height_for_scale(int scale)
 {
     return TextRenderer::glyph_height * scale;
 }
+
+Uint8 percent_to_alpha(int alpha_percent, Uint8 /*default_alpha*/)
+{
+    return static_cast<Uint8>(std::clamp(alpha_percent, 0, 100) * 255 / 100);
+}
+
+bool is_hex_digit(char value)
+{
+    return std::isxdigit(static_cast<unsigned char>(value)) != 0;
+}
+
+bool parse_hex_byte(std::string_view value, std::size_t offset, Uint8& out)
+{
+    if (offset + 2 > value.size() || !is_hex_digit(value[offset]) || !is_hex_digit(value[offset + 1]))
+    {
+        return false;
+    }
+
+    out = static_cast<Uint8>(std::stoi(std::string(value.substr(offset, 2)), nullptr, 16));
+    return true;
+}
 }
 
 
@@ -59,6 +82,7 @@ UiRenderer::UiRenderer(const platform::Paths& paths, const LayoutRegistry& layou
     : paths_(paths)
     , layout_registry_(layout_registry)
     , theme_manager_(theme_manager)
+    , font_renderer_(theme_manager)
 {
 }
 
@@ -237,17 +261,41 @@ void UiRenderer::render_text(SDL_Renderer& renderer, const UiBindings& bindings,
         return;
     }
 
-    const int scale = std::max(1, resolve_int(style, "scale", bindings, 2));
+    const std::string font_role = resolve_string(style, "font_role", bindings, "body");
+    const int font_size = std::max(0, resolve_int(style, "font_size", bindings, 0));
+    const ThemeTypographyRole typography = theme_manager_.typography_role(font_role);
+    const int scale = std::max(1, resolve_int(style, "scale", bindings, std::max(1, typography.bitmap_scale)));
     const SDL_Color color = resolve_color(style, "text_color", bindings, kDefaultTextColor);
     const bool wrap = resolve_bool(style, "wrap", bindings, false);
     const bool truncate = resolve_bool(style, "truncate", bindings, false);
     const int max_lines = std::max(1, resolve_int(style, "max_lines", bindings, 1));
+    const bool use_theme_font = font_renderer_.can_render(font_role);
     const int max_columns = std::max(1, bounds.w / ((TextRenderer::glyph_width + TextRenderer::glyph_spacing) * scale));
     std::string output = text;
 
     if (!wrap && truncate)
     {
-        output = TextRenderer::truncate_to_width(text, max_columns);
+        if (use_theme_font)
+        {
+            output = font_renderer_.truncate_to_width(text, font_role, bounds.w, font_size);
+        }
+        else
+        {
+            output = TextRenderer::truncate_to_width(text, max_columns);
+        }
+    }
+
+    if (use_theme_font)
+    {
+        if (wrap)
+        {
+            font_renderer_.draw_text_box(renderer, output, bounds, font_role, color, max_lines, font_size);
+        }
+        else
+        {
+            font_renderer_.draw_text(renderer, output, bounds.x, bounds.y, font_role, color, font_size);
+        }
+        return;
     }
 
     if (wrap)
@@ -265,15 +313,41 @@ void UiRenderer::render_image(SDL_Renderer& renderer, const UiBindings& bindings
 {
     render_rect(renderer, bounds, style);
     const SDL_Rect content = apply_padding(bounds, style);
+    std::filesystem::path resolved_path;
     const std::string path_value = resolve_string(style, "path", bindings);
-
     if (!path_value.empty())
     {
-        const std::filesystem::path path = std::filesystem::path(path_value).is_absolute()
-            ? std::filesystem::path(path_value)
-            : (paths_.root() / path_value);
+        const std::filesystem::path candidate(path_value);
+        if (candidate.is_absolute())
+        {
+            resolved_path = candidate;
+        }
+        else
+        {
+            const std::filesystem::path theme_path = theme_manager_.resolve_asset_path(path_value);
+            if (!theme_path.empty() && std::filesystem::exists(theme_path))
+            {
+                resolved_path = theme_path;
+            }
+            else
+            {
+                resolved_path = paths_.root() / candidate;
+            }
+        }
+    }
 
-        if (ImageTexture* texture = load_image(renderer, path))
+    if (resolved_path.empty() && style.contains("system_icon_bind") && style["system_icon_bind"].is_string())
+    {
+        const nlohmann::json* value = find_binding_value(bindings, style["system_icon_bind"].get<std::string>());
+        if (value != nullptr && value->is_string())
+        {
+            resolved_path = theme_manager_.system_icon_path(value->get<std::string>());
+        }
+    }
+
+    if (!resolved_path.empty())
+    {
+        if (ImageTexture* texture = load_image(renderer, resolved_path))
         {
             texture->render(renderer, content);
             return;
@@ -345,14 +419,25 @@ void UiRenderer::render_list(
 
 void UiRenderer::render_rect(SDL_Renderer& renderer, const SDL_Rect& bounds, const nlohmann::json& style)
 {
-    const SDL_Color fill = resolve_color(style, "fill_color", nlohmann::json::object(), SDL_Color { 0, 0, 0, 0 });
+    const SDL_Color fill = resolve_color(style, "background_color", nlohmann::json::object(),
+        resolve_color(style, "fill_color", nlohmann::json::object(), SDL_Color { 0, 0, 0, 0 }));
     const SDL_Color border = resolve_color(style, "border_color", nlohmann::json::object(), SDL_Color { 0, 0, 0, 0 });
     const int border_width = std::max(0, resolve_int(style, "border_width", nlohmann::json::object(), 0));
+    const std::string background_image = resolve_string(style, "background_image", nlohmann::json::object());
 
     if (fill.a > 0)
     {
         SDL_SetRenderDrawColor(&renderer, fill.r, fill.g, fill.b, fill.a);
         SDL_RenderFillRect(&renderer, &bounds);
+    }
+
+    if (!background_image.empty())
+    {
+        const std::filesystem::path image_path = theme_manager_.resolve_asset_path(background_image);
+        if (ImageTexture* texture = load_image(renderer, image_path))
+        {
+            texture->render(renderer, bounds);
+        }
     }
 
     if (border_width > 0 && border.a > 0)
@@ -661,7 +746,17 @@ int UiRenderer::resolve_main_size(const LayoutNode& node, const nlohmann::json& 
 
     if (node.type == "text")
     {
-        const int scale = std::max(1, resolve_int(style, "scale", bindings, 2));
+        const std::string font_role = resolve_string(style, "font_role", bindings, "body");
+        const int font_size = std::max(0, resolve_int(style, "font_size", bindings, 0));
+        const ThemeTypographyRole typography = theme_manager_.typography_role(font_role);
+        const int scale = std::max(1, resolve_int(style, "scale", bindings, std::max(1, typography.bitmap_scale)));
+        if (font_renderer_.can_render(font_role))
+        {
+            return horizontal
+                ? font_renderer_.measure_text_width(resolve_string(style, "text", bindings), font_role, font_size)
+                : std::max(1, font_renderer_.line_height(font_role, font_size));
+        }
+
         return horizontal ? TextRenderer::measure_text_width(resolve_string(style, "text", bindings), scale) : text_height_for_scale(scale);
     }
 
@@ -684,7 +779,15 @@ int UiRenderer::resolve_cross_size(const LayoutNode& node, const nlohmann::json&
 
     if (node.type == "text")
     {
-        const int scale = std::max(1, resolve_int(style, "scale", bindings, 2));
+        const std::string font_role = resolve_string(style, "font_role", bindings, "body");
+        const int font_size = std::max(0, resolve_int(style, "font_size", bindings, 0));
+        const ThemeTypographyRole typography = theme_manager_.typography_role(font_role);
+        const int scale = std::max(1, resolve_int(style, "scale", bindings, std::max(1, typography.bitmap_scale)));
+        if (font_renderer_.can_render(font_role))
+        {
+            return std::max(1, font_renderer_.line_height(font_role, font_size));
+        }
+
         return text_height_for_scale(scale);
     }
 
@@ -721,6 +824,33 @@ int UiRenderer::resolve_dimension_value(const nlohmann::json& value, int parent_
 
 SDL_Color UiRenderer::color_from_json(const nlohmann::json& value, SDL_Color default_value) const
 {
+    if (value.is_string())
+    {
+        std::string string_value = value.get<std::string>();
+        if (!string_value.empty() && string_value.front() == '#')
+        {
+            string_value.erase(0, 1);
+        }
+
+        if (string_value.size() == 6 || string_value.size() == 8)
+        {
+            Uint8 red = default_value.r;
+            Uint8 green = default_value.g;
+            Uint8 blue = default_value.b;
+            Uint8 alpha = default_value.a;
+            if (parse_hex_byte(string_value, 0, red) &&
+                parse_hex_byte(string_value, 2, green) &&
+                parse_hex_byte(string_value, 4, blue))
+            {
+                if (string_value.size() == 8)
+                {
+                    parse_hex_byte(string_value, 6, alpha);
+                }
+                return SDL_Color { red, green, blue, alpha };
+            }
+        }
+    }
+
     if (value.is_array() && value.size() >= 3)
     {
         return SDL_Color {
@@ -733,6 +863,16 @@ SDL_Color UiRenderer::color_from_json(const nlohmann::json& value, SDL_Color def
 
     if (value.is_object())
     {
+        if (value.contains("color"))
+        {
+            SDL_Color resolved = color_from_json(value["color"], default_value);
+            if (value.contains("alpha") && value["alpha"].is_number_integer())
+            {
+                resolved.a = percent_to_alpha(value["alpha"].get<int>(), resolved.a);
+            }
+            return resolved;
+        }
+
         return SDL_Color {
             static_cast<Uint8>(value.value("r", default_value.r)),
             static_cast<Uint8>(value.value("g", default_value.g)),
