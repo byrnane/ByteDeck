@@ -101,7 +101,7 @@ ByteDeck.bat clean
 - [Platform Notes (Russian)](./docs/PLATFORM_NOTES.ru.md)
 - [TrimUI SPS Packaging](./device/trimui_sps/README.md)
 - [TrimUI SPS Packaging (Russian)](./device/trimui_sps/README.ru.md)
-- [UI Reference HTML](./docs/ui_reference/bytedeck-ui-reference.html)
+- [UI Reference HTML](./docs/ui_reference/index.html)
 - [Roadmap](./TODO.md)
 
 <a id="ru"></a>
@@ -203,5 +203,5 @@ ByteDeck.bat clean
 - [Platform Notes](./docs/PLATFORM_NOTES.md)
 - [Упаковка для TrimUI SPS](./device/trimui_sps/README.ru.md)
 - [TrimUI SPS Packaging](./device/trimui_sps/README.md)
-- [HTML-референс интерфейса](./docs/ui_reference/bytedeck-ui-reference.html)
+- [HTML-референс интерфейса](./docs/ui_reference/index.html)
 - [План работ](./TODO.md)

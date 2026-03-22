@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings</title>
+  <link rel="stylesheet" href="../shared.css">
+</head>
+<body>
+  <div class="bd-builtin-shell bd-theme-shell">
+    <header class="bd-builtin-header bd-theme-header">
+      <div class="bd-builtin-header-left">
+        <div class="bd-theme-header-brand">BYTEDECK</div>
+        <div class="bd-theme-header-context">Settings</div>
+      </div>
+      <div class="bd-builtin-header-right">
+        <div class="bd-theme-header-meta">20:51</div>
+        <div class="bd-theme-header-meta">76%</div>
+      </div>
+    </header>
+    <main class="bd-builtin-content">
+      <div class="bd-builtin-settings-layout">
+        <div class="bd-builtin-panel bd-theme-panel-primary" id="settings-left-panel">
+          <div class="bd-theme-screen-title" style="font-size:34px;">Settings</div>
+          <div class="bd-theme-screen-subtitle">System and library options</div>
+          <div class="bd-builtin-settings-list" id="settings-list"></div>
+        </div>
+        <div class="bd-builtin-panel bd-theme-panel-secondary" id="settings-right-panel">
+          <div class="bd-theme-editor-title" id="settings-editor-title">Language</div>
+          <div class="bd-theme-editor-body" id="settings-editor-body"></div>
+          <div class="bd-theme-editor-hint" id="settings-editor-hint"></div>
+          <div class="bd-builtin-editor-list" id="settings-editor-list"></div>
+        </div>
+      </div>
+    </main>
+    <footer class="bd-builtin-footer bd-theme-footer">
+      <div class="bd-builtin-footer-left">
+        <div class="bd-theme-footer-action">A</div>
+        <div class="bd-theme-footer-action">B</div>
+        <div class="bd-theme-footer-action">MENU</div>
+      </div>
+      <div class="bd-builtin-footer-right">
+        <div class="bd-theme-footer-hint" id="footer-hint">Press A or Right to edit</div>
+      </div>
+    </footer>
+  </div>
+  <script>
+    const settings = [
+      { title: "Language", value: "Russian" },
+      { title: "Theme", value: "Default" },
+      { title: "Rescan Library", value: "Run now" }
+    ];
+    const editor = {
+      0: {
+        title: "Language",
+        body: "Choose the interface language. The change is applied immediately and saved to user settings.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to apply, B to go back",
+        items: [
+          { title: "English", description: "Use English for all labels." },
+          { title: "Russian", description: "Use Russian for all labels.", active: true }
+        ]
+      },
+      1: {
+        title: "Theme",
+        body: "Choose the active UI theme. Themes are loaded from the top-level themes directory.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to apply, B to go back",
+        items: [
+          { title: "Default", description: "Built-in handheld-first theme.", active: true }
+        ]
+      },
+      2: {
+        title: "Rescan Library",
+        body: "Run a fresh scan of ROM folders, gamelist.xml files and app manifests.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to start, B to go back",
+        items: [
+          { title: "Start full library rescan", description: "Read ROM folders and rebuild library.json." }
+        ]
+      }
+    };
+
+    let leftSelected = 0;
+    let rightSelected = 1;
+    let focus = "left";
+
+    const listRoot = document.getElementById("settings-list");
+    const editorRoot = document.getElementById("settings-editor-list");
+    const editorTitle = document.getElementById("settings-editor-title");
+    const editorBody = document.getElementById("settings-editor-body");
+    const editorHint = document.getElementById("settings-editor-hint");
+    const footerHint = document.getElementById("footer-hint");
+    const leftPanel = document.getElementById("settings-left-panel");
+    const rightPanel = document.getElementById("settings-right-panel");
+
+    function render() {
+      leftPanel.classList.toggle("bd-theme-panel-active", focus === "left");
+      rightPanel.classList.toggle("bd-theme-panel-active", focus === "right");
+
+      listRoot.innerHTML = "";
+      settings.forEach((item, index) => {
+        const selected = index === leftSelected;
+        const active = focus === "right" && selected;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-settings-card bd-theme-settings-frame" + (selected ? " is-selected" : "") + (active ? " is-active" : "");
+        node.innerHTML = `
+          <div class="bd-builtin-settings-card-inner bd-theme-settings-inner ${selected ? "is-selected" : ""} ${active ? "is-active" : ""}">
+            <div class="bd-theme-settings-item-title">${item.title}</div>
+            <div class="bd-theme-settings-item-value">${item.value}</div>
+          </div>`;
+        listRoot.appendChild(node);
+      });
+
+      const section = editor[leftSelected];
+      editorTitle.textContent = section.title;
+      editorBody.textContent = section.body;
+      editorHint.textContent = focus === "left" ? section.leftHint : section.rightHint;
+      footerHint.textContent = focus === "left" ? section.leftHint : section.rightHint;
+
+      editorRoot.innerHTML = "";
+      section.items.forEach((item, index) => {
+        const selected = focus === "right" && index === rightSelected;
+        const active = item.active === true;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-editor-card bd-theme-editor-frame" + (selected ? " is-selected" : "") + (active ? " is-active" : "");
+        node.innerHTML = `
+          <div class="bd-builtin-editor-card-inner bd-theme-editor-inner ${selected ? "is-selected" : ""} ${active ? "is-active" : ""}">
+            <div class="bd-theme-editor-item-title ${selected ? "is-selected" : ""}">${item.title}</div>
+            <div class="bd-theme-editor-item-description">${item.description}</div>
+          </div>`;
+        editorRoot.appendChild(node);
+      });
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (focus === "left") {
+        if (event.key === "ArrowUp") {
+          leftSelected = (leftSelected + settings.length - 1) % settings.length;
+          rightSelected = 0;
+        } else if (event.key === "ArrowDown") {
+          leftSelected = (leftSelected + 1) % settings.length;
+          rightSelected = 0;
+        } else if (event.key === "ArrowRight" || event.key === "Enter") {
+          focus = "right";
+        }
+      } else {
+        const items = editor[leftSelected].items;
+        if (event.key === "ArrowUp") {
+          rightSelected = (rightSelected + items.length - 1) % items.length;
+        } else if (event.key === "ArrowDown") {
+          rightSelected = (rightSelected + 1) % items.length;
+        } else if (event.key === "ArrowLeft" || event.key === "Escape") {
+          focus = "left";
+        }
+      }
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

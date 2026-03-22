@@ -3,7 +3,7 @@
 - [Русская версия](./THEMING.ru.md)
 - [Project README](../README.md#en)
 - [Architecture](./ARCHITECTURE.md)
-- [UI Reference HTML](./ui_reference/bytedeck-ui-reference.html)
+- [UI Reference HTML](./ui_reference/index.html)
 
 ## Overview
 
@@ -271,10 +271,11 @@ Those are intentionally outside the first fixed-template renderer.
 The reference file is:
 
 ```text
-docs/ui_reference/bytedeck-ui-reference.html
+docs/ui_reference/index.html
+docs/ui_reference/screens/*.html
 ```
 
-It is not runtime code. It is a visual and behavioral reference.
+They are not runtime code. They are a visual and behavioral reference set.
 
 Class naming in that file follows two namespaces:
 

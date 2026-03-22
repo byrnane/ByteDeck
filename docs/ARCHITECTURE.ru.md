@@ -4,7 +4,7 @@
 - [README проекта](../README.md#ru)
 - [Гайд по темам](./THEMING.ru.md)
 - [Заметки по платформе](./PLATFORM_NOTES.ru.md)
-- [HTML-референс интерфейса](./ui_reference/bytedeck-ui-reference.html)
+- [HTML-референс интерфейса](./ui_reference/index.html)
 
 ## Общее устройство
 
@@ -192,10 +192,11 @@ screens
 Визуальный контракт нового UI лежит здесь:
 
 ```text
-docs/ui_reference/bytedeck-ui-reference.html
+docs/ui_reference/index.html
+docs/ui_reference/screens/*.html
 ```
 
-Этот файл не используется в рантайме. Он нужен, чтобы:
+Эти файлы не используются в рантайме. Они нужны, чтобы:
 
 - зафиксировать целевую композицию экранов
 - показать, что зашито в renderer

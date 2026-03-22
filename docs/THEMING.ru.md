@@ -3,7 +3,7 @@
 - [English version](./THEMING.md)
 - [README проекта](../README.md#ru)
 - [Архитектура](./ARCHITECTURE.ru.md)
-- [HTML-референс интерфейса](./ui_reference/bytedeck-ui-reference.html)
+- [HTML-референс интерфейса](./ui_reference/index.html)
 
 ## Общая модель
 
@@ -271,10 +271,11 @@ Assets темы — это обычные файлы внутри папки т�
 Референсный файл лежит здесь:
 
 ```text
-docs/ui_reference/bytedeck-ui-reference.html
+docs/ui_reference/index.html
+docs/ui_reference/screens/*.html
 ```
 
-Это не runtime-код, а визуальный и поведенческий reference.
+Это не runtime-код, а набор визуальных и поведенческих reference-файлов.
 
 Классы в нём разделены на два namespace:
 

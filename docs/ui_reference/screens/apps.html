@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apps</title>
+  <link rel="stylesheet" href="../shared.css">
+</head>
+<body>
+  <div class="bd-builtin-shell bd-theme-shell">
+    <header class="bd-builtin-header bd-theme-header">
+      <div class="bd-builtin-header-left">
+        <div class="bd-theme-header-brand">BYTEDECK</div>
+        <div class="bd-theme-header-context">Apps</div>
+      </div>
+      <div class="bd-builtin-header-right">
+        <div class="bd-theme-header-meta">20:50</div>
+        <div class="bd-theme-header-meta">76%</div>
+      </div>
+    </header>
+    <main class="bd-builtin-content">
+      <div class="bd-builtin-two-column">
+        <div class="bd-builtin-panel bd-theme-panel-primary">
+          <h1 class="bd-theme-screen-title">Apps</h1>
+          <p class="bd-theme-screen-subtitle">Applications and tools</p>
+          <div class="bd-builtin-list" id="apps-list"></div>
+        </div>
+        <div class="bd-builtin-panel bd-theme-panel-secondary">
+          <div class="bd-theme-section-title">Selected App</div>
+          <div class="bd-builtin-preview-frame" style="width:240px;height:240px;">
+            <span class="bd-theme-body-copy">NO ICON</span>
+          </div>
+          <div class="bd-theme-detail-title" id="app-detail-title">PortMaster</div>
+          <div class="bd-theme-meta-line">Target: /mnt/SDCARD/Apps/PortMaster/launch.sh</div>
+          <div class="bd-theme-section-title" style="margin-top:26px;">Description</div>
+          <div class="bd-theme-body-copy">Example application card for the split view reference.</div>
+        </div>
+      </div>
+    </main>
+    <footer class="bd-builtin-footer bd-theme-footer">
+      <div class="bd-builtin-footer-left">
+        <div class="bd-theme-footer-action">A</div>
+        <div class="bd-theme-footer-action">B</div>
+        <div class="bd-theme-footer-action">MENU</div>
+      </div>
+      <div class="bd-builtin-footer-right">
+        <div class="bd-theme-footer-hint">Press A</div>
+      </div>
+    </footer>
+  </div>
+  <script>
+    const apps = ["PortMaster", "Boot RetroArch", "User Guide"];
+    let selected = 0;
+    const root = document.getElementById("apps-list");
+    const detail = document.getElementById("app-detail-title");
+
+    function render() {
+      root.innerHTML = "";
+      apps.forEach((title, index) => {
+        const active = index === selected;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-list-item bd-theme-list-item-frame" + (active ? " is-selected" : "");
+        node.innerHTML = `
+          <div class="bd-builtin-list-item-inner bd-theme-list-item-inner ${active ? "is-selected" : ""}">
+            <div class="bd-theme-list-item-text ${active ? "is-selected" : ""}">${title}</div>
+          </div>`;
+        root.appendChild(node);
+      });
+      detail.textContent = apps[selected];
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowUp") {
+        selected = (selected + apps.length - 1) % apps.length;
+        render();
+      } else if (event.key === "ArrowDown") {
+        selected = (selected + 1) % apps.length;
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 - [Project README](../README.md#en)
 - [Theming Guide](./THEMING.md)
 - [Platform Notes](./PLATFORM_NOTES.md)
-- [UI Reference HTML](./ui_reference/bytedeck-ui-reference.html)
+- [UI Reference HTML](./ui_reference/index.html)
 
 ## Overview
 
@@ -192,10 +192,11 @@ screens
 The visual contract for the new UI lives here:
 
 ```text
-docs/ui_reference/bytedeck-ui-reference.html
+docs/ui_reference/index.html
+docs/ui_reference/screens/*.html
 ```
 
-This file is not used at runtime. It exists to:
+These files are not used at runtime. They exist to:
 
 - define the intended composition of each screen
 - document which parts are built into the renderer

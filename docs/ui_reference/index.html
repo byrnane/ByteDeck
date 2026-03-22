@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ByteDeck UI Reference</title>
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --panel: #151b24;
+      --panel-alt: #1c2330;
+      --text: #f5f1e6;
+      --muted: #93a0b4;
+      --accent: #e4b756;
+      --frame: #48567a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.4 "Segoe UI", sans-serif;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--frame);
+      padding: 28px 22px;
+    }
+
+    .sidebar h1 {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font: 700 24px/1 monospace;
+    }
+
+    .sidebar p {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+
+    .screen-menu {
+      display: grid;
+      gap: 10px;
+    }
+
+    .screen-button {
+      width: 100%;
+      border: 1px solid var(--frame);
+      background: var(--panel-alt);
+      color: var(--text);
+      text-align: left;
+      padding: 14px 16px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .screen-button.is-active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .content {
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+    }
+
+    .content-header {
+      color: var(--muted);
+    }
+
+    iframe {
+      width: 1280px;
+      height: 720px;
+      border: 1px solid var(--frame);
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h1>BYTEDECK</h1>
+    <p>UI reference screens</p>
+    <nav class="screen-menu">
+      <button class="screen-button is-active" data-screen="main_menu">Main Menu</button>
+      <button class="screen-button" data-screen="games">Games</button>
+      <button class="screen-button" data-screen="game_browser">Game Browser</button>
+      <button class="screen-button" data-screen="apps">Apps</button>
+      <button class="screen-button" data-screen="settings">Settings</button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="content-header">
+      One file per screen. Edit files in <code>docs/ui_reference/screens/</code> and switch between them here.
+    </div>
+    <iframe id="screen-frame" src="./screens/main_menu.html" title="ByteDeck screen reference"></iframe>
+  </main>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll(".screen-button"));
+    const frame = document.getElementById("screen-frame");
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        for (const entry of buttons) {
+          entry.classList.toggle("is-active", entry === button);
+        }
+        frame.src = `./screens/${button.dataset.screen}.html`;
+      });
+    }
+  </script>
+</body>
+</html>
