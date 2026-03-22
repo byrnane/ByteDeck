@@ -23,7 +23,6 @@ namespace
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
 constexpr const char* kBaseWindowTitle = "ByteDeck";
-constexpr int kStatusBarHeight = 64;
 constexpr Uint32 kRepeatDelayMs = 350;
 constexpr Uint32 kRepeatIntervalMs = 90;
 
@@ -130,8 +129,6 @@ void Application::initialize()
     translations_.load(paths_.translations_path());
     translations_.set_language(user_settings_.language);
     launch_service_ = std::make_unique<launch::LaunchService>(paths_);
-    layout_registry_ = std::make_unique<ui::LayoutRegistry>(paths_.ui_screens_root());
-    layout_registry_->load();
     reload_theme();
 
     core::LibraryScanner scanner(paths_);
@@ -243,21 +240,12 @@ void Application::render()
     auto* current = screen_manager_.current();
     if (current != nullptr && ui_renderer_ != nullptr)
     {
-        int width = 0;
-        int height = 0;
-        SDL_GetRendererOutputSize(renderer_, &width, &height);
-
-        ui_renderer_->render_screen(
-            *renderer_,
-            "status_bar",
-            build_status_bar_bindings(),
-            SDL_Rect { 0, 0, width, kStatusBarHeight });
-
-        ui_renderer_->render_screen(
+        const ui::UiBindings screen_bindings = current->build_bindings();
+        ui_renderer_->render(
             *renderer_,
             current->screen_id(),
-            current->build_bindings(),
-            SDL_Rect { 0, kStatusBarHeight, width, std::max(0, height - kStatusBarHeight) });
+            screen_bindings,
+            build_shell_bindings(*current, screen_bindings));
     }
 
     SDL_RenderPresent(renderer_);
@@ -514,7 +502,7 @@ void Application::reload_theme()
     theme_manager_ = std::make_unique<ui::ThemeManager>(paths_.themes_root(), user_settings_.theme);
     theme_manager_->load();
     user_settings_.theme = theme_manager_->active_theme_id();
-    ui_renderer_ = std::make_unique<ui::UiRenderer>(paths_, *layout_registry_, *theme_manager_);
+    ui_renderer_ = std::make_unique<ui::FixedUiRenderer>(*theme_manager_);
 }
 
 
@@ -555,19 +543,16 @@ std::pair<bool, std::string> Application::rescan_library()
 }
 
 
-ui::UiBindings Application::build_status_bar_bindings() const
+ui::UiBindings Application::build_shell_bindings(const ui::Screen& screen, const ui::UiBindings& screen_bindings) const
 {
     ui::UiBindings bindings {
         { "brand", "BYTEDECK" },
-        { "context", translations_.translate("screen.main_menu") },
+        { "context", screen.window_title() },
         { "time", "--:--" },
-        { "battery", "--%" }
+        { "battery", "--%" },
+        { "hint", "" },
+        { "actions", ui::UiBindings::array() }
     };
-
-    if (auto* current = screen_manager_.current(); current != nullptr)
-    {
-        bindings["context"] = current->window_title();
-    }
 
     if (status_service_)
     {
@@ -576,6 +561,57 @@ ui::UiBindings Application::build_status_bar_bindings() const
         bindings["battery"] = snapshot.battery_available
             ? (snapshot.battery_text + (snapshot.charging ? " +" : ""))
             : std::string("--%");
+    }
+
+    auto add_action = [&bindings](const char* label, const std::string& text)
+    {
+        bindings["actions"].push_back({
+            { "label", label },
+            { "text", text }
+        });
+    };
+
+    const std::string screen_id = screen.screen_id();
+    if (screen_id == "main_menu")
+    {
+        add_action("A", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate("common.press_a");
+    }
+    else if (screen_id == "games")
+    {
+        add_action("A", "");
+        add_action("B", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate("common.press_a_to_open");
+    }
+    else if (screen_id == "game_browser")
+    {
+        add_action("A", "");
+        add_action("B", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate("common.press_a");
+    }
+    else if (screen_id == "apps")
+    {
+        add_action("A", "");
+        add_action("B", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate("common.press_a");
+    }
+    else if (screen_id == "settings")
+    {
+        const bool editing = screen_bindings.value("focus_right", false);
+        add_action("A", "");
+        add_action("B", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate(editing ? "settings.hint.apply_choice" : "settings.hint.enter_editor");
+    }
+    else
+    {
+        add_action("B", "");
+        add_action("MENU", "");
+        bindings["hint"] = translations_.translate("placeholder.subtitle");
     }
 
     return bindings;

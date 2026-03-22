@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ByteDeck UI Reference</title>
+  <style>
+    :root {
+      --bg: #0f1218;
+      --header-bg: #161b24;
+      --footer-bg: #141922;
+      --panel-primary: #1a1f2a;
+      --panel-secondary: #171c25;
+      --panel-alt: #202736;
+      --frame: #4a5672;
+      --frame-selected: #e4b756;
+      --fill-idle: #232a39;
+      --fill-selected: #212634;
+      --text-primary: #f5f1e6;
+      --text-muted: #98a3b8;
+      --text-accent: #e4b756;
+      --text-error: #dc7474;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0a0d12;
+      color: var(--text-primary);
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .bd-builtin-shell {
+      width: 1280px;
+      height: 720px;
+      display: grid;
+      grid-template-rows: 64px 1fr 76px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bd-theme-shell { background: var(--bg); }
+    .bd-builtin-header,
+    .bd-builtin-footer {
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      border-bottom: 1px solid var(--frame);
+    }
+    .bd-builtin-footer { border-bottom: 0; border-top: 1px solid var(--frame); }
+    .bd-theme-header { background: var(--header-bg); }
+    .bd-theme-footer { background: var(--footer-bg); }
+    .bd-builtin-header-left,
+    .bd-builtin-footer-left { display: flex; align-items: center; gap: 28px; min-width: 0; flex: 1; }
+    .bd-builtin-header-right,
+    .bd-builtin-footer-right { display: flex; align-items: center; gap: 26px; }
+    .bd-theme-header-brand { color: var(--text-accent); font: 700 24px/1 monospace; letter-spacing: .04em; }
+    .bd-theme-header-context,
+    .bd-theme-header-meta,
+    .bd-theme-footer-action,
+    .bd-theme-footer-hint { color: var(--text-muted); font: 18px/1.2 sans-serif; }
+    .bd-theme-header-meta { color: var(--text-primary); }
+    .bd-theme-footer-action { color: var(--text-primary); }
+
+    .bd-builtin-content {
+      position: relative;
+      padding: 32px 44px 24px;
+    }
+
+    .bd-builtin-screen { display: none; width: 100%; height: 100%; }
+    .bd-builtin-screen.is-active { display: block; }
+
+    .bd-theme-screen-title { font: 700 42px/1 monospace; margin: 0; }
+    .bd-theme-screen-subtitle { font: 20px/1.3 sans-serif; color: var(--text-muted); margin: 18px 0 0; }
+
+    .bd-builtin-main-menu-wrap { padding-top: 86px; }
+    .bd-builtin-main-menu-panel { width: 1040px; height: 426px; margin: 0 auto; padding: 40px; }
+    .bd-theme-main-menu-panel { background: var(--panel-secondary); border: 1px solid var(--frame); }
+    .bd-builtin-main-menu-cards { display: grid; grid-template-columns: repeat(3, 280px); gap: 68px; justify-content: center; }
+    .bd-builtin-main-menu-card { width: 280px; height: 346px; padding: 10px; }
+    .bd-theme-main-menu-card-frame { background: var(--frame); }
+    .bd-theme-main-menu-card-frame.is-selected { background: var(--frame-selected); }
+    .bd-builtin-main-menu-card-inner { height: 100%; padding: 22px; display: flex; flex-direction: column; }
+    .bd-theme-main-menu-card-inner { background: var(--fill-idle); }
+    .bd-theme-main-menu-card-inner.is-selected { background: var(--fill-selected); }
+    .bd-theme-main-menu-card-title { font: 700 26px/1.1 monospace; }
+    .bd-theme-main-menu-card-info { margin-top: 124px; color: var(--text-muted); font: 20px/1.2 sans-serif; }
+    .bd-theme-main-menu-card-hint { margin-top: auto; color: var(--text-muted); font: 18px/1.2 sans-serif; }
+    .bd-theme-main-menu-card-hint.is-selected { color: var(--text-accent); }
+    .bd-builtin-main-menu-card-accent { height: 18px; margin-top: 14px; }
+    .bd-theme-main-menu-card-accent { background: #6e7fa8; }
+    .bd-theme-main-menu-card-accent.is-selected { background: var(--text-accent); }
+    .bd-builtin-main-menu-pager { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+    .bd-builtin-main-menu-dot { width: 42px; height: 10px; background: #344056; }
+    .bd-builtin-main-menu-dot.is-active { background: var(--text-accent); }
+
+    .bd-builtin-two-column { display: grid; grid-template-columns: 598px 1fr; gap: 42px; height: 100%; }
+    .bd-builtin-panel { padding: 28px; }
+    .bd-theme-panel-primary { background: var(--panel-primary); }
+    .bd-theme-panel-secondary { background: var(--panel-secondary); }
+    .bd-theme-panel-active { outline: 1px solid var(--frame-selected); }
+    .bd-builtin-system-grid { display: grid; grid-template-columns: repeat(2, 430px); gap: 44px; justify-content: center; margin-top: 150px; }
+    .bd-builtin-system-card { width: 430px; height: 240px; padding: 10px; }
+    .bd-theme-system-card-frame { background: var(--frame); }
+    .bd-theme-system-card-frame.is-selected { background: var(--frame-selected); }
+    .bd-builtin-system-card-inner { height: 100%; padding: 24px; display: grid; grid-template-columns: 104px 1fr; gap: 28px; }
+    .bd-theme-system-card-inner { background: var(--fill-idle); }
+    .bd-theme-system-card-inner.is-selected { background: var(--fill-selected); }
+    .bd-builtin-system-icon { width: 104px; height: 104px; border: 1px solid var(--frame); padding: 8px; display: grid; place-items: center; background: #141922; }
+    .bd-builtin-system-icon img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .bd-theme-system-title { font: 700 24px/1.1 monospace; }
+    .bd-theme-system-meta { margin-top: 52px; color: var(--text-muted); font: 20px/1.2 sans-serif; }
+    .bd-theme-system-hint { margin-top: 92px; color: var(--text-muted); font: 18px/1.2 sans-serif; }
+    .bd-theme-system-hint.is-selected { color: var(--text-accent); }
+
+    .bd-builtin-browser-header { display: grid; grid-template-columns: 96px 1fr; gap: 28px; margin-bottom: 28px; }
+    .bd-builtin-list { display: grid; gap: 10px; }
+    .bd-builtin-list-item { height: 68px; padding: 6px; }
+    .bd-theme-list-item-frame { background: var(--frame); }
+    .bd-theme-list-item-frame.is-selected { background: var(--frame-selected); }
+    .bd-builtin-list-item-inner { height: 100%; padding: 14px; display: flex; align-items: center; }
+    .bd-theme-list-item-inner { background: var(--fill-idle); }
+    .bd-theme-list-item-inner.is-selected { background: var(--fill-selected); }
+    .bd-theme-list-item-text { font: 24px/1.1 sans-serif; }
+    .bd-theme-list-item-text.is-selected { color: var(--text-accent); }
+    .bd-theme-section-title { font: 700 22px/1.1 monospace; margin: 0 0 18px; }
+    .bd-builtin-preview-frame { height: 260px; padding: 18px; border: 1px solid var(--frame); background: #39445c; display: grid; place-items: center; }
+    .bd-builtin-preview-frame img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .bd-theme-detail-title { font: 700 28px/1.1 monospace; margin: 28px 0 0; }
+    .bd-theme-meta-line { color: var(--text-muted); font: 20px/1.2 sans-serif; margin-top: 14px; }
+    .bd-theme-body-copy { color: var(--text-muted); font: 20px/1.45 sans-serif; }
+    .bd-theme-status-success { color: var(--text-accent); font: 18px/1.2 sans-serif; margin-top: 14px; }
+
+    .bd-builtin-settings-layout { display: grid; grid-template-columns: 520px 1fr; gap: 42px; height: 100%; }
+    .bd-builtin-settings-list { display: grid; gap: 12px; margin-top: 28px; }
+    .bd-builtin-settings-card { height: 126px; padding: 6px; }
+    .bd-theme-settings-frame { background: var(--frame); }
+    .bd-theme-settings-frame.is-selected { background: var(--frame-selected); }
+    .bd-theme-settings-frame.is-active { background: var(--frame-selected); }
+    .bd-builtin-settings-card-inner { height: 100%; padding: 18px; }
+    .bd-theme-settings-inner { background: var(--fill-idle); }
+    .bd-theme-settings-inner.is-selected,
+    .bd-theme-settings-inner.is-active { background: var(--fill-selected); }
+    .bd-theme-settings-item-title { font: 700 24px/1.1 monospace; }
+    .bd-theme-settings-item-value { margin-top: 22px; color: var(--text-muted); font: 22px/1.2 sans-serif; }
+    .bd-theme-editor-title { font: 700 28px/1.1 monospace; }
+    .bd-theme-editor-body { margin-top: 26px; color: var(--text-muted); font: 20px/1.4 sans-serif; max-width: 620px; }
+    .bd-theme-editor-hint { margin-top: 18px; color: var(--text-accent); font: 18px/1.2 sans-serif; }
+    .bd-builtin-editor-list { display: grid; gap: 12px; margin-top: 26px; }
+    .bd-builtin-editor-card { height: 112px; padding: 6px; }
+    .bd-theme-editor-frame { background: var(--frame); }
+    .bd-theme-editor-frame.is-selected,
+    .bd-theme-editor-frame.is-active { background: var(--frame-selected); }
+    .bd-builtin-editor-card-inner { height: 100%; padding: 18px; }
+    .bd-theme-editor-inner { background: var(--fill-idle); }
+    .bd-theme-editor-inner.is-selected,
+    .bd-theme-editor-inner.is-active { background: var(--fill-selected); }
+    .bd-theme-editor-item-title { font: 24px/1.1 sans-serif; }
+    .bd-theme-editor-item-title.is-selected { color: var(--text-accent); }
+    .bd-theme-editor-item-description { margin-top: 14px; color: var(--text-muted); font: 18px/1.35 sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="bd-builtin-shell bd-theme-shell" id="app">
+    <header class="bd-builtin-header bd-theme-header">
+      <div class="bd-builtin-header-left">
+        <div class="bd-theme-header-brand">BYTEDECK</div>
+        <div class="bd-theme-header-context" id="header-context">Main Menu</div>
+      </div>
+      <div class="bd-builtin-header-right">
+        <div class="bd-theme-header-meta" id="header-time">20:47</div>
+        <div class="bd-theme-header-meta" id="header-battery">76%</div>
+      </div>
+    </header>
+
+    <main class="bd-builtin-content">
+      <section class="bd-builtin-screen is-active" data-screen-id="main_menu">
+        <div class="bd-builtin-main-menu-wrap">
+          <h1 class="bd-theme-screen-title">BYTEDECK</h1>
+          <p class="bd-theme-screen-subtitle">Main Menu</p>
+          <div class="bd-builtin-main-menu-panel bd-theme-main-menu-panel">
+            <div class="bd-builtin-main-menu-cards" id="main-menu-cards"></div>
+          </div>
+          <div class="bd-builtin-main-menu-pager"><div class="bd-builtin-main-menu-dot is-active"></div></div>
+        </div>
+      </section>
+
+      <section class="bd-builtin-screen" data-screen-id="games">
+        <h1 class="bd-theme-screen-title">Games</h1>
+        <p class="bd-theme-screen-subtitle">Choose a system to browse.</p>
+        <div class="bd-builtin-system-grid" id="systems-grid"></div>
+      </section>
+
+      <section class="bd-builtin-screen" data-screen-id="game_browser">
+        <div class="bd-builtin-two-column">
+          <div class="bd-builtin-panel bd-theme-panel-primary">
+            <div class="bd-builtin-browser-header">
+              <div class="bd-builtin-system-icon"><img src="../../themes/default/assets/icons/systems/fc.png" alt=""></div>
+              <div>
+                <div class="bd-theme-screen-title" style="font-size:30px;">NES</div>
+                <div class="bd-theme-screen-subtitle">Game Browser</div>
+              </div>
+            </div>
+            <div class="bd-builtin-list" id="game-list"></div>
+          </div>
+          <div class="bd-builtin-panel bd-theme-panel-secondary">
+            <div class="bd-theme-section-title">Preview</div>
+            <div class="bd-builtin-preview-frame"><img src="../../ROMS/nes/media/Adventure Island I [RUS].png" alt=""></div>
+            <div class="bd-theme-detail-title" id="game-detail-title">Adventure Island I [RUS]</div>
+            <div class="bd-theme-meta-line">Genre: Platform</div>
+            <div class="bd-theme-meta-line">Players: 1</div>
+            <div class="bd-theme-meta-line">Date: 19880902</div>
+            <div class="bd-theme-meta-line">Source: gamelist</div>
+            <div class="bd-theme-section-title" style="margin-top:26px;">Description</div>
+            <div class="bd-theme-body-copy">Known retro platformer. This text only simulates the real description block and its proportions.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bd-builtin-screen" data-screen-id="apps">
+        <div class="bd-builtin-two-column">
+          <div class="bd-builtin-panel bd-theme-panel-primary">
+            <h1 class="bd-theme-screen-title">Apps</h1>
+            <p class="bd-theme-screen-subtitle">Applications and tools</p>
+            <div class="bd-builtin-list" id="apps-list"></div>
+          </div>
+          <div class="bd-builtin-panel bd-theme-panel-secondary">
+            <div class="bd-theme-section-title">Selected App</div>
+            <div class="bd-builtin-preview-frame" style="width:240px;height:240px;"><span class="bd-theme-body-copy">NO ICON</span></div>
+            <div class="bd-theme-detail-title">PortMaster</div>
+            <div class="bd-theme-meta-line">Target: /mnt/SDCARD/Apps/PortMaster/launch.sh</div>
+            <div class="bd-theme-section-title" style="margin-top:26px;">Description</div>
+            <div class="bd-theme-body-copy">Example application card for the split view reference.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bd-builtin-screen" data-screen-id="settings">
+        <div class="bd-builtin-settings-layout">
+          <div class="bd-builtin-panel bd-theme-panel-primary bd-theme-panel-active" id="settings-left-panel">
+            <div class="bd-theme-screen-title" style="font-size:34px;">Settings</div>
+            <div class="bd-theme-screen-subtitle">System and library options</div>
+            <div class="bd-builtin-settings-list" id="settings-list"></div>
+          </div>
+          <div class="bd-builtin-panel bd-theme-panel-secondary" id="settings-right-panel">
+            <div class="bd-theme-editor-title" id="settings-editor-title">Language</div>
+            <div class="bd-theme-editor-body" id="settings-editor-body">Choose the interface language. The change is applied immediately and saved to user settings.</div>
+            <div class="bd-theme-editor-hint" id="settings-editor-hint">Press A or Right to edit</div>
+            <div class="bd-builtin-editor-list" id="settings-editor-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bd-builtin-footer bd-theme-footer">
+      <div class="bd-builtin-footer-left" id="footer-actions"></div>
+      <div class="bd-builtin-footer-right">
+        <div class="bd-theme-footer-hint" id="footer-hint">Press A</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const state = {
+      screen: "main_menu",
+      mainMenuSelected: 0,
+      systemsSelected: 0,
+      gamesSelected: 0,
+      appsSelected: 0,
+      settingsLeftSelected: 0,
+      settingsEditorSelected: 1,
+      settingsFocus: "left"
+    };
+
+    const screens = {
+      main_menu: {
+        context: "Main Menu",
+        actions: ["A", "MENU"],
+        hint: "Press A"
+      },
+      games: {
+        context: "Games",
+        actions: ["A", "B", "MENU"],
+        hint: "Press A to open"
+      },
+      game_browser: {
+        context: "NES - Game Browser",
+        actions: ["A", "B", "MENU"],
+        hint: "Press A"
+      },
+      apps: {
+        context: "Apps",
+        actions: ["A", "B", "MENU"],
+        hint: "Press A"
+      },
+      settings: {
+        context: "Settings",
+        actions: ["A", "B", "MENU"],
+        hint: "Press A or Right to edit"
+      }
+    };
+
+    const mainMenuItems = [
+      { title: "Games", status: "19 items" },
+      { title: "Settings", status: "Ready" },
+      { title: "Apps", status: "Empty" }
+    ];
+
+    const systems = [
+      { title: "NES", meta: "14 items", icon: "../../themes/default/assets/icons/systems/fc.png" },
+      { title: "Mega Drive", meta: "5 items", icon: "../../themes/default/assets/icons/systems/md.png" }
+    ];
+
+    const games = [
+      "Adventure Island I [RUS]",
+      "Adventure Island II [RUS]",
+      "Alien 3 [RUS]",
+      "Castlevania I [RUS]",
+      "Castlevania II: Simon's Quest [RUS]",
+      "Chip 'n Dale: Rescue Rangers [RUS]"
+    ];
+
+    const apps = ["PortMaster", "Boot RetroArch", "User Guide"];
+
+    const settings = [
+      { title: "Language", value: "Russian" },
+      { title: "Theme", value: "Default" },
+      { title: "Rescan Library", value: "Run now" }
+    ];
+
+    const settingsEditor = {
+      0: {
+        title: "Language",
+        body: "Choose the interface language. The change is applied immediately and saved to user settings.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to apply, B to go back",
+        items: [
+          { title: "English", description: "Use English for all labels." },
+          { title: "Russian", description: "Use Russian for all labels.", active: true }
+        ]
+      },
+      1: {
+        title: "Theme",
+        body: "Choose the active UI theme. Themes are loaded from the top-level themes directory.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to apply, B to go back",
+        items: [
+          { title: "Default", description: "Built-in handheld-first theme.", active: true }
+        ]
+      },
+      2: {
+        title: "Rescan Library",
+        body: "Run a fresh scan of ROM folders, gamelist.xml files and app manifests.",
+        leftHint: "Press A or Right to edit",
+        rightHint: "Press A to apply, B to go back",
+        items: [
+          { title: "Start full library rescan", description: "Read ROM folders and rebuild library.json." }
+        ]
+      }
+    };
+
+    function renderFooter() {
+      const shell = screens[state.screen];
+      const actions = document.getElementById("footer-actions");
+      actions.innerHTML = "";
+      shell.actions.forEach(label => {
+        const node = document.createElement("div");
+        node.className = "bd-theme-footer-action";
+        node.textContent = label;
+        actions.appendChild(node);
+      });
+      document.getElementById("footer-hint").textContent =
+        state.screen === "settings"
+          ? (state.settingsFocus === "left" ? settingsEditor[state.settingsLeftSelected].leftHint : settingsEditor[state.settingsLeftSelected].rightHint)
+          : shell.hint;
+    }
+
+    function renderHeader() {
+      document.getElementById("header-context").textContent = screens[state.screen].context;
+    }
+
+    function renderMainMenu() {
+      const root = document.getElementById("main-menu-cards");
+      root.innerHTML = "";
+      mainMenuItems.forEach((item, index) => {
+        const selected = index === state.mainMenuSelected;
+        const frame = document.createElement("div");
+        frame.className = "bd-builtin-main-menu-card bd-theme-main-menu-card-frame" + (selected ? " is-selected" : "");
+        frame.innerHTML = `
+          <div class="bd-builtin-main-menu-card-inner bd-theme-main-menu-card-inner ${selected ? "is-selected" : ""}">
+            <div class="bd-theme-main-menu-card-title">${item.title}</div>
+            <div class="bd-theme-main-menu-card-info">${item.status}</div>
+            <div class="bd-theme-main-menu-card-hint ${selected ? "is-selected" : ""}">${selected ? "Press A" : "Ready"}</div>
+            <div class="bd-builtin-main-menu-card-accent bd-theme-main-menu-card-accent ${selected ? "is-selected" : ""}"></div>
+          </div>`;
+        root.appendChild(frame);
+      });
+    }
+
+    function renderSystems() {
+      const root = document.getElementById("systems-grid");
+      root.innerHTML = "";
+      systems.forEach((item, index) => {
+        const selected = index === state.systemsSelected;
+        const frame = document.createElement("div");
+        frame.className = "bd-builtin-system-card bd-theme-system-card-frame" + (selected ? " is-selected" : "");
+        frame.innerHTML = `
+          <div class="bd-builtin-system-card-inner bd-theme-system-card-inner ${selected ? "is-selected" : ""}">
+            <div class="bd-builtin-system-icon"><img src="${item.icon}" alt=""></div>
+            <div>
+              <div class="bd-theme-system-title">${item.title}</div>
+              <div class="bd-theme-system-meta">${item.meta}</div>
+              <div class="bd-theme-system-hint ${selected ? "is-selected" : ""}">${selected ? "Press A to open" : "Ready"}</div>
+            </div>
+          </div>`;
+        root.appendChild(frame);
+      });
+    }
+
+    function renderGameList() {
+      const root = document.getElementById("game-list");
+      root.innerHTML = "";
+      games.forEach((item, index) => {
+        const selected = index === state.gamesSelected;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-list-item bd-theme-list-item-frame" + (selected ? " is-selected" : "");
+        node.innerHTML = `<div class="bd-builtin-list-item-inner bd-theme-list-item-inner ${selected ? "is-selected" : ""}"><div class="bd-theme-list-item-text ${selected ? "is-selected" : ""}">${item}</div></div>`;
+        root.appendChild(node);
+      });
+    }
+
+    function renderApps() {
+      const root = document.getElementById("apps-list");
+      root.innerHTML = "";
+      apps.forEach((item, index) => {
+        const selected = index === state.appsSelected;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-list-item bd-theme-list-item-frame" + (selected ? " is-selected" : "");
+        node.innerHTML = `<div class="bd-builtin-list-item-inner bd-theme-list-item-inner ${selected ? "is-selected" : ""}"><div class="bd-theme-list-item-text ${selected ? "is-selected" : ""}">${item}</div></div>`;
+        root.appendChild(node);
+      });
+    }
+
+    function renderSettings() {
+      document.getElementById("settings-left-panel").classList.toggle("bd-theme-panel-active", state.settingsFocus === "left");
+      document.getElementById("settings-right-panel").classList.toggle("bd-theme-panel-active", state.settingsFocus === "right");
+
+      const list = document.getElementById("settings-list");
+      list.innerHTML = "";
+      settings.forEach((item, index) => {
+        const selected = index === state.settingsLeftSelected;
+        const active = selected && state.settingsFocus === "left";
+        const node = document.createElement("div");
+        node.className = "bd-builtin-settings-card bd-theme-settings-frame" + (selected ? " is-selected" : "") + (active ? " is-active" : "");
+        node.innerHTML = `<div class="bd-builtin-settings-card-inner bd-theme-settings-inner ${selected ? "is-selected" : ""} ${active ? "is-active" : ""}">
+          <div class="bd-theme-settings-item-title">${item.title}</div>
+          <div class="bd-theme-settings-item-value">${item.value}</div>
+        </div>`;
+        list.appendChild(node);
+      });
+
+      const editor = settingsEditor[state.settingsLeftSelected];
+      document.getElementById("settings-editor-title").textContent = editor.title;
+      document.getElementById("settings-editor-body").textContent = editor.body;
+      document.getElementById("settings-editor-hint").textContent = state.settingsFocus === "left" ? editor.leftHint : editor.rightHint;
+
+      const editorList = document.getElementById("settings-editor-list");
+      editorList.innerHTML = "";
+      editor.items.forEach((item, index) => {
+        const selected = index === state.settingsEditorSelected;
+        const active = !!item.active;
+        const node = document.createElement("div");
+        node.className = "bd-builtin-editor-card bd-theme-editor-frame" + (selected ? " is-selected" : "") + (active ? " is-active" : "");
+        node.innerHTML = `<div class="bd-builtin-editor-card-inner bd-theme-editor-inner ${selected ? "is-selected" : ""} ${active ? "is-active" : ""}">
+          <div class="bd-theme-editor-item-title ${selected ? "is-selected" : ""}">${item.title}</div>
+          <div class="bd-theme-editor-item-description">${item.description}</div>
+        </div>`;
+        editorList.appendChild(node);
+      });
+    }
+
+    function render() {
+      document.querySelectorAll("[data-screen-id]").forEach(node => {
+        node.classList.toggle("is-active", node.dataset.screenId === state.screen);
+      });
+      renderHeader();
+      renderFooter();
+      renderMainMenu();
+      renderSystems();
+      renderGameList();
+      renderApps();
+      renderSettings();
+    }
+
+    window.addEventListener("keydown", event => {
+      if (event.key === "1") state.screen = "main_menu";
+      if (event.key === "2") state.screen = "games";
+      if (event.key === "3") state.screen = "game_browser";
+      if (event.key === "4") state.screen = "apps";
+      if (event.key === "5") state.screen = "settings";
+
+      if (state.screen === "main_menu") {
+        if (event.key === "ArrowLeft") state.mainMenuSelected = Math.max(0, state.mainMenuSelected - 1);
+        if (event.key === "ArrowRight") state.mainMenuSelected = Math.min(2, state.mainMenuSelected + 1);
+      }
+      if (state.screen === "games") {
+        if (event.key === "ArrowLeft") state.systemsSelected = Math.max(0, state.systemsSelected - 1);
+        if (event.key === "ArrowRight") state.systemsSelected = Math.min(systems.length - 1, state.systemsSelected + 1);
+      }
+      if (state.screen === "game_browser") {
+        if (event.key === "ArrowUp") state.gamesSelected = Math.max(0, state.gamesSelected - 1);
+        if (event.key === "ArrowDown") state.gamesSelected = Math.min(games.length - 1, state.gamesSelected + 1);
+      }
+      if (state.screen === "apps") {
+        if (event.key === "ArrowUp") state.appsSelected = Math.max(0, state.appsSelected - 1);
+        if (event.key === "ArrowDown") state.appsSelected = Math.min(apps.length - 1, state.appsSelected + 1);
+      }
+      if (state.screen === "settings") {
+        if (state.settingsFocus === "left") {
+          if (event.key === "ArrowUp") state.settingsLeftSelected = Math.max(0, state.settingsLeftSelected - 1);
+          if (event.key === "ArrowDown") state.settingsLeftSelected = Math.min(settings.length - 1, state.settingsLeftSelected + 1);
+          if (event.key === "ArrowRight" || event.key === "Enter") state.settingsFocus = "right";
+        } else {
+          if (event.key === "ArrowUp") state.settingsEditorSelected = Math.max(0, state.settingsEditorSelected - 1);
+          if (event.key === "ArrowDown") state.settingsEditorSelected = Math.min(settingsEditor[state.settingsLeftSelected].items.length - 1, state.settingsEditorSelected + 1);
+          if (event.key === "ArrowLeft" || event.key === "Escape") state.settingsFocus = "left";
+        }
+      }
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

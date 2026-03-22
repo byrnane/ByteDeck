@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ui/layout_registry.hpp"
-
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
@@ -28,8 +26,10 @@ public:
     const std::string& active_theme_id() const;
     const std::filesystem::path& active_theme_root() const;
     std::vector<std::string> available_theme_ids() const;
-    std::string screen_variant(const std::string& screen_id) const;
-    nlohmann::json merge_style(const LayoutNode& node, const std::vector<std::string>& runtime_classes) const;
+    nlohmann::json value_at(const std::string& path) const;
+    int int_at(const std::string& path, int default_value) const;
+    std::string string_at(const std::string& path, const std::string& default_value = "") const;
+    bool bool_at(const std::string& path, bool default_value) const;
     nlohmann::json resolve_value(const nlohmann::json& value) const;
     std::filesystem::path resolve_asset_path(const std::string& path_value) const;
     std::filesystem::path system_icon_path(const std::string& system_id) const;
@@ -37,9 +37,8 @@ public:
     ThemeTypographyRole typography_role(const std::string& role) const;
 
 private:
-    static void merge_object(nlohmann::json& target, const nlohmann::json& source);
-    const nlohmann::json* find_style_bucket(const char* bucket_name, const std::string& key) const;
     const nlohmann::json* find_token(const std::string& token_path) const;
+    const nlohmann::json* find_value_path(const std::string& path) const;
     bool load_theme_file(const std::string& theme_id);
 
     std::filesystem::path themes_root_;

@@ -3,16 +3,19 @@
 - [English version](./THEMING.md)
 - [README проекта](../README.md#ru)
 - [Архитектура](./ARCHITECTURE.ru.md)
+- [HTML-референс интерфейса](./ui_reference/bytedeck-ui-reference.html)
 
 ## Общая модель
 
-Интерфейс ByteDeck разделён на две части:
+Темы ByteDeck больше не описывают структуру экранов.
 
-- `config/ui/screens/*.json` описывает структуру экрана
-- `themes/<theme-id>/theme.json` описывает внешний вид этой структуры
+Активная модель интерфейса такая:
 
-Layout отвечает за панели, списки, текст и изображения.
-Theme отвечает за цвета, отступы, типографику, фоны и иконки.
+- структура экранов зашита в коде
+- темы управляют оформлением
+- HTML-референс фиксирует целевую композицию и themeable-части
+
+То есть тема может менять внешний вид лаунчера, но не может перестраивать саму структуру экранов.
 
 ## Корень темы
 
@@ -28,25 +31,25 @@ themes/<theme-id>/
 themes/<theme-id>/theme.json
 ```
 
-Любой путь к ассету внутри `theme.json` считается относительным к этой папке темы.
+Любой путь к asset внутри `theme.json` считается относительным к этой папке темы.
 
 Пример:
 
 ```json
-"background_image": "images/main-menu.png"
+"background_image": "assets/backgrounds/main-menu.png"
 ```
 
 Это значит:
 
 ```text
-themes/<theme-id>/images/main-menu.png
+themes/<theme-id>/assets/backgrounds/main-menu.png
 ```
 
-Жёсткой внутренней структуры нет. Ты сам решаешь, как разложить `fonts/`, `icons/`, `images/` и `backgrounds/`.
+Жёсткой внутренней структуры нет. Обязателен только `theme.json` как entrypoint.
 
-## Структура `theme.json`
+## Актуальная схема `theme.json`
 
-Основные разделы:
+Текущий fixed-template renderer ожидает такую верхнеуровневую структуру:
 
 ```json
 {
@@ -54,20 +57,144 @@ themes/<theme-id>/images/main-menu.png
   "fonts": {},
   "typography": {},
   "system_icons": {},
-  "styles": {
-    "types": {},
-    "classes": {},
-    "ids": {}
-  },
-  "screen_variants": {}
+  "shell": {},
+  "components": {},
+  "screens": {}
 }
 ```
 
-## Цвета
+### `tokens`
 
-### Основные форматы
+Переиспользуемые значения, например:
 
-Рекомендуемые форматы цветов:
+- `colors`
+- `spacing`
+
+### `fonts`
+
+Семейства шрифтов, которые ссылаются на относительные пути к файлам.
+
+Пример:
+
+```json
+"fonts": {
+  "noto_sans": {
+    "path": "assets/fonts/NotoSans-Regular.ttf"
+  },
+  "superstar": {
+    "path": "assets/fonts/superstar.ttf"
+  }
+}
+```
+
+### `typography`
+
+Именованные текстовые роли, которые использует renderer.
+
+Пример:
+
+```json
+"typography": {
+  "body": {
+    "family": "noto_sans",
+    "size": 24,
+    "line_height": 30,
+    "bitmap_scale": 3
+  },
+  "hero": {
+    "family": "superstar",
+    "size": 42,
+    "line_height": 48,
+    "bitmap_scale": 5
+  }
+}
+```
+
+Поля:
+
+- `family`
+- `size`
+- `line_height`
+- `bitmap_scale`
+
+### `system_icons`
+
+Связывает system id ByteDeck с файлами иконок:
+
+```json
+"system_icons": {
+  "nes": "assets/icons/systems/fc.png",
+  "megadrive": "assets/icons/systems/md.png"
+}
+```
+
+### `shell`
+
+Описывает общие метрики и стили shell:
+
+- `metrics`
+- `root`
+- `header`
+- `header_brand`
+- `header_context`
+- `header_meta`
+- `footer`
+- `footer_action`
+- `footer_hint`
+
+### `components`
+
+Общие небольшие presentation-блоки, например:
+
+- placeholder для изображений
+
+### `screens`
+
+Секции со стилями конкретных fixed templates:
+
+- `main_menu`
+- `games`
+- `browser`
+- `apps`
+- `settings`
+- `placeholder`
+
+Внутри секции экрана могут быть:
+
+- `metrics`
+- стили блоков
+- стили текста
+- стили изображений
+
+## Какие свойства поддерживаются в Theme v1
+
+Вот что fixed renderer рассчитан поддерживать прямо сейчас:
+
+- `background_color`
+- `text_color`
+- `border_color`
+- `border_width`
+- `background_image`
+- `font_role`
+- `font_size`
+- `line_height` через typography roles
+- `padding`
+- `gap`
+- `width`
+- `height`
+- `opacity` через alpha-канал цвета или `alpha` в объекте
+- `wrap`
+- `truncate`
+
+Для изображений:
+
+- обычные пути к asset
+- system icons
+- placeholder text
+
+## Форматы цветов
+
+Рекомендуемые форматы:
 
 - `#RRGGBB`
 - `#RRGGBBAA`
@@ -75,13 +202,11 @@ themes/<theme-id>/images/main-menu.png
 Примеры:
 
 ```json
-"primary": "#F5F1E6"
-"accent_overlay": "#E4B756CC"
+"text_primary": "#F5F1E6"
+"overlay": "#E4B756CC"
 ```
 
-### Отдельная прозрачность
-
-Если удобнее задавать прозрачность отдельно, используй объект:
+Можно задавать прозрачность и отдельно:
 
 ```json
 {
@@ -93,224 +218,101 @@ themes/<theme-id>/images/main-menu.png
 Правила:
 
 - `alpha` задаётся в процентах от `0` до `100`
-- если указан `#RRGGBBAA`, он важнее отдельного `alpha`
-- старый формат `[245, 241, 230, 255]` пока ещё поддерживается для совместимости, но больше не считается основным
+- `#RRGGBBAA` важнее отдельного `alpha`
+- legacy-массивы вроде `[245, 241, 230, 255]` ещё поддерживаются для совместимости, но больше не считаются основным форматом
 
-## Tokens
+## Шрифты и рендер текста
 
-`tokens` — это переиспользуемые значения.
+У ByteDeck два пути рендера текста:
 
-Обычно там лежат:
+1. theme fonts из TTF/OTF
+2. встроенный bitmap fallback
 
-- `colors`
-- `spacing`
+Если шрифт темы не загрузился, ByteDeck откатывается на встроенный bitmap-font и интерфейс остаётся рабочим.
 
-Пример:
+Размер текста задаётся через:
 
-```json
-"tokens": {
-  "colors": {
-    "background": {
-      "app": "#0F1218",
-      "panel_primary": "#1A1F2A"
-    },
-    "text": {
-      "primary": "#F5F1E6",
-      "muted": "#939DB0"
-    }
-  },
-  "spacing": {
-    "sm": 8,
-    "md": 16,
-    "lg": 24
-  }
-}
-```
+- `font_role`
+- `font_size`, если нужен override
+- `bitmap_scale` как fallback-размер для bitmap-font
 
-Использование токена в стилях:
+## Assets темы
 
-```json
-"background_color": "$colors.background.panel_primary"
-```
-
-## Типографика и шрифты
-
-### Как сейчас работает текст
-
-Сейчас у ByteDeck есть два пути рендера текста:
-
-1. реальные шрифты из TTF или OTF
-2. встроенный bitmap-font как fallback
-
-Если шрифт темы не загрузился, интерфейс не падает и откатывается на встроенный bitmap-font.
-
-### Раздел `fonts`
-
-Раздел `fonts` объявляет семейства шрифтов.
-
-Пример:
-
-```json
-"fonts": {
-  "ui": {
-    "path": "fonts/Inter-Medium.ttf"
-  },
-  "brand": "fonts/Display.otf"
-}
-```
-
-Поддерживаются и объект, и строка.
-
-### Раздел `typography`
-
-Раздел `typography` задаёт именованные текстовые роли.
-
-Пример:
-
-```json
-"typography": {
-  "body": {
-    "family": "ui",
-    "size": 16,
-    "line_height": 20,
-    "bitmap_scale": 2
-  },
-  "title": {
-    "family": "brand",
-    "size": 28,
-    "bitmap_scale": 4
-  }
-}
-```
-
-Поля:
-
-- `family`: семейство шрифта из `fonts`
-- `size`: размер для TTF/OTF
-- `line_height`: необязательная фиксированная высота строки
-- `bitmap_scale`: размер fallback для встроенного bitmap-font
-
-### Как задаётся размер текста
-
-В текущем runtime:
-
-- `font_role` — основной способ задать стиль текста
-- `font_size` — необязательный override размера из роли
-- `scale` — fallback для bitmap-font
-
-Пример:
-
-```json
-"menu-card-title": {
-  "font_role": "title",
-  "text_color": "$colors.text.primary"
-}
-```
-
-## Ассеты темы
-
-Ассеты темы — это обычные файлы внутри папки темы.
+Assets темы — это обычные файлы внутри папки темы.
 
 Сейчас поддерживаются:
 
-- `background_image`
-- `system_icons`
-- пути к изображениям из style rules
-- файлы шрифтов из `fonts`
-- ассеты для общего chrome интерфейса, например верхнего status bar
+- шрифты
+- фоновые изображения
+- system icons
+- другие UI-картинки, на которые ссылаются style-секции
 
-### Фоновые изображения
+Все asset paths считаются относительными к корню активной темы, если явно не указан абсолютный путь.
 
-Пример:
+## Что темы не контролируют в v1
 
-```json
-"panel-primary": {
-  "background_color": "#1A1F2A",
-  "background_image": "images/panel-noise.png"
-}
+Темы не управляют:
+
+- иерархией экранов
+- произвольной layout-композицией
+- absolute positioning
+- CSS-подобными grid/flex layout
+- скруглениями
+- тенями
+- clipping
+- transform-эффектами
+- градиентами
+- анимациями
+
+Это осознанные ограничения первой версии fixed-template renderer.
+
+## HTML-референс и схема классов
+
+Референсный файл лежит здесь:
+
+```text
+docs/ui_reference/bytedeck-ui-reference.html
 ```
 
-### Иконки систем
+Это не runtime-код, а визуальный и поведенческий reference.
 
-Пример:
+Классы в нём разделены на два namespace:
 
-```json
-"system_icons": {
-  "nes": "icons/nes.png",
-  "megadrive": "icons/megadrive.png"
-}
+- `bd-builtin-*` для структурных частей, которые принадлежат renderer'у
+- `bd-theme-*` для частей, чьё оформление должно выражаться через `theme.json`
+
+Это основной контракт между макетами и SDL-реализацией.
+
+## Legacy layout JSON-файлы
+
+Файлы в:
+
+```text
+config/ui/screens/
 ```
 
-Узел `image` может запросить такую иконку по `system_id` через bindings.
+больше не являются активным source of truth для runtime layout.
 
-## Styles
+Они остаются в репозитории только как legacy reference на переходный период.
 
-Раздел `styles` делится на:
+## Безопасный порядок правок
 
-- `types`: значения по умолчанию для типа узла
-- `classes`: переиспользуемые стили
-- `ids`: точечные переопределения для конкретного узла
-
-Приоритет применения:
-
-1. runtime defaults
-2. `styles.types`
-3. `styles.classes`
-4. `styles.ids`
-5. inline-значения из layout-файла
-
-### Часто используемые свойства
-
-Текст:
-
-- `text_color`
-- `font_role`
-- `font_size`
-- `wrap`
-- `truncate`
-
-Контейнеры:
-
-- `background_color`
-- `background_image`
-- `border_color`
-- `border_width`
-- `padding`
-
-Изображения:
-
-- `path`
-- `placeholder_text`
-- `system_icon_bind`
-
-## Варианты экранов
-
-Тема может выбрать заранее подготовленный вариант layout’а:
-
-```json
-"screen_variants": {
-  "main_menu": "hero"
-}
-```
-
-Это меняет только вариант layout’а. Логика экрана при этом не меняется.
-
-## Безопасный порядок редактирования
-
-Если делаешь новую тему, удобнее идти так:
+Если ты создаёшь или редактируешь тему, безопаснее идти так:
 
 1. править `tokens.colors`
 2. править `tokens.spacing`
-3. править `typography`
-4. править `styles.classes`
-5. добавлять картинки, иконки и шрифты
+3. править `fonts`
+4. править `typography`
+5. править `shell`
+6. править `screens`
+7. добавлять или заменять изображения и иконки
 
-## Практические советы
+## Практические заметки
 
 - используй относительные пути внутри папки темы
 - предпочитай `#RRGGBB` и `#RRGGBBAA`
-- даже если используешь реальные шрифты, оставляй `bitmap_scale`, чтобы fallback оставался читаемым
-- сначала проверяй тему на desktop-сборке, потом на устройстве
+- не убирай `bitmap_scale`, даже если используешь реальные шрифты
+- сначала проверяй тему на desktop, потом на устройстве
 
 ## Связанные документы
 

@@ -9,22 +9,15 @@ ByteDeck is a lightweight custom launcher for **TrimUI Smart Pro S**.
 
 It runs on top of the stock firmware, scans ROM folders, reads `gamelist.xml`, builds its own library cache and launches games through the stock emulator scripts.
 
-- [Theming Guide](./docs/THEMING.md)
-- [Architecture](./docs/ARCHITECTURE.md)
-- [Platform Notes](./docs/PLATFORM_NOTES.md)
-- [TrimUI SPS Packaging](./device/trimui_sps/README.md)
-
 ### What ByteDeck Does
 
 - scans ROM folders from the SD card
 - merges ROM files with `gamelist.xml`
 - shows systems, games and apps in its own UI
 - launches games through the stock TrimUI emulator wrappers
-- supports JSON-defined layouts and themes
+- uses fixed screen templates with theme-controlled presentation
 
-### For Users
-
-#### Install On TrimUI Smart Pro S
+### Install On TrimUI Smart Pro S
 
 1. Prepare a stock SD card layout.
 2. Build the TrimUI package:
@@ -42,7 +35,7 @@ dist/trimui_sps/Apps/ByteDeck -> SDCARD/Apps/ByteDeck
 4. Insert the SD card into the console.
 5. Open `Apps` in the stock launcher and start `ByteDeck`.
 
-#### ROM Folder Layout
+### ROM Folder Layout
 
 ByteDeck keeps its own system naming inside the ROM root. Typical folders look like this:
 
@@ -55,60 +48,44 @@ SDCARD/Roms/psp
 
 If a system uses `gamelist.xml`, place it next to the ROM files inside that system folder.
 
-#### Controls
+### Controls
 
 - D-Pad or arrow keys: move selection
 - `A` / `Enter`: select
 - `B` / `Escape`: back
 - `Menu` / `Q`: quit
 
-### For Developers
+### Development
 
-#### Windows Build
+Windows build:
 
 ```bat
 ByteDeck.bat build-windows
 ```
 
-Ready package:
-
-```text
-dist/windows
-```
-
-#### Windows Build And Run
+Windows build and run:
 
 ```bat
 ByteDeck.bat dev-windows
 ```
 
-#### Windows Run Without Rebuild
+Windows run without rebuild:
 
 ```bat
 ByteDeck.bat run-windows
 ```
 
-#### TrimUI Smart Pro S Build
-
-Requirements:
+TrimUI Smart Pro S build:
 
 - WSL with Ubuntu
 - `cmake` and `ninja-build` installed inside WSL
 - official SDK extracted to `local/sdk/trimui_sps`
 
-Build:
-
 ```bat
 ByteDeck.bat build-trimui_sps
 ```
 
-Ready package:
-
-```text
-dist/trimui_sps
-```
-
-#### Cleanup
+Cleanup:
 
 ```bat
 ByteDeck.bat clean
@@ -124,19 +101,15 @@ ByteDeck.bat clean
 - [Platform Notes (Russian)](./docs/PLATFORM_NOTES.ru.md)
 - [TrimUI SPS Packaging](./device/trimui_sps/README.md)
 - [TrimUI SPS Packaging (Russian)](./device/trimui_sps/README.ru.md)
+- [UI Reference HTML](./docs/ui_reference/bytedeck-ui-reference.html)
 - [Roadmap](./TODO.md)
 
 <a id="ru"></a>
 ## Русский
 
-ByteDeck - это легковесный кастомный лаунчер для **TrimUI Smart Pro S**.
+ByteDeck — это лёгкий кастомный лаунчер для **TrimUI Smart Pro S**.
 
-Он работает поверх стоковой прошивки, сканирует ROM-папки, читает `gamelist.xml`, строит собственный кеш библиотеки и запускает игры через штатные скрипты эмуляторов.
-
-- [Гайд по темам](./docs/THEMING.ru.md)
-- [Архитектура](./docs/ARCHITECTURE.ru.md)
-- [Заметки по платформе](./docs/PLATFORM_NOTES.ru.md)
-- [Упаковка для TrimUI SPS](./device/trimui_sps/README.ru.md)
+Он работает поверх стоковой прошивки, сканирует папки с ROM-файлами, читает `gamelist.xml`, строит собственный кеш библиотеки и запускает игры через штатные скрипты эмуляторов.
 
 ### Что умеет ByteDeck
 
@@ -144,11 +117,9 @@ ByteDeck - это легковесный кастомный лаунчер дл�
 - объединять реальные ROM-файлы и данные из `gamelist.xml`
 - показывать системы, игры и приложения в собственном интерфейсе
 - запускать игры через штатные TrimUI-обёртки
-- использовать JSON-описания экранов и тем
+- использовать фиксированные шаблоны экранов и темы, которые управляют оформлением
 
-### Для пользователей
-
-#### Установка на TrimUI Smart Pro S
+### Установка на TrimUI Smart Pro S
 
 1. Подготовь SD-карту со стоковой структурой.
 2. Собери пакет для консоли:
@@ -166,7 +137,7 @@ dist/trimui_sps/Apps/ByteDeck -> SDCARD/Apps/ByteDeck
 4. Вставь SD-карту в консоль.
 5. Открой раздел `Apps` в штатном лаунчере и запусти `ByteDeck`.
 
-#### Где должны лежать ROM'ы
+### Где должны лежать ROM'ы
 
 ByteDeck использует свои названия систем внутри корня с ROM-файлами. Обычно структура такая:
 
@@ -179,60 +150,44 @@ SDCARD/Roms/psp
 
 Если для системы используется `gamelist.xml`, положи его рядом с ROM-файлами в папке этой системы.
 
-#### Управление
+### Управление
 
 - крестовина или стрелки: перемещение
 - `A` / `Enter`: выбрать
 - `B` / `Escape`: назад
 - `Menu` / `Q`: выход
 
-### Для разработки
+### Разработка
 
-#### Сборка под Windows
+Сборка под Windows:
 
 ```bat
 ByteDeck.bat build-windows
 ```
 
-Готовый пакет:
-
-```text
-dist/windows
-```
-
-#### Сборка и запуск под Windows
+Сборка и запуск под Windows:
 
 ```bat
 ByteDeck.bat dev-windows
 ```
 
-#### Запуск Windows-сборки без пересборки
+Запуск Windows-сборки без пересборки:
 
 ```bat
 ByteDeck.bat run-windows
 ```
 
-#### Сборка под TrimUI Smart Pro S
-
-Что нужно:
+Сборка под TrimUI Smart Pro S:
 
 - WSL с Ubuntu
 - `cmake` и `ninja-build` внутри WSL
 - официальный SDK, распакованный в `local/sdk/trimui_sps`
 
-Сборка:
-
 ```bat
 ByteDeck.bat build-trimui_sps
 ```
 
-Готовый пакет:
-
-```text
-dist/trimui_sps
-```
-
-#### Очистка
+Очистка:
 
 ```bat
 ByteDeck.bat clean
@@ -248,4 +203,5 @@ ByteDeck.bat clean
 - [Platform Notes](./docs/PLATFORM_NOTES.md)
 - [Упаковка для TrimUI SPS](./device/trimui_sps/README.ru.md)
 - [TrimUI SPS Packaging](./device/trimui_sps/README.md)
+- [HTML-референс интерфейса](./docs/ui_reference/bytedeck-ui-reference.html)
 - [План работ](./TODO.md)

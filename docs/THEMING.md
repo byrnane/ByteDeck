@@ -3,16 +3,19 @@
 - [Русская версия](./THEMING.ru.md)
 - [Project README](../README.md#en)
 - [Architecture](./ARCHITECTURE.md)
+- [UI Reference HTML](./ui_reference/bytedeck-ui-reference.html)
 
 ## Overview
 
-ByteDeck UI is split into two parts:
+ByteDeck themes no longer define screen structure.
 
-- `config/ui/screens/*.json` describes the screen structure
-- `themes/<theme-id>/theme.json` describes how that structure looks
+The active UI model is:
 
-Layouts define panels, lists, text and images.
-Themes define colors, spacing, typography, backgrounds and icons.
+- screen structure is fixed in code
+- themes control presentation
+- the HTML reference file documents the intended composition and themeable parts
+
+That means a theme can change how the launcher looks, but not how screens are structurally composed.
 
 ## Theme Root
 
@@ -33,20 +36,20 @@ Any asset path inside `theme.json` is resolved relative to that theme folder.
 Example:
 
 ```json
-"background_image": "images/main-menu.png"
+"background_image": "assets/backgrounds/main-menu.png"
 ```
 
 This means:
 
 ```text
-themes/<theme-id>/images/main-menu.png
+themes/<theme-id>/assets/backgrounds/main-menu.png
 ```
 
-There is no forced internal folder structure. You can organize `fonts/`, `icons/`, `images/` and `backgrounds/` however you want.
+There is no forced internal folder structure beyond `theme.json` being the entrypoint.
 
-## Theme File Structure
+## Current Theme Schema
 
-The main sections are:
+The active fixed-template renderer expects this high-level structure:
 
 ```json
 {
@@ -54,20 +57,144 @@ The main sections are:
   "fonts": {},
   "typography": {},
   "system_icons": {},
-  "styles": {
-    "types": {},
-    "classes": {},
-    "ids": {}
-  },
-  "screen_variants": {}
+  "shell": {},
+  "components": {},
+  "screens": {}
 }
 ```
 
-## Colors
+### `tokens`
 
-### Recommended formats
+Reusable values such as:
 
-Preferred color formats are:
+- `colors`
+- `spacing`
+
+### `fonts`
+
+Font families mapped to relative asset paths.
+
+Example:
+
+```json
+"fonts": {
+  "noto_sans": {
+    "path": "assets/fonts/NotoSans-Regular.ttf"
+  },
+  "superstar": {
+    "path": "assets/fonts/superstar.ttf"
+  }
+}
+```
+
+### `typography`
+
+Named text roles used by the renderer.
+
+Example:
+
+```json
+"typography": {
+  "body": {
+    "family": "noto_sans",
+    "size": 24,
+    "line_height": 30,
+    "bitmap_scale": 3
+  },
+  "hero": {
+    "family": "superstar",
+    "size": 42,
+    "line_height": 48,
+    "bitmap_scale": 5
+  }
+}
+```
+
+Fields:
+
+- `family`
+- `size`
+- `line_height`
+- `bitmap_scale`
+
+### `system_icons`
+
+Maps ByteDeck system ids to image files:
+
+```json
+"system_icons": {
+  "nes": "assets/icons/systems/fc.png",
+  "megadrive": "assets/icons/systems/md.png"
+}
+```
+
+### `shell`
+
+Defines shared shell metrics and styles:
+
+- `metrics`
+- `root`
+- `header`
+- `header_brand`
+- `header_context`
+- `header_meta`
+- `footer`
+- `footer_action`
+- `footer_hint`
+
+### `components`
+
+Shared reusable presentation fragments, for example:
+
+- image placeholders
+
+### `screens`
+
+Per-screen style sections for fixed templates such as:
+
+- `main_menu`
+- `games`
+- `browser`
+- `apps`
+- `settings`
+- `placeholder`
+
+Each screen section may contain:
+
+- `metrics`
+- block styles
+- text styles
+- image styles
+
+## Supported Style Properties In Theme v1
+
+These are the properties the fixed renderer is designed to support right now:
+
+- `background_color`
+- `text_color`
+- `border_color`
+- `border_width`
+- `background_image`
+- `font_role`
+- `font_size`
+- `line_height` through typography roles
+- `padding`
+- `gap`
+- `width`
+- `height`
+- `opacity` through color alpha or an `alpha` object field
+- `wrap`
+- `truncate`
+
+For images:
+
+- regular image asset paths
+- system icons
+- placeholder text
+
+## Color Formats
+
+Recommended formats:
 
 - `#RRGGBB`
 - `#RRGGBBAA`
@@ -75,13 +202,11 @@ Preferred color formats are:
 Examples:
 
 ```json
-"primary": "#F5F1E6"
-"accent_overlay": "#E4B756CC"
+"text_primary": "#F5F1E6"
+"overlay": "#E4B756CC"
 ```
 
-### Separate alpha
-
-If you want to keep alpha separate, use:
+Separate alpha is also supported:
 
 ```json
 {
@@ -94,223 +219,100 @@ Rules:
 
 - `alpha` is in percent from `0` to `100`
 - `#RRGGBBAA` has priority over `alpha`
-- legacy arrays like `[245, 241, 230, 255]` still work for compatibility, but they are no longer the main format
+- legacy arrays like `[245, 241, 230, 255]` still work for compatibility, but they are not the preferred format anymore
 
-## Tokens
+## Fonts And Text Rendering
 
-`tokens` are reusable values.
+ByteDeck supports two text paths:
 
-Typical token groups:
-
-- `colors`
-- `spacing`
-
-Example:
-
-```json
-"tokens": {
-  "colors": {
-    "background": {
-      "app": "#0F1218",
-      "panel_primary": "#1A1F2A"
-    },
-    "text": {
-      "primary": "#F5F1E6",
-      "muted": "#939DB0"
-    }
-  },
-  "spacing": {
-    "sm": 8,
-    "md": 16,
-    "lg": 24
-  }
-}
-```
-
-Use a token from styles with `$`:
-
-```json
-"background_color": "$colors.background.panel_primary"
-```
-
-## Typography And Fonts
-
-### Current text backend
-
-ByteDeck currently supports two text paths:
-
-1. Theme fonts loaded from TTF or OTF files
-2. Built-in bitmap font fallback
+1. theme fonts loaded from TTF or OTF files
+2. built-in bitmap font fallback
 
 If a theme font cannot be loaded, ByteDeck falls back to the built-in bitmap font and keeps the UI usable.
 
-### `fonts`
+Text sizing is controlled through:
 
-The `fonts` section declares font families.
-
-Example:
-
-```json
-"fonts": {
-  "ui": {
-    "path": "fonts/Inter-Medium.ttf"
-  },
-  "brand": "fonts/Display.otf"
-}
-```
-
-Both object and string forms are accepted.
-
-### `typography`
-
-The `typography` section defines named text roles.
-
-Example:
-
-```json
-"typography": {
-  "body": {
-    "family": "ui",
-    "size": 16,
-    "line_height": 20,
-    "bitmap_scale": 2
-  },
-  "title": {
-    "family": "brand",
-    "size": 28,
-    "bitmap_scale": 4
-  }
-}
-```
-
-Fields:
-
-- `family`: font family from `fonts`
-- `size`: font size for TTF/OTF rendering
-- `line_height`: optional fixed line height
-- `bitmap_scale`: fallback size for the built-in bitmap font
-
-### How text size is chosen
-
-In the current UI runtime:
-
-- `font_role` is the main text style control
-- `font_size` can override the size from the role
-- `scale` still works as a bitmap-font fallback
-
-Example style:
-
-```json
-"menu-card-title": {
-  "font_role": "title",
-  "text_color": "$colors.text.primary"
-}
-```
+- `font_role`
+- `font_size` overrides when needed
+- `bitmap_scale` as the fallback size for the bitmap font
 
 ## Theme Assets
 
 Theme assets are regular files inside the theme folder.
 
-Currently supported asset use cases:
+Current supported asset types:
 
-- `background_image`
-- `system_icons`
-- image paths referenced by style rules
-- font files from `fonts`
-- global chrome assets such as status bar typography and icons
+- fonts
+- background images
+- system icons
+- other UI images referenced by style sections
 
-### Background images
+All asset paths are relative to the active theme root unless an absolute path is used explicitly.
 
-Example:
+## What Themes Do Not Control In v1
 
-```json
-"panel-primary": {
-  "background_color": "#1A1F2A",
-  "background_image": "images/panel-noise.png"
-}
+Themes do not control:
+
+- screen hierarchy
+- free-form layout composition
+- absolute positioning
+- CSS-like grid or flex layout
+- rounded corners
+- shadows
+- clipping
+- transforms
+- gradients
+- animations
+
+Those are intentionally outside the first fixed-template renderer.
+
+## HTML Reference And Class Naming
+
+The reference file is:
+
+```text
+docs/ui_reference/bytedeck-ui-reference.html
 ```
 
-### System icons
+It is not runtime code. It is a visual and behavioral reference.
 
-Example:
+Class naming in that file follows two namespaces:
 
-```json
-"system_icons": {
-  "nes": "icons/nes.png",
-  "megadrive": "icons/megadrive.png"
-}
+- `bd-builtin-*` for parts that are structural and should stay inside the renderer
+- `bd-theme-*` for parts whose presentation should be expressible in `theme.json`
+
+This is the main contract between mockup work and the SDL runtime implementation.
+
+## Legacy Layout JSON Files
+
+Files under:
+
+```text
+config/ui/screens/
 ```
 
-An image node can request an icon by system id through bindings.
+are no longer the active source of truth for runtime layout.
 
-## Styles
-
-The `styles` section is split into:
-
-- `types`: defaults by node type
-- `classes`: reusable named styles
-- `ids`: one-off overrides for a specific layout node
-
-Style priority is:
-
-1. runtime defaults
-2. `styles.types`
-3. `styles.classes`
-4. `styles.ids`
-5. inline values from the layout file
-
-### Common style properties
-
-Text:
-
-- `text_color`
-- `font_role`
-- `font_size`
-- `wrap`
-- `truncate`
-
-Containers:
-
-- `background_color`
-- `background_image`
-- `border_color`
-- `border_width`
-- `padding`
-
-Images:
-
-- `path`
-- `placeholder_text`
-- `system_icon_bind`
-
-## Screen Variants
-
-Themes can choose a predefined layout variant for a screen:
-
-```json
-"screen_variants": {
-  "main_menu": "hero"
-}
-```
-
-This changes the selected layout variant. It does not change screen logic.
+They remain in the repository only as legacy reference during the transition.
 
 ## Safe Editing Order
 
-If you are creating a new theme, the safest order is:
+If you are creating or editing a theme, the safest order is:
 
 1. edit `tokens.colors`
 2. edit `tokens.spacing`
-3. edit `typography`
-4. edit `styles.classes`
-5. add images, icons and fonts
+3. edit `fonts`
+4. edit `typography`
+5. edit `shell`
+6. edit `screens`
+7. add or replace images and icons
 
 ## Practical Notes
 
-- Use relative asset paths inside the theme folder
-- Prefer `#RRGGBB` and `#RRGGBBAA`
-- Keep `bitmap_scale` set even if you use real fonts, so the fallback stays readable
-- Test the theme on desktop first, then on device
+- use relative asset paths inside the theme folder
+- prefer `#RRGGBB` and `#RRGGBBAA`
+- keep `bitmap_scale` set even if you use real fonts
+- test the theme on desktop first, then on device
 
 ## Related Docs
 

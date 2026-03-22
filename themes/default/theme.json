@@ -1,43 +1,28 @@
 {
   "tokens": {
     "colors": {
-      "background": {
-        "app": "#0F1218",
-        "panel_primary": "#1A1F2A",
-        "panel_secondary": "#161B24",
-        "backdrop": "#18202A",
-        "modal": "#1A1F2A"
-      },
-      "frame": {
-        "card": "#3B4661",
-        "card_selected": "#E4B756",
-        "list": "#2D3444",
-        "list_selected": "#E4B756",
-        "preview": "#4A5672"
-      },
-      "fill": {
-        "card_inner": "#212837",
-        "card_inner_selected": "#212634",
-        "list_inner": "#1F2634",
-        "list_inner_selected": "#1D222C",
-        "preview": "#313A4E",
-        "accent": "#6A7AA0",
-        "accent_selected": "#E8B352"
-      },
-      "text": {
-        "primary": "#F5F1E6",
-        "muted": "#939DB0",
-        "highlight": "#E4B756",
-        "error": "#DC7474"
-      }
+      "app_bg": "#0F1218",
+      "header_bg": "#161B24",
+      "footer_bg": "#141922",
+      "panel_primary": "#1A1F2A",
+      "panel_secondary": "#171C25",
+      "panel_alt": "#202736",
+      "frame": "#4A5672",
+      "frame_selected": "#E4B756",
+      "fill_selected": "#212634",
+      "fill_idle": "#232A39",
+      "text_primary": "#F5F1E6",
+      "text_muted": "#98A3B8",
+      "text_accent": "#E4B756",
+      "text_error": "#DC7474"
     },
     "spacing": {
       "xs": 6,
       "sm": 10,
-      "md": 20,
-      "lg": 30,
-      "xl": 44,
-      "xxl": 60
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 44
     }
   },
   "fonts": {
@@ -51,32 +36,26 @@
   "typography": {
     "chrome": {
       "family": "noto_sans",
-      "size": 16,
-      "line_height": 20,
-      "bitmap_scale": 2
-    },
-    "caption": {
-      "family": "noto_sans",
-      "size": 16,
-      "line_height": 20,
+      "size": 18,
+      "line_height": 24,
       "bitmap_scale": 2
     },
     "body": {
       "family": "noto_sans",
-      "size": 20,
-      "line_height": 26,
-      "bitmap_scale": 3
-    },
-    "section": {
-      "family": "superstar",
       "size": 24,
       "line_height": 30,
       "bitmap_scale": 3
     },
+    "body_small": {
+      "family": "noto_sans",
+      "size": 20,
+      "line_height": 26,
+      "bitmap_scale": 2
+    },
     "title": {
       "family": "superstar",
-      "size": 30,
-      "line_height": 36,
+      "size": 28,
+      "line_height": 34,
       "bitmap_scale": 4
     },
     "hero": {
@@ -87,329 +66,715 @@
     },
     "brand": {
       "family": "superstar",
-      "size": 50,
-      "line_height": 56,
-      "bitmap_scale": 6
+      "size": 24,
+      "line_height": 30,
+      "bitmap_scale": 3
     }
   },
   "system_icons": {
     "nes": "assets/icons/systems/fc.png",
     "megadrive": "assets/icons/systems/md.png"
   },
-  "styles": {
-    "types": {
-      "screen": {
-        "background_color": "$colors.background.app",
-        "padding": "$spacing.xl"
-      },
-      "panel": {
-        "padding": 0,
-        "border_width": 0
-      },
-      "stack": {
-        "gap": "$spacing.md"
-      },
-      "text": {
-        "font_role": "body",
-        "text_color": "$colors.text.primary"
-      },
-      "list": {
-        "gap": "$spacing.md"
-      },
-      "image": {
-        "padding": 0,
-        "border_width": 0
+  "shell": {
+    "metrics": {
+      "header_height": 64,
+      "footer_height": 76,
+      "header_gap": 28,
+      "header_meta_gap": 26,
+      "footer_action_gap": 30
+    },
+    "root": {
+      "background_color": "$tokens.colors.app_bg"
+    },
+    "header": {
+      "background_color": "$tokens.colors.header_bg",
+      "border_color": "$tokens.colors.frame",
+      "border_width": 1,
+      "padding": {
+        "left": 30,
+        "right": 30,
+        "top": 14,
+        "bottom": 14
       }
     },
-    "classes": {
-      "screen-brand": {
-        "font_role": "brand",
-        "text_color": "$colors.text.primary"
-      },
-      "screen-title": {
-        "font_role": "hero",
-        "text_color": "$colors.text.primary"
-      },
-      "screen-subtitle": {
-        "font_role": "caption",
-        "text_color": "$colors.text.muted"
-      },
-      "section-title": {
-        "font_role": "section",
-        "text_color": "$colors.text.primary"
-      },
-      "detail-title": {
-        "font_role": "title",
-        "text_color": "$colors.text.primary",
-        "wrap": true,
-        "max_lines": 2
-      },
-      "metadata-line": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.muted"
-      },
-      "body-copy": {
-        "font_role": "body",
-        "text_color": "$colors.text.muted",
-        "wrap": true,
-        "max_lines": 10
-      },
-      "status-bar-root": {
-        "background_color": "#161B24",
-        "border_color": "#2D3444",
-        "border_width": 1,
+    "header_brand": {
+      "font_role": "brand",
+      "text_color": "$tokens.colors.text_accent"
+    },
+    "header_context": {
+      "font_role": "chrome",
+      "font_size": 18,
+      "text_color": "$tokens.colors.text_muted",
+      "truncate": true
+    },
+    "header_meta": {
+      "font_role": "chrome",
+      "font_size": 18,
+      "text_color": "$tokens.colors.text_primary"
+    },
+    "footer": {
+      "background_color": "$tokens.colors.footer_bg",
+      "border_color": "$tokens.colors.frame",
+      "border_width": 1,
+      "padding": {
+        "left": 30,
+        "right": 30,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    "footer_action": {
+      "font_role": "chrome",
+      "font_size": 18,
+      "text_color": "$tokens.colors.text_primary"
+    },
+    "footer_hint": {
+      "font_role": "chrome",
+      "font_size": 18,
+      "text_color": "$tokens.colors.text_muted",
+      "truncate": true
+    }
+  },
+  "components": {
+    "image_placeholder": {
+      "font_role": "body_small",
+      "text_color": "$tokens.colors.text_muted"
+    }
+  },
+  "screens": {
+    "main_menu": {
+      "content": {
         "padding": {
-          "left": "$spacing.lg",
-          "right": "$spacing.lg",
-          "top": "$spacing.md",
-          "bottom": "$spacing.md"
+          "left": 44,
+          "right": 44,
+          "top": 36,
+          "bottom": 30
         }
       },
-      "status-brand": {
-        "font_role": "section",
-        "text_color": "$colors.text.highlight"
+      "metrics": {
+        "section_width": 1040,
+        "section_height": 426,
+        "section_top": 128,
+        "card_width": 280,
+        "card_height": 346,
+        "card_gap": 68,
+        "pager_dot_width": 42,
+        "pager_dot_height": 10,
+        "pager_dot_gap": 12
       },
-      "status-context": {
+      "brand": {
+        "font_role": "hero",
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
         "font_role": "chrome",
-        "text_color": "$colors.text.muted"
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_muted"
       },
-      "status-meta": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.primary"
-      },
-      "menu-backdrop": {
-        "background_color": "$colors.background.backdrop",
-        "border_color": "$colors.frame.preview",
+      "section": {
+        "background_color": "$tokens.colors.panel_secondary",
+        "border_color": "$tokens.colors.frame",
         "border_width": 1,
-        "padding": "$spacing.xxl"
+        "padding": 40
       },
-      "panel-primary": {
-        "background_color": "$colors.background.panel_primary",
-        "padding": "$spacing.lg"
+      "card_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 10
       },
-      "panel-primary-active": {
-        "border_color": "$colors.frame.card_selected",
-        "border_width": 2
+      "card_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 10
       },
-      "panel-secondary": {
-        "background_color": "$colors.background.panel_secondary",
-        "padding": "$spacing.lg"
+      "card_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 22
       },
-      "panel-secondary-active": {
-        "border_color": "$colors.frame.card_selected",
-        "border_width": 2
+      "card_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 22
       },
-      "modal-panel": {
-        "background_color": "$colors.background.modal",
-        "border_color": "$colors.frame.preview",
+      "card_title": {
+        "font_role": "title",
+        "font_size": 26,
+        "text_color": "$tokens.colors.text_primary",
+        "truncate": true
+      },
+      "card_info": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "card_hint": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "card_hint_selected": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      },
+      "card_accent": {
+        "background_color": "#6E7FA8"
+      },
+      "card_accent_selected": {
+        "background_color": "$tokens.colors.text_accent"
+      },
+      "pager_dot": {
+        "background_color": "#344056"
+      },
+      "pager_dot_active": {
+        "background_color": "$tokens.colors.text_accent"
+      }
+    },
+    "games": {
+      "content": {
+        "padding": {
+          "left": 44,
+          "right": 44,
+          "top": 42,
+          "bottom": 32
+        }
+      },
+      "metrics": {
+        "tile_width": 430,
+        "tile_height": 240,
+        "tile_gap": 44,
+        "icon_size": 104
+      },
+      "title": {
+        "font_role": "hero",
+        "font_size": 34,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "empty_panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "border_color": "$tokens.colors.frame",
         "border_width": 1,
-        "padding": "$spacing.xl"
+        "padding": 24
       },
-      "empty-title": {
-        "font_role": "section",
-        "text_color": "$colors.text.primary"
+      "empty_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
       },
-      "empty-body": {
-        "font_role": "body",
-        "text_color": "$colors.text.muted",
+      "empty_body": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
         "wrap": true,
         "max_lines": 4
       },
-      "menu-card-frame": {
-        "background_color": "$colors.frame.card",
-        "padding": "$spacing.sm"
+      "tile_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 10
       },
-      "menu-card-frame-selected": {
-        "background_color": "$colors.frame.card_selected"
+      "tile_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 10
       },
-      "menu-card-inner": {
-        "background_color": "$colors.fill.card_inner",
-        "padding": "$spacing.lg"
+      "tile_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 24
       },
-      "menu-card-inner-selected": {
-        "background_color": "$colors.fill.card_inner_selected"
+      "tile_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 24
       },
-      "menu-card-title": {
-        "font_role": "title",
-        "text_color": "$colors.text.primary",
-        "truncate": true
-      },
-      "menu-card-status": {
-        "font_role": "caption",
-        "text_color": "$colors.text.muted"
-      },
-      "menu-card-hint": {
-        "font_role": "caption",
-        "text_color": "$colors.text.muted"
-      },
-      "menu-card-hint-selected": {
-        "text_color": "$colors.text.highlight"
-      },
-      "menu-card-accent": {
-        "background_color": "$colors.fill.accent",
-        "height": 22
-      },
-      "menu-card-accent-selected": {
-        "background_color": "$colors.fill.accent_selected"
-      },
-      "system-tile-frame": {
-        "background_color": "$colors.frame.card",
-        "padding": "$spacing.sm"
-      },
-      "system-tile-frame-selected": {
-        "background_color": "$colors.frame.card_selected"
-      },
-      "system-tile-inner": {
-        "background_color": "$colors.fill.card_inner",
-        "padding": "$spacing.lg"
-      },
-      "system-tile-inner-selected": {
-        "background_color": "$colors.fill.card_inner_selected"
-      },
-      "system-tile-title": {
-        "font_role": "section",
-        "text_color": "$colors.text.primary",
-        "truncate": true
-      },
-      "system-tile-meta": {
-        "font_role": "caption",
-        "text_color": "$colors.text.muted"
-      },
-      "system-tile-hint": {
-        "font_role": "caption",
-        "text_color": "$colors.text.muted"
-      },
-      "system-tile-hint-selected": {
-        "text_color": "$colors.text.highlight"
-      },
-      "system-icon": {
-        "background_color": "#11151E",
-        "border_color": "$colors.frame.preview",
+      "system_icon": {
+        "background_color": "#141922",
+        "border_color": "$tokens.colors.frame",
         "border_width": 1,
-        "padding": "$spacing.xs"
+        "padding": 8
       },
-      "browser-list-item-frame": {
-        "background_color": "$colors.frame.list",
-        "padding": "$spacing.xs"
-      },
-      "browser-list-item-frame-selected": {
-        "background_color": "$colors.frame.list_selected"
-      },
-      "browser-list-item-inner": {
-        "background_color": "$colors.fill.list_inner",
-        "padding": "$spacing.sm"
-      },
-      "browser-list-item-inner-selected": {
-        "background_color": "$colors.fill.list_inner_selected"
-      },
-      "browser-list-item-title": {
-        "font_role": "body",
-        "text_color": "$colors.text.primary",
+      "tile_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary",
         "truncate": true
       },
-      "browser-list-item-title-selected": {
-        "text_color": "$colors.text.highlight"
+      "tile_meta": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
       },
-      "preview-frame": {
-        "background_color": "$colors.fill.preview",
-        "border_color": "$colors.frame.preview",
+      "tile_hint": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "tile_hint_selected": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      }
+    },
+    "browser": {
+      "content": {
+        "padding": {
+          "left": 44,
+          "right": 44,
+          "top": 32,
+          "bottom": 24
+        }
+      },
+      "metrics": {
+        "split_gap": 42,
+        "left_width": 598,
+        "system_icon_size": 96,
+        "row_height": 68,
+        "row_gap": 10,
+        "preview_height": 260
+      },
+      "left_panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "padding": 28
+      },
+      "right_panel": {
+        "background_color": "$tokens.colors.panel_secondary",
+        "padding": 28
+      },
+      "system_icon": {
+        "background_color": "#141922",
+        "border_color": "$tokens.colors.frame",
         "border_width": 1,
-        "padding": "$spacing.md"
+        "padding": 8
       },
-      "settings-item-frame": {
-        "background_color": "$colors.frame.list",
-        "padding": "$spacing.xs"
+      "title": {
+        "font_role": "hero",
+        "font_size": 30,
+        "text_color": "$tokens.colors.text_primary"
       },
-      "settings-item-frame-selected": {
-        "background_color": "$colors.frame.list_selected"
+      "subtitle": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
       },
-      "settings-item-frame-active": {
-        "background_color": "$colors.frame.card_selected"
+      "empty_panel": {
+        "background_color": "$tokens.colors.panel_alt",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 24
       },
-      "settings-item-inner": {
-        "background_color": "$colors.fill.list_inner",
-        "padding": "$spacing.md"
-      },
-      "settings-item-inner-selected": {
-        "background_color": "$colors.fill.list_inner_selected"
-      },
-      "settings-item-inner-active": {
-        "background_color": "$colors.fill.card_inner_selected"
-      },
-      "settings-item-title": {
-        "font_role": "section",
-        "text_color": "$colors.text.primary"
-      },
-      "settings-item-value": {
-        "font_role": "body",
-        "text_color": "$colors.text.muted"
-      },
-      "settings-item-hint": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.muted"
-      },
-      "settings-item-hint-selected": {
-        "text_color": "$colors.text.highlight"
-      },
-      "editor-pane-title": {
+      "empty_title": {
         "font_role": "title",
-        "text_color": "$colors.text.primary"
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
       },
-      "editor-pane-body": {
-        "font_role": "body",
-        "text_color": "$colors.text.muted",
+      "empty_body": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
         "wrap": true,
-        "max_lines": 6
+        "max_lines": 4
       },
-      "editor-pane-hint": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.highlight"
+      "list_item_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 6
       },
-      "editor-list-item-frame": {
-        "background_color": "$colors.frame.list",
-        "padding": "$spacing.xs"
+      "list_item_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
       },
-      "editor-list-item-frame-selected": {
-        "background_color": "$colors.frame.list_selected"
+      "list_item_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 14
       },
-      "editor-list-item-frame-active": {
-        "background_color": "$colors.frame.card_selected"
+      "list_item_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 14
       },
-      "editor-list-item-inner": {
-        "background_color": "$colors.fill.list_inner",
-        "padding": "$spacing.md"
-      },
-      "editor-list-item-inner-selected": {
-        "background_color": "$colors.fill.list_inner_selected"
-      },
-      "editor-list-item-inner-active": {
-        "background_color": "$colors.fill.card_inner_selected"
-      },
-      "editor-list-item-title": {
+      "list_item_title": {
         "font_role": "body",
-        "text_color": "$colors.text.primary"
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary",
+        "truncate": true
       },
-      "editor-list-item-title-selected": {
-        "text_color": "$colors.text.highlight"
+      "list_item_title_selected": {
+        "font_role": "body",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_accent",
+        "truncate": true
       },
-      "editor-list-item-description": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.muted",
+      "preview_label": {
+        "font_role": "title",
+        "font_size": 22,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "preview_frame": {
+        "background_color": "#39445C",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 18
+      },
+      "detail_title": {
+        "font_role": "title",
+        "font_size": 28,
+        "text_color": "$tokens.colors.text_primary",
         "wrap": true,
         "max_lines": 2
       },
-      "status-success": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.highlight"
+      "metadata": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
       },
-      "status-error": {
-        "font_role": "chrome",
-        "text_color": "$colors.text.error"
+      "section_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "description": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 8
+      },
+      "status_success": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      },
+      "status_error": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_error"
       }
     },
-    "ids": {}
-  },
-  "screen_variants": {
-    "main_menu": "hero"
+    "apps": {
+      "content": {
+        "padding": {
+          "left": 44,
+          "right": 44,
+          "top": 32,
+          "bottom": 24
+        }
+      },
+      "metrics": {
+        "split_gap": 42,
+        "left_width": 598,
+        "row_height": 68,
+        "row_gap": 10,
+        "preview_size": 240
+      },
+      "left_panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "padding": 28
+      },
+      "right_panel": {
+        "background_color": "$tokens.colors.panel_secondary",
+        "padding": 28
+      },
+      "title": {
+        "font_role": "hero",
+        "font_size": 34,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "empty_panel": {
+        "background_color": "$tokens.colors.panel_alt",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 24
+      },
+      "empty_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "empty_body": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 4
+      },
+      "list_item_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 6
+      },
+      "list_item_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
+      },
+      "list_item_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 14
+      },
+      "list_item_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 14
+      },
+      "list_item_title": {
+        "font_role": "body",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary",
+        "truncate": true
+      },
+      "list_item_title_selected": {
+        "font_role": "body",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_accent",
+        "truncate": true
+      },
+      "preview_label": {
+        "font_role": "title",
+        "font_size": 22,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "preview_frame": {
+        "background_color": "#39445C",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 18
+      },
+      "detail_title": {
+        "font_role": "title",
+        "font_size": 28,
+        "text_color": "$tokens.colors.text_primary",
+        "wrap": true,
+        "max_lines": 2
+      },
+      "metadata": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "section_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "description": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 8
+      },
+      "status_success": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      },
+      "status_error": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_error"
+      }
+    },
+    "settings": {
+      "content": {
+        "padding": {
+          "left": 44,
+          "right": 44,
+          "top": 32,
+          "bottom": 24
+        }
+      },
+      "metrics": {
+        "split_gap": 42,
+        "left_width": 520,
+        "item_height": 126,
+        "item_gap": 12,
+        "editor_item_height": 112,
+        "editor_item_gap": 12
+      },
+      "left_panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "padding": 28
+      },
+      "left_panel_active": {
+        "background_color": "$tokens.colors.panel_primary",
+        "border_color": "$tokens.colors.frame_selected",
+        "border_width": 1,
+        "padding": 28
+      },
+      "right_panel": {
+        "background_color": "$tokens.colors.panel_secondary",
+        "padding": 28
+      },
+      "right_panel_active": {
+        "background_color": "$tokens.colors.panel_secondary",
+        "border_color": "$tokens.colors.frame_selected",
+        "border_width": 1,
+        "padding": 28
+      },
+      "title": {
+        "font_role": "hero",
+        "font_size": 34,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "item_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 6
+      },
+      "item_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
+      },
+      "item_frame_active": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
+      },
+      "item_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 18
+      },
+      "item_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 18
+      },
+      "item_inner_active": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 18
+      },
+      "item_title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "item_value": {
+        "font_role": "body_small",
+        "font_size": 22,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "editor_title": {
+        "font_role": "title",
+        "font_size": 28,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "editor_body": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 4
+      },
+      "editor_hint": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      },
+      "editor_item_frame": {
+        "background_color": "$tokens.colors.frame",
+        "padding": 6
+      },
+      "editor_item_frame_selected": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
+      },
+      "editor_item_frame_active": {
+        "background_color": "$tokens.colors.frame_selected",
+        "padding": 6
+      },
+      "editor_item_inner": {
+        "background_color": "$tokens.colors.fill_idle",
+        "padding": 18
+      },
+      "editor_item_inner_selected": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 18
+      },
+      "editor_item_inner_active": {
+        "background_color": "$tokens.colors.fill_selected",
+        "padding": 18
+      },
+      "editor_item_title": {
+        "font_role": "body",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary",
+        "truncate": true
+      },
+      "editor_item_title_selected": {
+        "font_role": "body",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_accent",
+        "truncate": true
+      },
+      "editor_item_description": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 2
+      },
+      "status_success": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_accent"
+      },
+      "status_error": {
+        "font_role": "body_small",
+        "font_size": 18,
+        "text_color": "$tokens.colors.text_error"
+      }
+    },
+    "placeholder": {
+      "content": {
+        "padding": {
+          "left": 44,
+          "right": 44,
+          "top": 32,
+          "bottom": 24
+        }
+      },
+      "panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 28
+      },
+      "title": {
+        "font_role": "hero",
+        "font_size": 30,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
+        "font_role": "title",
+        "font_size": 22,
+        "text_color": "$tokens.colors.text_muted"
+      },
+      "body": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_muted",
+        "wrap": true,
+        "max_lines": 4
+      }
+    },
+    "unknown": {
+      "panel": {
+        "background_color": "$tokens.colors.panel_primary",
+        "border_color": "$tokens.colors.frame",
+        "border_width": 1,
+        "padding": 24
+      },
+      "title": {
+        "font_role": "title",
+        "font_size": 24,
+        "text_color": "$tokens.colors.text_primary"
+      },
+      "subtitle": {
+        "font_role": "body_small",
+        "font_size": 20,
+        "text_color": "$tokens.colors.text_error"
+      }
+    }
   }
 }

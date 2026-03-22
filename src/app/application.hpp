@@ -6,11 +6,10 @@
 #include "platform/status_service.hpp"
 #include "platform/translation_catalog.hpp"
 #include "platform/user_settings.hpp"
+#include "ui/fixed_ui_renderer.hpp"
 #include "ui/navigation_input.hpp"
-#include "ui/layout_registry.hpp"
 #include "ui/screen_manager.hpp"
 #include "ui/theme_manager.hpp"
-#include "ui/ui_renderer.hpp"
 
 #include <SDL.h>
 
@@ -47,7 +46,7 @@ private:
     bool apply_language(const std::string& language);
     bool apply_theme(const std::string& theme_id);
     std::pair<bool, std::string> rescan_library();
-    ui::UiBindings build_status_bar_bindings() const;
+    ui::UiBindings build_shell_bindings(const ui::Screen& screen, const ui::UiBindings& screen_bindings) const;
 
     bool initialized_ = false;
     bool fullscreen_ = false;
@@ -65,9 +64,8 @@ private:
     std::unique_ptr<platform::StatusService> status_service_;
     data::LibraryData library_;
     std::unique_ptr<launch::LaunchService> launch_service_;
-    std::unique_ptr<ui::LayoutRegistry> layout_registry_;
     std::unique_ptr<ui::ThemeManager> theme_manager_;
-    std::unique_ptr<ui::UiRenderer> ui_renderer_;
+    std::unique_ptr<ui::FixedUiRenderer> ui_renderer_;
     ui::ScreenManager screen_manager_;
     std::string window_title_;
 };

@@ -4,6 +4,19 @@
 - [Project README](../README.md#en)
 - [Theming Guide](./THEMING.md)
 - [Platform Notes](./PLATFORM_NOTES.md)
+- [UI Reference HTML](./ui_reference/bytedeck-ui-reference.html)
+
+## Overview
+
+ByteDeck now uses a **fixed-template UI renderer**.
+
+The runtime no longer treats `config/ui/screens/*.json` as the active source of truth for layout. Screen geometry is defined in code through a fixed app shell and a small set of screen renderers. Themes control presentation only.
+
+The high-level model is:
+
+```text
+screen state + bindings + theme -> fixed screen renderer -> SDL draw calls
+```
 
 ## Main Layers
 
@@ -11,18 +24,18 @@
 
 Responsibilities:
 
-- resolve concrete working paths
+- resolve working paths
 - load user settings
+- load translations
+- read status information such as time and battery
 - write runtime logs
-
-This layer knows where config, ROMs, apps, scripts and cache live in desktop and device modes.
 
 ### `src/data`
 
 Responsibilities:
 
-- define normalized library models
-- serialize the library cache
+- normalized library models
+- library cache serialization
 
 Main entities:
 
@@ -49,18 +62,16 @@ Responsibilities:
 
 - map SDL input to navigation actions
 - keep screen-specific logic inside screen classes
-- load declarative layouts from JSON
-- load themes from JSON
-- resolve bindings, assets and styles
-- render the final UI through SDL
+- load themes and resolve theme values
+- load fonts and images
+- render the fixed app shell and screen templates through SDL
 
 Important parts:
 
-- `LayoutRegistry`
+- `FixedUiRenderer`
 - `ThemeManager`
 - `ThemeFontRenderer`
-- `UiRenderer`
-- `SettingsScreen`
+- screen classes in `src/ui/screens/`
 
 ### `src/launch`
 
@@ -77,52 +88,67 @@ Responsibilities:
 - initialize subsystems
 - load library data
 - create the SDL window and renderer
-- own screen stack and UI runtime
+- own screen stack and theme runtime
+- build shell bindings
 - coordinate delayed emulator handoff
 
-## Declarative UI Model
+## UI Runtime Contract
 
-ByteDeck uses a code-first screen logic layer with a declarative render layer.
+## App Shell
 
-Screen classes still handle:
+Every screen uses the same shell:
+
+- header at the top
+- footer at the bottom
+- content viewport in the middle
+
+The shell is rendered by `FixedUiRenderer` before any screen-specific content.
+
+Header content:
+
+- brand
+- current context path
+- time
+- battery
+
+Footer content:
+
+- contextual actions
+- short hint text
+
+## Fixed Screen Templates
+
+The first generation of the fixed renderer includes:
+
+- `main_menu`
+- `games`
+- `game_browser`
+- `apps`
+- `settings`
+- `placeholder`
+
+Each of these screens has a fixed composition. Themes may change colors, fonts, spacing, borders, icons and background images, but not the structural hierarchy of the screen.
+
+## Screen Logic
+
+Screen classes remain code-first. They still own:
 
 - navigation
 - selection state
-- launch callbacks
+- drill-in state
+- launch requests
+- translated strings
 - bindings preparation
 
-Screen classes no longer draw UI directly. Instead they provide:
+Each screen provides:
 
 - `screen_id()`
 - `build_bindings()`
 - `window_title()`
 
-The render pipeline is:
+Bindings no longer feed a generic layout tree. They feed a dedicated renderer for a known screen template.
 
-```text
-layout + bindings + theme -> SDL draw calls
-```
-
-## Layouts
-
-Layouts live under:
-
-```text
-config/ui/screens/
-```
-
-The current node set is:
-
-- `screen`
-- `panel`
-- `stack`
-- `text`
-- `image`
-- `list`
-- `rect`
-- `spacer`
-
-## Themes
+## Theming Model
 
 Themes live under:
 
@@ -130,34 +156,90 @@ Themes live under:
 themes/<theme-id>/
 ```
 
-Theme entrypoint:
+Entrypoint:
 
 ```text
 themes/<theme-id>/theme.json
 ```
 
-Themes currently control:
+Theme assets are always resolved relative to the theme folder.
 
-- colors
-- spacing
+The active schema is presentation-oriented. It controls:
+
+- color tokens
+- spacing tokens
+- fonts
 - typography roles
-- real font files with bitmap fallback
-- background images
+- shell styles
+- shared component styles
+- per-screen style sections
 - system icons
-- status bar styling
-- style rules by type, class and id
-- predefined screen variants
 
-Theme assets are resolved relative to the theme folder.
+The active default theme uses this structure:
 
-## Text Rendering
+```text
+tokens
+fonts
+typography
+system_icons
+shell
+components
+screens
+```
 
-ByteDeck currently supports two text paths:
+## HTML Reference Authoring
+
+The visual contract for the new UI lives here:
+
+```text
+docs/ui_reference/bytedeck-ui-reference.html
+```
+
+This file is not used at runtime. It exists to:
+
+- define the intended composition of each screen
+- document which parts are built into the renderer
+- document which parts are themeable
+- provide a simple JavaScript mock for navigation states
+
+Class naming in the HTML reference follows two namespaces:
+
+- `bd-builtin-*` for structural parts owned by the renderer
+- `bd-theme-*` for presentation parts that should be expressible in `theme.json`
+
+## Legacy Layout Files
+
+The old files under:
+
+```text
+config/ui/screens/
+```
+
+are kept only as reference during the transition. They are no longer part of the active runtime path.
+
+The old `UiRenderer` and `LayoutRegistry` are also legacy reference code and are no longer built into the main application.
+
+## Text And Images
+
+### Text
+
+ByteDeck supports two text paths:
 
 1. theme fonts loaded from TTF or OTF files
-2. built-in bitmap font fallback
+2. built-in bitmap fallback
 
-This keeps the UI editable through themes without making custom fonts a hard runtime requirement.
+This keeps the UI themeable while still working if a custom font fails to load.
+
+### Images
+
+The renderer supports:
+
+- theme assets
+- system icons
+- preview images
+- placeholder rendering when an image is missing
+
+Images are cached in the renderer and drawn with simple rect-based placement.
 
 ## Repository Zones
 
@@ -166,6 +248,7 @@ Tracked project files:
 - `src/`
 - `scripts/`
 - `config/`
+- `themes/`
 - `device/trimui_sps/`
 - `docs/`
 - `cmake/`
@@ -179,17 +262,6 @@ Generated output:
 
 - `out/` for internal build output and runtime cache
 - `dist/` for ready-to-use packages
-
-## Why `cmake/toolchains` And `local/sdk` Are Separate
-
-`cmake/toolchains/` contains tracked build definitions used by CMake.
-
-`local/sdk/trimui_sps/` contains the real external SDK and sysroot downloaded from TrimUI.
-
-They are related, but they are not the same kind of data:
-
-- `cmake/toolchains` is source code for the build system
-- `local/sdk` is an external dependency
 
 ## Build Outputs
 
@@ -213,13 +285,13 @@ Startup:
 
 1. `main.cpp` creates `Application`.
 2. `Application::initialize()` resolves paths and starts logging.
-3. user settings select the active theme
-4. `LayoutRegistry` loads screen JSON files
-5. `ThemeManager` loads the active theme
+3. user settings select the active theme and language
+4. `ThemeManager` loads the active theme
+5. `TranslationCatalog` loads translations
 6. `LibraryScanner` builds `LibraryData`
 7. cache is written to the cache root
 8. SDL window, renderer and input are initialized
-9. `UiRenderer` renders the active screen
+9. `FixedUiRenderer` renders the shell and the active screen template
 
 Game launch:
 

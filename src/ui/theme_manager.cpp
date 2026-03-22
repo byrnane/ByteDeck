@@ -86,52 +86,36 @@ std::vector<std::string> ThemeManager::available_theme_ids() const
 }
 
 
-std::string ThemeManager::screen_variant(const std::string& screen_id) const
+nlohmann::json ThemeManager::value_at(const std::string& path) const
 {
-    if (theme_json_.contains("screen_variants") && theme_json_["screen_variants"].contains(screen_id) && theme_json_["screen_variants"][screen_id].is_string())
+    const nlohmann::json* value = find_value_path(path);
+    if (value == nullptr)
     {
-        return theme_json_["screen_variants"][screen_id].get<std::string>();
+        return {};
     }
 
-    return "default";
+    return resolve_value(*value);
 }
 
 
-nlohmann::json ThemeManager::merge_style(const LayoutNode& node, const std::vector<std::string>& runtime_classes) const
+int ThemeManager::int_at(const std::string& path, int default_value) const
 {
-    nlohmann::json style = nlohmann::json::object();
+    const nlohmann::json value = value_at(path);
+    return value.is_number_integer() ? value.get<int>() : default_value;
+}
 
-    if (const nlohmann::json* by_type = find_style_bucket("types", node.type))
-    {
-        merge_object(style, *by_type);
-    }
 
-    for (const std::string& class_name : node.classes)
-    {
-        if (const nlohmann::json* by_class = find_style_bucket("classes", class_name))
-        {
-            merge_object(style, *by_class);
-        }
-    }
+std::string ThemeManager::string_at(const std::string& path, const std::string& default_value) const
+{
+    const nlohmann::json value = value_at(path);
+    return value.is_string() ? value.get<std::string>() : default_value;
+}
 
-    for (const std::string& class_name : runtime_classes)
-    {
-        if (const nlohmann::json* by_class = find_style_bucket("classes", class_name))
-        {
-            merge_object(style, *by_class);
-        }
-    }
 
-    if (!node.id.empty())
-    {
-        if (const nlohmann::json* by_id = find_style_bucket("ids", node.id))
-        {
-            merge_object(style, *by_id);
-        }
-    }
-
-    merge_object(style, node.props);
-    return style;
+bool ThemeManager::bool_at(const std::string& path, bool default_value) const
+{
+    const nlohmann::json value = value_at(path);
+    return value.is_boolean() ? value.get<bool>() : default_value;
 }
 
 
@@ -261,37 +245,6 @@ ThemeTypographyRole ThemeManager::typography_role(const std::string& role) const
 }
 
 
-void ThemeManager::merge_object(nlohmann::json& target, const nlohmann::json& source)
-{
-    if (!source.is_object())
-    {
-        return;
-    }
-
-    for (auto it = source.begin(); it != source.end(); ++it)
-    {
-        target[it.key()] = it.value();
-    }
-}
-
-
-const nlohmann::json* ThemeManager::find_style_bucket(const char* bucket_name, const std::string& key) const
-{
-    if (!theme_json_.contains("styles") || !theme_json_["styles"].contains(bucket_name))
-    {
-        return nullptr;
-    }
-
-    const nlohmann::json& bucket = theme_json_["styles"][bucket_name];
-    if (!bucket.is_object() || !bucket.contains(key))
-    {
-        return nullptr;
-    }
-
-    return &bucket[key];
-}
-
-
 const nlohmann::json* ThemeManager::find_token(const std::string& token_path) const
 {
     if (!theme_json_.contains("tokens"))
@@ -305,6 +258,37 @@ const nlohmann::json* ThemeManager::find_token(const std::string& token_path) co
     {
         const std::size_t dot = token_path.find('.', start);
         const std::string segment = token_path.substr(start, dot == std::string::npos ? std::string::npos : dot - start);
+        if (!current->is_object() || !current->contains(segment))
+        {
+            return nullptr;
+        }
+
+        current = &(*current)[segment];
+        if (dot == std::string::npos)
+        {
+            break;
+        }
+
+        start = dot + 1;
+    }
+
+    return current;
+}
+
+
+const nlohmann::json* ThemeManager::find_value_path(const std::string& path) const
+{
+    if (path.empty())
+    {
+        return nullptr;
+    }
+
+    const nlohmann::json* current = &theme_json_;
+    std::size_t start = 0;
+    while (start < path.size())
+    {
+        const std::size_t dot = path.find('.', start);
+        const std::string segment = path.substr(start, dot == std::string::npos ? std::string::npos : dot - start);
         if (!current->is_object() || !current->contains(segment))
         {
             return nullptr;
