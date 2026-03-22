@@ -1,5 +1,5 @@
 {
+  "confirm_before_shutdown": false,
   "language": "en",
-  "theme": "default",
-  "confirm_before_shutdown": false
+  "theme": "default"
 }

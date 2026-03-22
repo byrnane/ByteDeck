@@ -19,6 +19,7 @@
 /.vs/
 /.vscode/
 /.idea/
+/figma/
 *.suo
 *.user
 *.userossc

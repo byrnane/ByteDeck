@@ -25,15 +25,15 @@
                       "type": "stack",
                       "direction": "horizontal",
                       "gap": "$spacing.lg",
-                      "height": 86,
+                      "height": 110,
                       "children": [
                         {
                           "type": "image",
                           "classes": ["system-icon"],
                           "system_icon_bind": "system_id",
                           "placeholder_text_bind": "title",
-                          "width": 72,
-                          "height": 72
+                          "width": 96,
+                          "height": 96
                         },
                         {
                           "type": "stack",
@@ -69,7 +69,7 @@
                       "visible_bind": "has_items",
                       "bind": "items",
                       "gap": "$spacing.sm",
-                      "item_height": 50,
+                      "item_height": 68,
                       "height": "fill",
                       "children": [
                         {
@@ -122,7 +122,7 @@
                     {
                       "type": "image",
                       "classes": ["preview-frame"],
-                      "height": 240,
+                      "height": 260,
                       "path_bind": "preview_path",
                       "placeholder_text_bind": "preview_placeholder"
                     },
@@ -130,7 +130,7 @@
                     {
                       "type": "stack",
                       "direction": "vertical",
-                      "gap": "$spacing.sm",
+                      "gap": "$spacing.md",
                       "children": [
                         { "type": "text", "classes": ["metadata-line"], "text_bind": "genre_line" },
                         { "type": "text", "classes": ["metadata-line"], "text_bind": "players_line" },
@@ -141,7 +141,7 @@
                     { "type": "text", "classes": ["status-success"], "visible_bind": "launch_status_success_visible", "text_bind": "launch_status_text" },
                     { "type": "text", "classes": ["status-error"], "visible_bind": "launch_status_error_visible", "text_bind": "launch_status_text" },
                     { "type": "text", "classes": ["section-title"], "text_bind": "description_title" },
-                    { "type": "text", "classes": ["body-copy"], "text_bind": "description_text", "height": "fill", "max_lines": 8 }
+                    { "type": "text", "classes": ["body-copy"], "text_bind": "description_text", "height": "fill", "max_lines": 7 }
                   ]
                 }
               ]
