@@ -22,20 +22,46 @@
       <div class="bd-builtin-two-column">
         <div class="bd-builtin-panel bd-theme-panel-primary">
           <div class="bd-builtin-browser-header">
-            <div class="bd-builtin-system-icon"><img src="../../../themes/default/assets/icons/systems/fc.png" alt=""></div>
+            <div class="bd-builtin-system-icon"><img src="../../themes/default/assets/icons/systems/fc.png" alt=""></div>
             <div>
               <div class="bd-theme-screen-title" style="font-size:30px;">NES</div>
               <div class="bd-theme-screen-subtitle">Game Browser</div>
             </div>
           </div>
-          <div class="bd-builtin-list" id="game-list"></div>
+          <div class="bd-builtin-list">
+            <div class="bd-builtin-list-item bd-theme-list-item-frame">
+              <div class="bd-builtin-list-item-inner bd-theme-list-item-inner">
+                <div class="bd-theme-list-item-text">Adventure Island I [RUS]</div>
+              </div>
+            </div>
+            <div class="bd-builtin-list-item bd-theme-list-item-frame">
+              <div class="bd-builtin-list-item-inner bd-theme-list-item-inner">
+                <div class="bd-theme-list-item-text">Adventure Island II [RUS]</div>
+              </div>
+            </div>
+            <div class="bd-builtin-list-item bd-theme-list-item-frame">
+              <div class="bd-builtin-list-item-inner bd-theme-list-item-inner">
+                <div class="bd-theme-list-item-text">Alien 3 [RUS]</div>
+              </div>
+            </div>
+            <div class="bd-builtin-list-item bd-theme-list-item-frame is-selected">
+              <div class="bd-builtin-list-item-inner bd-theme-list-item-inner is-selected">
+                <div class="bd-theme-list-item-text is-selected">Castlevania I [RUS]</div>
+              </div>
+            </div>
+            <div class="bd-builtin-list-item bd-theme-list-item-frame">
+              <div class="bd-builtin-list-item-inner bd-theme-list-item-inner">
+                <div class="bd-theme-list-item-text">Castlevania II: Simon's Quest [RUS]</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="bd-builtin-panel bd-theme-panel-secondary">
           <div class="bd-theme-section-title">Preview</div>
           <div class="bd-builtin-preview-frame">
-            <img src="../../../ROMS/nes/media/Adventure Island I [RUS].png" alt="">
+            <img src="../../ROMS/nes/media/Adventure Island I [RUS].png" alt="">
           </div>
-          <div class="bd-theme-detail-title" id="detail-title">Adventure Island I [RUS]</div>
+          <div class="bd-theme-detail-title">Castlevania I [RUS]</div>
           <div class="bd-theme-meta-line">Genre: Platform</div>
           <div class="bd-theme-meta-line">Players: 1</div>
           <div class="bd-theme-meta-line">Date: 19880902</div>
@@ -56,45 +82,5 @@
       </div>
     </footer>
   </div>
-  <script>
-    const games = [
-      "Adventure Island I [RUS]",
-      "Adventure Island II [RUS]",
-      "Alien 3 [RUS]",
-      "Castlevania I [RUS]",
-      "Castlevania II: Simon's Quest [RUS]",
-      "Chip 'n Dale: Rescue Rangers [RUS]"
-    ];
-    let selected = 0;
-    const root = document.getElementById("game-list");
-    const detail = document.getElementById("detail-title");
-
-    function render() {
-      root.innerHTML = "";
-      games.forEach((title, index) => {
-        const active = index === selected;
-        const node = document.createElement("div");
-        node.className = "bd-builtin-list-item bd-theme-list-item-frame" + (active ? " is-selected" : "");
-        node.innerHTML = `
-          <div class="bd-builtin-list-item-inner bd-theme-list-item-inner ${active ? "is-selected" : ""}">
-            <div class="bd-theme-list-item-text ${active ? "is-selected" : ""}">${title}</div>
-          </div>`;
-        root.appendChild(node);
-      });
-      detail.textContent = games[selected];
-    }
-
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowUp") {
-        selected = (selected + games.length - 1) % games.length;
-        render();
-      } else if (event.key === "ArrowDown") {
-        selected = (selected + 1) % games.length;
-        render();
-      }
-    });
-
-    render();
-  </script>
 </body>
 </html>

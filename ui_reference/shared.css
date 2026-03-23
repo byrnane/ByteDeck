@@ -31,8 +31,8 @@ body {
 .bd-builtin-shell {
   width: 1280px;
   height: 720px;
-  display: grid;
-  grid-template-rows: 64px 1fr 76px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   position: relative;
 }

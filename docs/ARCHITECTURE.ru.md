@@ -4,7 +4,7 @@
 - [README проекта](../README.md#ru)
 - [Гайд по темам](./THEMING.ru.md)
 - [Заметки по платформе](./PLATFORM_NOTES.ru.md)
-- [HTML-референс интерфейса](./ui_reference/index.html)
+- [HTML-референс интерфейса](../ui_reference/index.html)
 
 ## Общее устройство
 
@@ -192,8 +192,8 @@ screens
 Визуальный контракт нового UI лежит здесь:
 
 ```text
-docs/ui_reference/index.html
-docs/ui_reference/screens/*.html
+ui_reference/index.html
+ui_reference/screens/*.html
 ```
 
 Эти файлы не используются в рантайме. Они нужны, чтобы:

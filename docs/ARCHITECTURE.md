@@ -4,7 +4,7 @@
 - [Project README](../README.md#en)
 - [Theming Guide](./THEMING.md)
 - [Platform Notes](./PLATFORM_NOTES.md)
-- [UI Reference HTML](./ui_reference/index.html)
+- [UI Reference HTML](../ui_reference/index.html)
 
 ## Overview
 
@@ -192,8 +192,8 @@ screens
 The visual contract for the new UI lives here:
 
 ```text
-docs/ui_reference/index.html
-docs/ui_reference/screens/*.html
+ui_reference/index.html
+ui_reference/screens/*.html
 ```
 
 These files are not used at runtime. They exist to:

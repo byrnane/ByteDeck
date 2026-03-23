@@ -3,7 +3,7 @@
 - [Русская версия](./THEMING.ru.md)
 - [Project README](../README.md#en)
 - [Architecture](./ARCHITECTURE.md)
-- [UI Reference HTML](./ui_reference/index.html)
+- [UI Reference HTML](../ui_reference/index.html)
 
 ## Overview
 
@@ -271,8 +271,8 @@ Those are intentionally outside the first fixed-template renderer.
 The reference file is:
 
 ```text
-docs/ui_reference/index.html
-docs/ui_reference/screens/*.html
+ui_reference/index.html
+ui_reference/screens/*.html
 ```
 
 They are not runtime code. They are a visual and behavioral reference set.

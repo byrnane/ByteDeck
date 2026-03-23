@@ -50,17 +50,19 @@
     }
 
     .screen-button {
+      display: block;
       width: 100%;
       border: 1px solid var(--frame);
       background: var(--panel-alt);
       color: var(--text);
       text-align: left;
       padding: 14px 16px;
-      cursor: pointer;
       font: inherit;
+      text-decoration: none;
     }
 
-    .screen-button.is-active {
+    .screen-button:hover,
+    .screen-button:focus {
       border-color: var(--accent);
       color: var(--accent);
     }
@@ -89,33 +91,19 @@
     <h1>BYTEDECK</h1>
     <p>UI reference screens</p>
     <nav class="screen-menu">
-      <button class="screen-button is-active" data-screen="main_menu">Main Menu</button>
-      <button class="screen-button" data-screen="games">Games</button>
-      <button class="screen-button" data-screen="game_browser">Game Browser</button>
-      <button class="screen-button" data-screen="apps">Apps</button>
-      <button class="screen-button" data-screen="settings">Settings</button>
+      <a class="screen-button" href="./screens/main_menu.html" target="screen-frame">Main Menu</a>
+      <a class="screen-button" href="./screens/games.html" target="screen-frame">Games</a>
+      <a class="screen-button" href="./screens/game_browser.html" target="screen-frame">Game Browser</a>
+      <a class="screen-button" href="./screens/apps.html" target="screen-frame">Apps</a>
+      <a class="screen-button" href="./screens/settings.html" target="screen-frame">Settings</a>
     </nav>
   </aside>
 
   <main class="content">
     <div class="content-header">
-      One file per screen. Edit files in <code>docs/ui_reference/screens/</code> and switch between them here.
+      One file per screen. Edit files in <code>ui_reference/screens/</code> and switch between them here.
     </div>
-    <iframe id="screen-frame" src="./screens/main_menu.html" title="ByteDeck screen reference"></iframe>
+    <iframe name="screen-frame" src="./screens/main_menu.html" title="ByteDeck screen reference"></iframe>
   </main>
-
-  <script>
-    const buttons = Array.from(document.querySelectorAll(".screen-button"));
-    const frame = document.getElementById("screen-frame");
-
-    for (const button of buttons) {
-      button.addEventListener("click", () => {
-        for (const entry of buttons) {
-          entry.classList.toggle("is-active", entry === button);
-        }
-        frame.src = `./screens/${button.dataset.screen}.html`;
-      });
-    }
-  </script>
 </body>
 </html>
